@@ -73,8 +73,23 @@ const Hero = () => {
     return (
         <section ref={containerRef} className="relative h-screen w-full bg-[#0a0a0a] overflow-hidden flex flex-col items-center justify-center text-[#E4E0D9] perspective-1000">
 
-            {/* Ambient Background Elements */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-[100px] pointer-events-none" />
+            {/* Video Background */}
+            <div className="absolute inset-0 z-0 select-none">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover opacity-80"
+                >
+                    <source src="/hero-video.mp4" type="video/mp4" />
+                </video>
+                {/* Dark Overlay for Text Readability */}
+                <div className="absolute inset-0 bg-black/60 z-10" />
+            </div>
+
+            {/* Ambient Background (Optional - kept for depth) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none z-0 mix-blend-screen" />
 
             {/* Main Content */}
             <div className="relative z-10 flex flex-col items-center text-center gap-8 md:gap-12 px-4 max-w-7xl mx-auto">
