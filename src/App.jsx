@@ -1,14 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
-import home from './pages/home'
+import Home from './pages/Home'
 const App = () => {
   return (
     <Router>
       <Preloader />
       <Navbar />
       <Routes>
-        <Route path="/" element={<home />} />
+        <Route path="/" element={<Home />} />
       </Routes>
     </Router>
   )
