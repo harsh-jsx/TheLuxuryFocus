@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
+import Home from './Pages/Home'
 import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
 const App = () => {
