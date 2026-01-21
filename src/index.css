@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+
+@font-face {
+  font-family: 'ABC';
+  src: url('../public/fonts/ABCReproMono-Regular.otf');
+}
+
+
+@font-face {
+  font-family: 'Albra';
+  src: url('../public/fonts/AlbraGrotesk-Bold.otf');
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-[Albra];
+}
+
+p {
+  @apply font-[ABC];
+}
