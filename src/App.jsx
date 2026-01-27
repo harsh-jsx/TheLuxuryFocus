@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Lenis from 'lenis'
 import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
-import Home from './components/Home'
+import Home from './Pages/Home'
 const App = () => {
 
   // Smooth Scroll
