@@ -5,6 +5,7 @@ import Services from '../components/Services'
 import Gallery from '../components/Gallery'
 import Footer from '../components/Footer'
 import HomeCities from '../components/HomeCities'
+import DiscoverCategories from '../components/DiscoverCategories'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -52,6 +53,7 @@ const Home = () => {
         <div ref={mainContainerRef} className="bg-[#0a0a0a] min-h-screen transition-colors duration-500">
             <Hero />
             <HomeCities />
+            <DiscoverCategories />
             {/* <About /> */}
             <Services />
             <Gallery />
