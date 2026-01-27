@@ -105,15 +105,42 @@ const HomeCities = () => {
                 >
                     {/* Intro Card */}
                     <div className="flex-shrink-0 w-[80vw] md:w-[40vw] lg:w-[30vw] flex flex-col justify-center pr-10 md:pr-20 z-10">
-                        <div className="w-16 h-1 bg-yellow-400 mb-6"></div>
-                        <h2 className="text-5xl md:text-7xl lg:text-8xl font-[Albra] leading-[0.9] mb-8 text-black">
-                            <SplitText delay={1.8}>Explore</SplitText> <br />
-                            <span className="text-gray-400 font-[ABC] italic text-4xl md:text-6xl tracking-normal">Premium</span> <br />
-                            <SplitText delay={1.2}>Destinations</SplitText>
+                        {/* Animated Divider */}
+                        <div className="w-0 h-[2px] bg-yellow-400 mb-8" ref={(el) => {
+                            if (el && triggerRef.current) {
+                                gsap.to(el, {
+                                    width: '4rem',
+                                    duration: 1,
+                                    ease: "power2.out",
+                                    scrollTrigger: {
+                                        trigger: triggerRef.current,
+                                        start: "top center",
+                                    }
+                                })
+                            }
+                        }}></div>
+
+                        <h2 className="text-6xl md:text-8xl lg:text-9xl font-[Albra] leading-[0.85] mb-8 text-black tracking-tight">
+                            <div className="relative inline-block">
+                                <SplitText delay={0.2} className="relative z-10">Explore</SplitText>
+                                {/* Decorative circle or element can go here if needed */}
+                            </div>
+                            <br />
+                            <span className="inline-block relative pl-2 transform -translate-y-2">
+                                <span className="font-[ABC] italic font-light text-4xl md:text-6xl text-yellow-600 tracking-wide">Premium</span>
+                            </span>
+                            <br />
+                            <SplitText delay={0.4}>Destinations</SplitText>
                         </h2>
-                        <p className="font-[ABC] text-gray-600 text-lg md:text-xl max-w-sm">
-                            Curated experiences in the most vibrant cities across the country. Find your next luxury stay.
-                        </p>
+
+                        <div className="flex flex-col gap-4 max-w-sm">
+                            <div className="text-xs font-[ABC] uppercase tracking-[0.2em] text-gray-400">
+                                01 — Our Collections
+                            </div>
+                            <p className="font-[ABC] text-gray-600 text-lg leading-relaxed">
+                                Curated experiences in the most vibrant cities across the country. Find your next luxury stay.
+                            </p>
+                        </div>
                     </div>
 
                     {/* Cities List */}
