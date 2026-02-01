@@ -6,6 +6,7 @@ import Gallery from '../components/Gallery'
 import Footer from '../components/Footer'
 import HomeCities from '../components/HomeCities'
 import DiscoverCategories from '../components/DiscoverCategories'
+import Amenities from '../components/Amenities'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -54,6 +55,7 @@ const Home = () => {
             <Hero />
             <HomeCities />
             <DiscoverCategories />
+            <Amenities />
             {/* <About /> */}
             <Gallery />
             <Footer />
