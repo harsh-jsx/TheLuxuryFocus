@@ -55,7 +55,6 @@ const Home = () => {
             <HomeCities />
             <DiscoverCategories />
             {/* <About /> */}
-            <Services />
             <Gallery />
             <Footer />
         </div>
