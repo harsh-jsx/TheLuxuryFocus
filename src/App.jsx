@@ -4,6 +4,7 @@ import Lenis from 'lenis'
 import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
 import Home from './Pages/Home'
+import Categories from './Pages/Categories'
 const App = () => {
 
   // Smooth Scroll
@@ -24,6 +25,7 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/categories" element={<Categories />} />
       </Routes>
     </Router>
   )

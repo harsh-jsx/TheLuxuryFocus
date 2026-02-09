@@ -6,14 +6,9 @@ import { useGSAP } from '@gsap/react'
 const navLinks = [
     { title: 'Home', path: '/' },
     {
-        title: 'Services',
-        path: '/services',
-        dropdown: [
-            { title: 'Brand Strategy', path: '/services/strategy' },
-            { title: 'Digital Presence', path: '/services/digital' },
-            { title: 'Marketing', path: '/services/marketing' },
-            { title: 'Content Creation', path: '/services/content' },
-        ],
+        title: 'Categories',
+        path: '/categories',
+
     },
     { title: 'Work', path: '/work' },
     {
@@ -110,12 +105,12 @@ const Navbar = () => {
                 </Link>
 
                 <div className="flex items-center gap-8 relative z-1000">
-                    <Link
+                    {/* <Link
                         to="/contact"
                         className="hidden md:block font-[ABC] text-xs uppercase tracking-widest hover:opacity-70 transition-opacity"
                     >
                         Let's Talk
-                    </Link>
+                    </Link> */}
 
                     {/* Menu Toggle */}
                     <button

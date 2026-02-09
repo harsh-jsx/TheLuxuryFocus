@@ -101,64 +101,56 @@ const Amenities = () => {
 
     return (
         <div ref={containerRef} className="py-24 w-full relative z-10 overflow-hidden bg-white text-black transition-colors duration-500">
-
             {/* Header Section */}
-            <div className="text-center mb-16 px-4">
-                <h2 ref={titleRef} className="text-4xl md:text-5xl font-bold mb-4 overflow-hidden">
-                    {splitTitle}
-                </h2>
-                <div className="h-1 w-24 mx-auto bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 rounded-full mb-6"></div>
-                <p className="text-gray-500 text-sm md:text-base font-medium max-w-lg mx-auto">
-                    Are you still lost? You can try the following suggested topics...
-                </p>
+            <div className="container mx-auto px-4 mb-20">
+                <div className="flex flex-col items-center justify-center text-center">
+                    <h2 ref={titleRef} className="text-4xl md:text-6xl font-bold tracking-tighter mb-6 overflow-hidden">
+                        {splitTitle}
+                    </h2>
+                    <p className="text-gray-500 max-w-lg mx-auto">
+                        Experience world-class amenities designed for your comfort and lifestyle.
+                    </p>
+                </div>
             </div>
 
             {/* Cards Container */}
-            <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-8 md:gap-12">
-                {amenitiesData.map((item, index) => (
-                    <div
-                        key={item.id}
-                        ref={el => cardsRef.current[index] = el}
-                        className="group relative w-64 h-64 md:w-72 md:h-72 shrink-0 cursor-pointer"
-                    >
-                        {/* Main Circle with Gradient Border */}
-                        <div className={`absolute inset-0 rounded-full p-2 bg-linear-to-br ${item.gradient} transition-transform duration-500 group-hover:scale-105 group-hover:rotate-6 shadow-xl`}
-                            style={{ boxShadow: `0 0 30px ${item.glowColor}` }}
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {amenitiesData.map((item, index) => (
+                        <div
+                            key={item.id}
+                            ref={el => cardsRef.current[index] = el}
+                            className="group relative h-80 rounded-[2.5rem] bg-gray-50 overflow-hidden border border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl"
                         >
-                            {/* Inner Content Circle */}
-                            <div className={`w-full h-full rounded-full ${item.imgClass} flex items-center justify-center relative overflow-hidden border-4 border-black`}>
+                            {/* Hover Gradient Background */}
+                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br ${item.gradient} transition-opacity duration-500`} />
 
-                                {/* Decorative Neon Lines/Glow (Simulated) */}
-                                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white to-transparent scale-0 group-hover:scale-150 transition-transform duration-700 ease-in-out"></div>
-
-                                {/* Central Text Pill */}
-                                <div className="relative z-10 bg-white/90 backdrop-blur-sm px-6 py-2 rounded-full shadow-lg transform transition-transform duration-300 group-hover:scale-110">
-                                    <span className="text-xs md:text-sm font-bold tracking-wider text-black uppercase">
-                                        {item.title}
-                                    </span>
+                            {/* Content */}
+                            <div className="relative h-full p-8 flex flex-col justify-between z-10">
+                                <div className="flex justify-between items-start">
+                                    <div
+                                        className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br ${item.gradient}`}
+                                        style={{ boxShadow: `0 10px 20px ${item.glowColor}` }}
+                                    >
+                                        {item.icon}
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center">
+                                        <span className="text-xs font-bold text-gray-400 group-hover:text-black transition-colors">↗</span>
+                                    </div>
                                 </div>
 
+                                <div>
+                                    <h3 className="text-2xl font-bold mb-2 group-hover:translate-x-1 transition-transform duration-300">{item.title}</h3>
+                                    <div className={`w-full h-1 rounded-full bg-gradient-to-r ${item.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Floating Icon (Top Left) */}
-                        <div className={`absolute top-4 left-4 w-12 h-12 rounded-full bg-linear-to-br ${item.gradient} p-0.5 z-20 shadow-lg transform transition-all duration-300 group-hover:-translate-y-2 group-hover:-translate-x-2`}>
-                            <div className="w-full h-full rounded-full bg-black/80 flex items-center justify-center backdrop-blur-md">
-                                {item.icon}
-                            </div>
+                            {/* Decorative Circle/Image Placeholder */}
+                            <div className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full ${item.imgClass} opacity-50 blur-2xl group-hover:opacity-80 transition-all duration-500 group-hover:scale-125`} />
                         </div>
-
-                        {/* Notification Badge (Bottom Right) */}
-                        <div className={`absolute bottom-6 right-6 w-10 h-10 rounded-t-full rounded-bl-full bg-linear-to-br ${item.gradient} p-0.5 z-20 shadow-lg transform transition-all duration-300 group-hover:translate-y-2 group-hover:translate-x-2`}>
-                            <div className="w-full h-full rounded-t-full rounded-bl-full bg-white flex items-center justify-center">
-                                <span className="text-xs font-bold text-gray-800">{item.notification}</span>
-                            </div>
-                        </div>
-
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
-
         </div>
     )
 }

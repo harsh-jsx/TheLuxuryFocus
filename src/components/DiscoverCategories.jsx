@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { Moon, Coffee, MapPin, Bed, ShoppingBag, ArrowRight, Utensils } from 'lucide-react'
+import { Moon, Coffee, MapPin, Bed, ArrowRight, Utensils, ShoppingBag } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -9,51 +9,43 @@ gsap.registerPlugin(ScrollTrigger)
 const categories = [
     {
         id: 1,
-        title: 'Nightlife',
-        icon: <Moon className="w-5 h-5" />,
+        title: 'FAMILY FRIENDLY',
+        icon: <Moon className="w-5 h-5 text-pink-500" />,
         image: 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=1740&auto=format&fit=crop',
         desc: "It's always time for fun.",
-        count: 12
+        count: 12,
+        gradient: "from-pink-500 via-red-500 to-yellow-500",
+        borderColor: "#ec4899"
     },
     {
         id: 2,
-        title: 'Cafe',
-        icon: <Coffee className="w-5 h-5" />,
+        title: 'RESERVATIONS',
+        icon: <Coffee className="w-5 h-5 text-purple-500" />,
         image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1947&auto=format&fit=crop',
         desc: "Coffee solves everything.",
-        count: 8
+        count: 8,
+        gradient: "from-purple-500 via-pink-500 to-red-500",
+        borderColor: "#a855f7"
     },
     {
         id: 3,
-        title: 'Tourism',
-        icon: <MapPin className="w-5 h-5" />,
+        title: 'ALCOHOL',
+        icon: <MapPin className="w-5 h-5 text-blue-500" />,
         image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1935&auto=format&fit=crop',
         desc: "Dream, breath, explore.",
-        count: 24
+        count: 24,
+        gradient: "from-blue-500 via-indigo-500 to-purple-500",
+        borderColor: "#3b82f6"
     },
     {
         id: 4,
-        title: 'Hotel',
-        icon: <Bed className="w-5 h-5" />,
+        title: 'ACCESSIBILITY',
+        icon: <Bed className="w-5 h-5 text-green-500" />,
         image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop',
         desc: "Hospitality and comfort.",
-        count: 15
-    },
-    {
-        id: 5,
-        title: 'Dining',
-        icon: <Utensils className="w-5 h-5" />,
-        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop',
-        desc: "Taste the finest cuisines.",
-        count: 18
-    },
-    {
-        id: 6,
-        title: 'Shopping',
-        icon: <ShoppingBag className="w-5 h-5" />,
-        image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop',
-        desc: "Retail therapy awaits.",
-        count: 30
+        count: 15,
+        gradient: "from-green-400 via-emerald-500 to-teal-500",
+        borderColor: "#10b981"
     }
 ]
 
@@ -65,89 +57,133 @@ const DiscoverCategories = () => {
         const cards = cardsRef.current
 
         gsap.fromTo(cards,
-            { y: 100, opacity: 0 },
+            { scale: 0.8, opacity: 0 },
             {
-                y: 0,
+                scale: 1,
                 opacity: 1,
-                duration: 1,
-                stagger: 0.1,
-                ease: "power3.out",
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "back.out(1.7)",
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top 80%",
                 }
             }
         )
-
     }, { scope: containerRef })
 
     return (
-        <section ref={containerRef} className="py-24 bg-white overflow-hidden">
+        <section ref={containerRef} className="py-24 bg-white overflow-hidden relative">
             <div className="container mx-auto px-6 md:px-12 mb-16 text-center">
-                <h2 className="text-4xl md:text-6xl font-[Albra] mb-4 text-black">
-                    Discover Places Around
-                </h2>
-                <div className="w-24 h-1 bg-linear-to-r from-purple-500 via-pink-500 to-yellow-500 mx-auto rounded-full mb-6"></div>
-                <p className="font-[ABC] text-gray-500 max-w-xl mx-auto">
-                    Browse listings curated by local experts, start filtering by category.
+                <p className="font-[ABC] text-gray-500 max-w-xl mx-auto mb-6 text-sm md:text-base">
+                    Are you still lost? You can try the following suggested topics...
                 </p>
+                {/* <h2 className="text-4xl md:text-6xl font-[Albra] mb-4 text-black">
+                    Discover Places Around
+                </h2> */}
             </div>
 
-            {/* Scrollable Container */}
-            <div className="overflow-x-auto pb-12 hide-scrollbar px-6 md:px-12">
-                <div className="flex gap-8 w-max mx-auto md:mx-0">
-                    {categories.map((cat, index) => (
+            {/* Circular Grid */}
+            <div className="flex flex-col items-center justify-center gap-10 md:gap-16 px-6">
+
+                {/* Top Row (3 items) */}
+                <div className="flex flex-wrap justify-center gap-8 md:gap-16 w-full">
+                    {categories.slice(0, 3).map((cat, index) => (
                         <div
                             key={cat.id}
                             ref={el => cardsRef.current[index] = el}
-                            className="group relative w-[280px] h-[360px] md:w-[320px] md:h-[420px] rounded-[3rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                            className="group relative w-64 h-64 md:w-80 md:h-80 rounded-full p-[3px] cursor-pointer transition-transform duration-500 hover:scale-105"
                         >
-                            {/* Background Image */}
-                            <div className="absolute inset-0">
-                                <img
-                                    src={cat.image}
-                                    alt={cat.title}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
-                                />
-                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
-                                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
-                            </div>
+                            {/* Gradient Border */}
+                            <div className={`absolute inset-0 rounded-full bg-linear-to-r ${cat.gradient} opacity-80 group-hover:opacity-100 blur-sm group-hover:blur-md transition-all duration-500`}></div>
+                            <div className={`absolute inset-0 rounded-full bg-linear-to-r ${cat.gradient} opacity-100`}></div>
 
-                            {/* Floating Icon */}
-                            <div className="absolute top-6 left-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-lg z-20">
-                                {cat.icon}
-                            </div>
+                            {/* Inner Circle (Content) */}
+                            <div className="absolute inset-[3px] bg-[#050511] rounded-full overflow-hidden flex items-center justify-center z-10">
 
-                            {/* Count Badge */}
-                            <div className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center font-[ABC] text-xs font-bold shadow-lg transform scale-90 group-hover:scale-110 transition-transform duration-300 z-20">
-                                {cat.count}
-                            </div>
-
-                            {/* Content */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 pt-20">
-                                {/* Tag Design Title */}
-                                <div className="relative mb-3">
-                                    <div className="absolute inset-0 bg-white transform skew-x-12 scale-105 shadow-lg"></div>
-                                    <h3 className="relative font-[ABC] font-bold text-black uppercase tracking-widest text-sm px-4 py-1.5 z-10">
-                                        {cat.title}
-                                    </h3>
+                                {/* Background Image (Hidden initially, visible on hover) */}
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500">
+                                    <img
+                                        src={cat.image}
+                                        alt={cat.title}
+                                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform scale-125 group-hover:scale-100 rotate-12 group-hover:rotate-0"
+                                    />
                                 </div>
-                                <div className="w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-white mb-6"></div>
 
-                                <p className="font-[ABC] text-white/90 text-sm md:text-base font-medium opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100 max-w-[80%] leading-relaxed">
-                                    {cat.desc}
-                                </p>
+                                {/* Floating Icon (Top Left) */}
+                                <div className={`absolute top-[15%] left-[10%] w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-700 bg-[#0a0a0a] flex items-center justify-center z-20 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                    <div className="w-full h-full rounded-full border border-opacity-50 flex items-center justify-center" style={{ borderColor: cat.borderColor }}>
+                                        {cat.icon}
+                                    </div>
+                                </div>
+
+                                {/* Title (Pill) */}
+                                <div className="relative z-20 px-6 py-2 bg-white rounded-full text-black font-[ABC] font-bold text-xs md:text-sm tracking-widest shadow-[0_0_15px_rgba(255,255,255,0.3)] transform group-hover:scale-110 transition-transform duration-300">
+                                    {cat.title}
+                                </div>
+
+                                {/* Notification Badge (Bottom Right) */}
+                                <div className="absolute bottom-[10%] right-[10%] w-10 h-10 md:w-12 md:h-12">
+                                    {/* Pointer/Tail for chat bubble look */}
+                                    <div className="absolute -bottom-1 right-3 w-4 h-4 bg-white rotate-45 z-10"></div>
+
+                                    <div className="relative z-20 w-full h-full rounded-full rounded-br-none bg-white text-black font-bold flex items-center justify-center border-2 shadow-lg transform group-hover:translate-y-1 transition-transform duration-300" style={{ borderColor: cat.borderColor }}>
+                                        <span className="text-xs md:text-sm">{cat.count}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
-            </div>
 
-            <div className="text-center mt-8">
-                <button className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-gray-200 font-[ABC] text-sm hover:bg-black hover:text-white hover:border-black transition-colors duration-300 group">
-                    View All Categories
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
+                {/* Bottom Row (1 item) */}
+                <div className="flex justify-center w-full">
+                    {categories.slice(3, 4).map((cat, index) => (
+                        <div
+                            key={cat.id}
+                            ref={el => cardsRef.current[index + 3] = el}
+                            className="group relative w-64 h-64 md:w-80 md:h-80 rounded-full p-[3px] cursor-pointer transition-transform duration-500 hover:scale-105"
+                        >
+                            {/* Gradient Border */}
+                            <div className={`absolute inset-0 rounded-full bg-linear-to-r ${cat.gradient} opacity-80 group-hover:opacity-100 blur-sm group-hover:blur-md transition-all duration-500`}></div>
+                            <div className={`absolute inset-0 rounded-full bg-linear-to-r ${cat.gradient} opacity-100`}></div>
+
+                            {/* Inner Circle */}
+                            <div className="absolute inset-[3px] bg-[#050511] rounded-full overflow-hidden flex items-center justify-center z-10">
+
+                                {/* Background Image */}
+                                <div className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500">
+                                    <img
+                                        src={cat.image}
+                                        alt={cat.title}
+                                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform scale-125 group-hover:scale-100 rotate-12 group-hover:rotate-0"
+                                    />
+                                </div>
+
+                                {/* Floating Icon */}
+                                <div className={`absolute top-[15%] left-[10%] w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-700 bg-[#0a0a0a] flex items-center justify-center z-20 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                    <div className="w-full h-full rounded-full border border-opacity-50 flex items-center justify-center" style={{ borderColor: cat.borderColor }}>
+                                        {cat.icon}
+                                    </div>
+                                </div>
+
+                                {/* Title */}
+                                <div className="relative z-20 px-6 py-2 bg-white rounded-full text-black font-[ABC] font-bold text-xs md:text-sm tracking-widest shadow-[0_0_15px_rgba(255,255,255,0.3)] transform group-hover:scale-110 transition-transform duration-300">
+                                    {cat.title}
+                                </div>
+
+                                {/* Notification Badge */}
+                                <div className="absolute bottom-[10%] right-[10%] w-10 h-10 md:w-12 md:h-12">
+                                    <div className="absolute -bottom-1 right-3 w-4 h-4 bg-white rotate-45 z-10"></div>
+                                    <div className="relative z-20 w-full h-full rounded-full rounded-br-none bg-white text-black font-bold flex items-center justify-center border-2 shadow-lg transform group-hover:translate-y-1 transition-transform duration-300" style={{ borderColor: cat.borderColor }}>
+                                        <span className="text-xs md:text-sm">{cat.count}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
             </div>
         </section>
     )
