@@ -10,7 +10,7 @@ const navLinks = [
         path: '/categories',
 
     },
-    { title: 'Work', path: '/work' },
+    { title: 'Packages', path: '/packages' },
     {
         title: 'Company',
         path: '/company',

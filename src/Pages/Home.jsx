@@ -3,7 +3,6 @@ import Hero from '../components/Hero'
 import About from '../components/About'
 import Services from '../components/Services'
 import Gallery from '../components/Gallery'
-import Footer from '../components/Footer'
 import HomeCities from '../components/HomeCities'
 import DiscoverCategories from '../components/DiscoverCategories'
 import HowItWorks from '../components/HowItWorks'
@@ -62,7 +61,6 @@ const Home = () => {
             <Blogs />
             {/* <About /> */}
             <Gallery />
-            <Footer />
         </div>
     )
 }
