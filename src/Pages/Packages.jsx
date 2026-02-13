@@ -87,7 +87,7 @@ const Packages = () => {
         console.log('12');
         setSelectedPackageOption(pkg);
         setTimeout(() => {
-            navigate('/contact');
+            navigate('/checkout');
         }, 1000);
     };
 
