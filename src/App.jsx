@@ -8,6 +8,9 @@ import Categories from './Pages/Categories'
 import Packages from './Pages/Packages'
 import Footer from './components/Footer'
 
+import Login from './Pages/Login'
+import Signup from './Pages/Signup'
+
 const App = () => {
 
   // Smooth Scroll
@@ -30,6 +33,8 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/packages" element={<Packages />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
       <Footer />
     </Router>

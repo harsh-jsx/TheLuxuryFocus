@@ -12,13 +12,9 @@ const navLinks = [
     },
     { title: 'Packages', path: '/packages' },
     {
-        title: 'Company',
-        path: '/company',
-        dropdown: [
-            { title: 'About Us', path: '/about' },
-            { title: 'Careers', path: '/careers' },
-            { title: 'Contact', path: '/contact' },
-        ],
+        title: 'Account',
+        path: '/login',
+
     },
     { title: 'Insights', path: '/insights' },
 ]
