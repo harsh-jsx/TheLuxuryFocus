@@ -97,14 +97,14 @@ const HomeCities = () => {
     }, [])
 
     return (
-        <section className="bg-white overflow-hidden">
+        <section className="bg-white overflow-hidden cities-section">
             <div ref={triggerRef}>
                 <div
                     ref={sectionRef}
                     className="h-screen flex flex-row items-center relative w-max px-10 md:px-20 bg-neutral-50"
                 >
                     {/* Intro Card */}
-                    <div className="flex-shrink-0 w-[80vw] md:w-[40vw] lg:w-[30vw] flex flex-col justify-center pr-10 md:pr-20 z-10">
+                    <div className="shrink-0 w-[80vw] md:w-[40vw] lg:w-[30vw] flex flex-col justify-center pr-10 md:pr-20 z-10">
                         {/* Animated Divider */}
                         <div className="w-0 h-[2px] bg-yellow-400 mb-8" ref={(el) => {
                             if (el && triggerRef.current) {
@@ -148,7 +148,7 @@ const HomeCities = () => {
                         {cities.map((city, index) => (
                             <div
                                 key={index}
-                                className="group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] flex-shrink-0 overflow-hidden cursor-pointer rounded-sm"
+                                className="group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] shrink-0 overflow-hidden cursor-pointer rounded-sm"
                             >
                                 <div className="absolute inset-0 bg-gray-200" />
 

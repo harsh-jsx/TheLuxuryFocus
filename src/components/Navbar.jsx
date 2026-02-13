@@ -2,30 +2,41 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
-
-const navLinks = [
-    { title: 'Home', path: '/' },
-    {
-        title: 'Categories',
-        path: '/categories',
-
-    },
-    { title: 'Packages', path: '/packages' },
-    {
-        title: 'Account',
-        path: '/login',
-
-    },
-    { title: 'Insights', path: '/insights' },
-]
+import { useAuth } from '../context/AuthContext'
 
 const Navbar = () => {
+    const { currentUser, logout } = useAuth()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [activeLinkIndex, setActiveLinkIndex] = useState(null)
     const [showNavbar, setShowNavbar] = useState(true)
     const lastScrollY = useRef(0)
     const containerRef = useRef(null)
     const menuRef = useRef(null)
+
+    const baseNavLinks = [
+        { title: 'Home', path: '/' },
+        {
+            title: 'Categories',
+            path: '/categories',
+        },
+        { title: 'Packages', path: '/packages' },
+        { title: 'Insights', path: '/insights' },
+    ]
+
+    const navLinks = [
+        ...baseNavLinks,
+        currentUser ? {
+            title: 'Logout',
+            path: '/', // Redirect to home after logout usually, or keep on same page
+            action: () => {
+                logout()
+                setIsMenuOpen(false)
+            }
+        } : {
+            title: 'Login',
+            path: '/login',
+        }
+    ]
 
     // Smart Scroll Logic
     useEffect(() => {
@@ -137,14 +148,24 @@ const Navbar = () => {
                             onMouseEnter={() => setActiveLinkIndex(index)}
                             onMouseLeave={() => setActiveLinkIndex(null)}
                         >
-                            <Link
-                                to={link.path}
-                                onClick={() => setIsMenuOpen(false)}
-                                className={`font-[Albra] text-6xl md:text-8xl tracking-tight transition-all duration-300 block
-                                ${activeLinkIndex !== null && activeLinkIndex !== index ? 'opacity-30 blur-[2px] scale-95' : 'opacity-100 scale-100'}`}
-                            >
-                                {link.title}
-                            </Link>
+                            {link.action ? (
+                                <button
+                                    onClick={link.action}
+                                    className={`font-[Albra] text-6xl md:text-8xl tracking-tight transition-all duration-300 block text-left
+                                    ${activeLinkIndex !== null && activeLinkIndex !== index ? 'opacity-30 blur-[2px] scale-95' : 'opacity-100 scale-100'}`}
+                                >
+                                    {link.title}
+                                </button>
+                            ) : (
+                                <Link
+                                    to={link.path}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className={`font-[Albra] text-6xl md:text-8xl tracking-tight transition-all duration-300 block
+                                    ${activeLinkIndex !== null && activeLinkIndex !== index ? 'opacity-30 blur-[2px] scale-95' : 'opacity-100 scale-100'}`}
+                                >
+                                    {link.title}
+                                </Link>
+                            )}
                         </div>
                     ))}
                 </div>
