@@ -32,11 +32,7 @@ const cities = [
         image: 'https://images.unsplash.com/photo-1572455044327-7348c1be7267?q=80&w=2070&auto=format&fit=crop', // Replaced
         desc: 'City of Pearls'
     },
-    {
-        name: 'LUCKNOW',
-        image: 'https://images.unsplash.com/photo-1723981132479-d824a62a24c0?q=80&w=737&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Replaced (Rumi Darwaza)
-        desc: 'The City of Nawabs'
-    },
+
     {
         name: 'MUMBAI',
         image: 'https://images.unsplash.com/photo-1562979314-bee7453e911c?q=80&w=1974&auto=format&fit=crop',
