@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import gsap from 'gsap'
 import SplitText from './SplitText'
@@ -52,6 +52,50 @@ const cities = [
 const HomeCities = () => {
     const sectionRef = useRef(null)
     const triggerRef = useRef(null)
+    const cityRefs = useRef([])
+    const [activeCity, setActiveCity] = useState(null)
+
+    useEffect(() => {
+        const intersectionRatios = {}
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const index = Number(entry.target.dataset.index)
+                intersectionRatios[index] = entry.intersectionRatio
+            })
+
+            // Find the city with the highest intersection ratio
+            let maxRatio = 0
+            let maxIndex = null
+
+            Object.entries(intersectionRatios).forEach(([index, ratio]) => {
+                const numRatio = Number(ratio)
+                if (numRatio > maxRatio) {
+                    maxRatio = numRatio
+                    maxIndex = Number(index)
+                }
+            })
+
+            // Only update if the most visible city has changed and meets a minimum visibility
+            // Also ensure we only set it if the ratio is significant enough to be "in focus"
+            if (maxIndex !== null && maxRatio > 0.5) {
+                setActiveCity(maxIndex)
+            }
+        }, {
+            threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] // More granular thresholds
+        })
+
+        // Only run on mobile/tablet or just check window width
+        const isMobile = window.matchMedia('(max-width: 1024px)').matches // Covers tablets too
+
+        if (isMobile) {
+            cityRefs.current.forEach(el => {
+                if (el) observer.observe(el)
+            })
+        }
+
+        return () => observer.disconnect()
+    }, [])
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -148,7 +192,9 @@ const HomeCities = () => {
                         {cities.map((city, index) => (
                             <div
                                 key={index}
-                                className="group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] shrink-0 overflow-hidden cursor-pointer rounded-sm"
+                                ref={(el) => (cityRefs.current[index] = el)}
+                                data-index={index}
+                                className={`group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] shrink-0 overflow-hidden cursor-pointer rounded-sm ${activeCity === index ? 'active' : ''}`}
                             >
                                 <div className="absolute inset-0 bg-gray-200" />
 
@@ -157,27 +203,27 @@ const HomeCities = () => {
                                         id={`city-img-${index}`}
                                         src={city.image}
                                         alt={city.name}
-                                        className="w-[120%] h-full object-cover transform -translate-x-10 transition-transform duration-1000 ease-out group-hover:scale-110 grayscale-100 group-hover:grayscale-0"
+                                        className="w-[120%] h-full object-cover transform -translate-x-10 transition-transform duration-1000 ease-out group-hover:scale-110 group-[.active]:scale-110 grayscale-100 group-hover:grayscale-0 group-[.active]:grayscale-0"
                                     />
                                 </div>
 
                                 {/* Overlay Gradient */}
-                                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-40" />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-40 group-[.active]:opacity-40" />
 
                                 {/* Content */}
-                                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 z-10">
+                                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 transform translate-y-4 group-hover:translate-y-0 group-[.active]:translate-y-0 transition-transform duration-500 z-10">
                                     <div className="overflow-hidden">
                                         <h3 className="text-white text-3xl md:text-5xl font-[Albra] mb-2 transform bg-clip-text">
-                                            <span className="inline-block transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                            <span className="inline-block transform translate-y-full group-hover:translate-y-0 group-[.active]:translate-y-0 transition-transform duration-500 ease-out">
                                                 {city.name}
                                             </span>
                                         </h3>
                                     </div>
-                                    <p className="text-gray-300 font-[ABC] text-sm md:text-base mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 transform translate-y-2 group-hover:translate-y-0">
+                                    <p className="text-gray-300 font-[ABC] text-sm md:text-base mb-6 opacity-0 group-hover:opacity-100 group-[.active]:opacity-100 transition-opacity duration-500 delay-100 transform translate-y-2 group-hover:translate-y-0 group-[.active]:translate-y-0">
                                         {city.desc}
                                     </p>
 
-                                    <div className="flex items-center gap-3 text-white font-[ABC] uppercase tracking-wider text-xs md:text-sm group/btn opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+                                    <div className="flex items-center gap-3 text-white font-[ABC] uppercase tracking-wider text-xs md:text-sm group/btn opacity-0 group-hover:opacity-100 group-[.active]:opacity-100 transition-all duration-500 delay-200">
                                         <span className="border-b border-white pb-0.5">Explore Properties</span>
                                         <div className="w-8 h-8 rounded-full bg-yellow-400 text-black flex items-center justify-center transition-transform duration-300 group-hover/btn:scale-110">
                                             <ArrowRight className="w-4 h-4" />
@@ -186,7 +232,7 @@ const HomeCities = () => {
                                 </div>
 
                                 {/* Number */}
-                                <div className="absolute top-6 right-6 font-[Albra] text-6xl text-white/5 group-hover:text-white/20 transition-colors duration-500 z-10">
+                                <div className="absolute top-6 right-6 font-[Albra] text-6xl text-white/5 group-hover:text-white/20 group-[.active]:text-white/20 transition-colors duration-500 z-10">
                                     {String(index + 1).padStart(2, '0')}
                                 </div>
                             </div>

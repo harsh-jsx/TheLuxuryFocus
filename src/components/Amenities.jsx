@@ -1,158 +1,136 @@
-import React, { useRef } from 'react'
-import { Bell, Calendar, Martini, Accessibility, Baby } from 'lucide-react'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import React, { useRef } from "react";
+import { Baby, Calendar, Martini, Accessibility, ArrowUpRight } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
+
+const amenitiesData = [
+    {
+        id: 1,
+        title: "Family Friendly",
+        desc: "Safe, fun environments for the whole family.",
+        icon: Baby,
+        image: "https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?q=80&w=1925&auto=format&fit=crop",
+    },
+    {
+        id: 2,
+        title: "Reservations",
+        desc: "Book ahead and skip the wait.",
+        icon: Calendar,
+        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop",
+    },
+    {
+        id: 3,
+        title: "Alcohol",
+        desc: "Curated drinks menus and cocktail bars.",
+        icon: Martini,
+        image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop",
+    },
+    {
+        id: 4,
+        title: "Accessibility",
+        desc: "Inclusive spaces for everyone.",
+        icon: Accessibility,
+        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1925&auto=format&fit=crop",
+    },
+];
 
 const Amenities = () => {
-    const containerRef = useRef(null)
-    const titleRef = useRef(null)
-    const cardsRef = useRef([])
+    const containerRef = useRef(null);
+    const cardsRef = useRef([]);
 
-    useGSAP(() => {
-        // Title Animation (Simple Stagger)
-        // We will target the spans inside the title
-        const chars = titleRef.current.querySelectorAll('.char')
-        gsap.fromTo(chars,
-            {
-                y: 50,
+    useGSAP(
+        () => {
+            gsap.from(cardsRef.current.filter(Boolean), {
+                y: 80,
                 opacity: 0,
-                rotateX: -90
-            },
-            {
-                y: 0,
-                opacity: 1,
-                rotateX: 0,
-                stagger: 0.05,
-                duration: 1,
-                ease: "back.out(1.7)",
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top 80%",
-                }
-            }
-        )
-
-        // Cards Animation
-        gsap.fromTo(cardsRef.current,
-            { y: 100, opacity: 0, scale: 0.8 },
-            {
-                y: 0,
-                opacity: 1,
-                scale: 1,
-                stagger: 0.2,
+                scale: 0.92,
+                stagger: 0.15,
                 duration: 0.8,
                 ease: "power3.out",
                 scrollTrigger: {
                     trigger: containerRef.current,
-                    start: "top 70%",
-                }
-            }
-        )
-    }, { scope: containerRef })
-
-    const amenitiesData = [
-        {
-            id: 1,
-            title: "Family Friendly",
-            icon: <Baby size={20} className="text-white" />,
-            notification: 0,
-            gradient: "from-pink-500 via-red-500 to-yellow-500",
-            glowColor: "rgba(236, 72, 153, 0.4)",
-            imgClass: "bg-gradient-to-br from-gray-900 to-black" // Placeholder for image
+                    start: "top 75%",
+                },
+            });
         },
-        {
-            id: 2,
-            title: "Reservations",
-            icon: <Calendar size={20} className="text-white" />,
-            notification: 0,
-            gradient: "from-purple-500 via-pink-500 to-red-500",
-            glowColor: "rgba(168, 85, 247, 0.4)",
-            imgClass: "bg-gradient-to-bl from-gray-800 to-black"
-        },
-        {
-            id: 3,
-            title: "Alcohol",
-            icon: <Martini size={20} className="text-white" />,
-            notification: 0,
-            gradient: "from-blue-500 via-indigo-500 to-purple-500",
-            glowColor: "rgba(59, 130, 246, 0.4)",
-            imgClass: "bg-gradient-to-tr from-gray-900 to-blue-950"
-        },
-        {
-            id: 4,
-            title: "Accessibility",
-            icon: <Accessibility size={20} className="text-white" />,
-            notification: 0,
-            gradient: "from-green-400 via-emerald-500 to-teal-500",
-            glowColor: "rgba(34, 197, 94, 0.4)",
-            imgClass: "bg-gradient-to-tl from-gray-900 to-green-950"
-        }
-    ]
-
-    // Helper to split text
-    const splitTitle = "Explore Amenities".split("").map((char, index) => (
-        <span key={index} className="char inline-block whitespace-pre">
-            {char}
-        </span>
-    ))
+        { scope: containerRef }
+    );
 
     return (
-        <div ref={containerRef} className="py-24 w-full relative z-10 overflow-hidden bg-white text-black transition-colors duration-500">
-            {/* Header Section */}
-            <div className="container mx-auto px-4 mb-20">
-                <div className="flex flex-col items-center justify-center text-center">
-                    <h2 ref={titleRef} className="text-4xl md:text-6xl font-bold tracking-tighter mb-6 overflow-hidden">
-                        {splitTitle}
-                    </h2>
-                    <p className="text-gray-500 max-w-lg mx-auto">
-                        Experience world-class amenities designed for your comfort and lifestyle.
-                    </p>
+        <section ref={containerRef} className="py-24  sm:py-32 bg-background relative overflow-hidden">
+            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[150px] rounded-full pointer-events-none" />
+
+            <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8">
+                {/* Header */}
+                <div className="mb-14 sm:mb-20">
+                    <span className="text-primary text-xs font-semibold tracking-[0.2em] uppercase mb-4 block">
+                        Amenities
+                    </span>
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+                            Explore <span className="text-gradient-pink">Amenities</span>
+                        </h2>
+                        <p className="text-muted-foreground text-sm sm:text-base max-w-sm leading-relaxed">
+                            World-class amenities designed for your comfort and lifestyle.
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            {/* Cards Container */}
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {amenitiesData.map((item, index) => (
-                        <div
-                            key={item.id}
-                            ref={el => cardsRef.current[index] = el}
-                            className="group relative h-80 rounded-[2.5rem] bg-gray-50 overflow-hidden border border-gray-100 hover:border-transparent transition-all duration-500 hover:shadow-2xl"
-                        >
-                            {/* Hover Gradient Background */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br ${item.gradient} transition-opacity duration-500`} />
+                {/* Cards Grid */}
+                <div className="grid text-white grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                    {amenitiesData.map((item, index) => {
+                        const Icon = item.icon;
+                        return (
+                            <div
+                                key={item.id}
+                                ref={(el) => { cardsRef.current[index] = el }}
+                                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer aspect-[3/4]"
+                            >
+                                {/* Image */}
+                                <img
+                                    src={item.image}
+                                    alt={item.title}
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                />
 
-                            {/* Content */}
-                            <div className="relative h-full p-8 flex flex-col justify-between z-10">
-                                <div className="flex justify-between items-start">
-                                    <div
-                                        className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br ${item.gradient}`}
-                                        style={{ boxShadow: `0 10px 20px ${item.glowColor}` }}
-                                    >
-                                        {item.icon}
+                                {/* Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-80" />
+
+                                {/* Content */}
+                                <div className="relative z-10 h-full flex flex-col justify-between p-5 sm:p-6">
+                                    {/* Top */}
+                                    <div className="flex items-start justify-between">
+                                        <div className="w-10 h-10 rounded-xl bg-foreground/10 backdrop-blur-md border border-foreground/10 flex items-center justify-center text-foreground group-hover:bg-primary/20 group-hover:border-primary/30 group-hover:text-primary transition-all duration-500">
+                                            <Icon className="w-4.5 h-4.5" />
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-foreground/10 backdrop-blur-md border border-foreground/10 flex items-center justify-center opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                                            <ArrowUpRight className="w-3.5 h-3.5 text-foreground" />
+                                        </div>
                                     </div>
-                                    <div className="w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center">
-                                        <span className="text-xs font-bold text-gray-400 group-hover:text-black transition-colors">↗</span>
+
+                                    {/* Bottom */}
+                                    <div>
+                                        <h3 className="text-sm font-bold tracking-[0.15em] uppercase text-foreground/90 mb-1.5">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-xs text-foreground/50 group-hover:text-foreground/70 transition-colors duration-500 leading-relaxed">
+                                            {item.desc}
+                                        </p>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <h3 className="text-2xl font-bold mb-2 group-hover:translate-x-1 transition-transform duration-300">{item.title}</h3>
-                                    <div className={`w-full h-1 rounded-full bg-gradient-to-r ${item.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
-                                </div>
+                                {/* Border */}
+                                <div className="absolute inset-0 rounded-2xl sm:rounded-3xl border border-foreground/[0.06] group-hover:border-primary/30 transition-colors duration-500" />
                             </div>
-
-                            {/* Decorative Circle/Image Placeholder */}
-                            <div className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full ${item.imgClass} opacity-50 blur-2xl group-hover:opacity-80 transition-all duration-500 group-hover:scale-125`} />
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
-        </div>
-    )
-}
+        </section>
+    );
+};
 
-export default Amenities
+export default Amenities;
