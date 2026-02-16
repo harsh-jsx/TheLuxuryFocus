@@ -32,7 +32,7 @@ const Footer = () => {
                 </div>
 
                 <div className="flex flex-col md:items-end gap-2">
-                    <span className="font-[ABC] text-xs opacity-40">© 2024 The Luxury Focus. All rights reserved.</span>
+                    <span className="font-[ABC] text-xs opacity-40">© 2026 The Luxury Focus. All rights reserved.</span>
                     <span className="font-[ABC] text-xs opacity-40">Designed by Harsh</span>
                 </div>
             </div>
