@@ -27,6 +27,9 @@ const Footer = () => {
                         ))}
                     </div>
                 </div>
+                <div className="flex flex-col md:items-end gap-2 hover:scale-105 transition-transform duration-300">
+                    <span>Made with ❤️ by tech partner <a href="https://403labs.in" className="hover:text-[#2D45FF] transition-colors">403Labs</a></span>
+                </div>
 
                 <div className="flex flex-col md:items-end gap-2">
                     <span className="font-[ABC] text-xs opacity-40">© 2024 The Luxury Focus. All rights reserved.</span>

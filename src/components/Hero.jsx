@@ -73,11 +73,11 @@ const Hero = () => {
     }, { scope: containerRef })
 
     return (
-        <section ref={containerRef} className="relative h-screen w-full bg-[#0a0a0a] text-white overflow-hidden flex flex-col items-center justify-center">
+        <section ref={containerRef} className="relative pt-20 h-screen w-full bg-[#0a0a0a] text-white overflow-hidden flex flex-col items-center justify-center">
 
             {/* Background Video */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-black/60 z-10" />
+                <div className="absolute inset-0  z-10" />
                 <video
                     autoPlay
                     loop
@@ -151,9 +151,9 @@ const Hero = () => {
                     <CategoryIcon icon={BedDouble} label="Stay" />
                     <CategoryIcon icon={Landmark} label="Museum" />
                     <CategoryIcon icon={Trees} label="Outdoor" />
-                    <div className="category-icon w-12 h-12 rounded-full bg-white text-black flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+                    {/* <div className="category-icon w-12 h-12 rounded-full bg-white text-black flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
                         <MoreHorizontal className="w-5 h-5" />
-                    </div>
+                    </div> */}
                 </div>
 
             </div>

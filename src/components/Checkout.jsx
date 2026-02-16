@@ -3,6 +3,7 @@ import { useSelectedPackageOptionStore } from '../stores/packageStore';
 import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Loader2, CreditCard, Lock } from 'lucide-react';
 import { createOrder, updateOrderStatus, initiatePayment } from '../services/paymentService';
+import { auth } from '../firebase';
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -15,7 +16,9 @@ const Checkout = () => {
         phone: '',
         address: '',
         city: '',
-        zipCode: ''
+        zipCode: '',
+        onBoarded: false,
+        uid: auth.currentUser.uid
     });
 
     const [isProcessing, setIsProcessing] = useState(false);
