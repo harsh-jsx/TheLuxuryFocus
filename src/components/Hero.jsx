@@ -73,7 +73,7 @@ const Hero = () => {
     }, { scope: containerRef })
 
     return (
-        <section ref={containerRef} className="relative pt-20 h-screen w-full bg-[#0a0a0a] text-white overflow-hidden flex flex-col items-center justify-center">
+        <section ref={containerRef} className="relative pt-35 md:pt-20 h-screen w-full bg-[#0a0a0a] text-white overflow-hidden flex flex-col items-center justify-center">
 
             {/* Background Video */}
             <div className="absolute inset-0 z-0">
@@ -93,10 +93,9 @@ const Hero = () => {
             <div className="relative z-20 flex flex-col items-center text-center px-4 max-w-5xl mx-auto w-full">
 
                 {/* Headline Section */}
-                <h1 className="hero-element font-[Albra] text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-tighter mb-6">
+                <h1 className="hero-element font-[Albra]  text-4xl md:text-5xl lg:text-6xl leading-[1.2] tracking-tight mb-6">
                     <SplitText delay={0.2}>
-                        Your Gateway to
-                        Premium Services
+                        Your Gateway to Premium Services
                     </SplitText>
                 </h1>
 
