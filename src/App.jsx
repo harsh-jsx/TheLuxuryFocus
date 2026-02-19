@@ -7,11 +7,11 @@ import Home from './Pages/Home'
 import Categories from './Pages/Categories'
 import Packages from './Pages/Packages'
 import Footer from './components/Footer'
-
 import Login from './Pages/Login'
 import Signup from './Pages/Signup'
 import Checkout from './components/Checkout'
 import Dashboard from './Pages/Dashboard'
+import Stores from './Pages/Stores'
 
 const App = () => {
 
@@ -35,6 +35,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/packages" element={<Packages />} />
+        <Route path="/stores" element={<Stores />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/checkout" element={<Checkout />} />

@@ -20,7 +20,8 @@ const Navbar = () => {
             path: '/categories',
         },
         { title: 'Packages', path: '/packages' },
-        { title: 'Insights', path: '/insights' },
+        { title: 'Stores', path: '/stores' },
+        { title: 'Dashboard', path: '/dashboard' },
     ]
 
     const navLinks = [

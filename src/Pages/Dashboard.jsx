@@ -17,6 +17,9 @@ const Dashboard = () => {
     const [storeData, setStoreData] = useState({
         storeName: '',
         storeEmail: '',
+        storeState: '',
+        storeCity: '',
+        storeCategory: '',
         storeAddress: '',
         storeDescription: ''
     });
@@ -174,6 +177,101 @@ const Dashboard = () => {
                                     placeholder="contact@brand.com"
                                 />
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 font-[ABC]">Category</label>
+                                <select
+                                    name="storeCategory"
+                                    required
+                                    value={storeData.storeCategory}
+                                    onChange={handleInputChange}
+                                    className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
+                                >
+                                    <option value="">Select Category</option>
+                                    <option value="Fashion">Fashion</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Home & Living">Home & Living</option>
+                                    <option value="Beauty & Health">Beauty & Health</option>
+                                    <option value="Automotive">Automotive</option>
+                                    <option value="Real Estate">Real Estate</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 font-[ABC]">City</label>
+                                <input
+                                    type="text"
+                                    name="storeCity"
+                                    required
+                                    value={storeData.storeCity}
+                                    onChange={handleInputChange}
+                                    className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
+                                    placeholder="e.g. Mumbai"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-gray-700 font-[ABC]">
+                                State / Union Territory
+                            </label>
+
+                            <select
+                                name="storeState"
+                                id="storeState"
+                                value={storeData.storeState}
+                                onChange={handleInputChange}
+                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
+                            >
+                                <option value="">Select State / UT</option>
+
+                                {/* States */}
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+
+                                {/* Union Territories */}
+                                <option value="Andaman and Nicobar Islands">
+                                    Andaman and Nicobar Islands
+                                </option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Dadra and Nagar Haveli and Daman and Diu">
+                                    Dadra and Nagar Haveli and Daman and Diu
+                                </option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Puducherry">Puducherry</option>
+
+                            </select>
                         </div>
 
                         <div className="space-y-2">

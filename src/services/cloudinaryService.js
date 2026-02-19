@@ -1,13 +1,14 @@
-const CLOUD_NAME = "YOUR_CLOUD_NAME"; // Replace with your Cloudinary Cloud Name
-const UPLOAD_PRESET = "YOUR_UPLOAD_PRESET"; // Replace with your Upload Preset (Unsigned)
-
+const CLOUD_NAME = "djlm0st0d"; // Replace with your Cloudinary Cloud Name
+const UPLOAD_PRESET = "tlfimages"; // Replace with your Upload Preset (Unsigned)
+const api_key = "941775487481737"
+const api_sec = "c8A7Y1xwFJzJiq2qAy8D2bl33nw"
 export const uploadToCloudinary = async (file) => {
     if (!file) return null;
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
-    // formData.append("cloud_name", CLOUD_NAME); // Optional if using the URL below with cloud name embedded
+    // formData.append("cloud_name", CLOUD_NAME); // Optional if using the URL below with cloud name embedded       
 
     try {
         const response = await fetch(

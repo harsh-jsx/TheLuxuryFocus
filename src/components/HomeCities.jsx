@@ -117,6 +117,24 @@ const HomeCities = () => {
                 },
             });
 
+            // Mobile Active Class Toggling using GSAP
+            // This ensures smooth transitions synced with scroll
+            // Only run on mobile/tablet
+            if (window.innerWidth < 1024) {
+                cities.forEach((_, i) => {
+                    const card = cityRefs.current[i];
+                    if (card) {
+                        ScrollTrigger.create({
+                            trigger: card,
+                            containerAnimation: tl,
+                            start: "left center", // When left side of card hits center
+                            end: "right center", // When right side hits center
+                            toggleClass: { targets: card, className: "active" },
+                        });
+                    }
+                });
+            }
+
             // Parallax Effect for Images
             cities.forEach((_, i) => {
                 const image = document.getElementById(`city-img-${i}`);
@@ -194,7 +212,7 @@ const HomeCities = () => {
                                 key={index}
                                 ref={(el) => (cityRefs.current[index] = el)}
                                 data-index={index}
-                                className={`group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] shrink-0 overflow-hidden cursor-pointer rounded-sm ${activeCity === index ? 'active' : ''}`}
+                                className="group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] shrink-0 overflow-hidden cursor-pointer rounded-sm"
                             >
                                 <div className="absolute inset-0 bg-gray-200" />
 
@@ -224,7 +242,7 @@ const HomeCities = () => {
                                     </p>
 
                                     <div className="flex items-center gap-3 text-white font-[ABC] uppercase tracking-wider text-xs md:text-sm group/btn opacity-0 group-hover:opacity-100 group-[.active]:opacity-100 transition-all duration-500 delay-200">
-                                        <span className="border-b border-white pb-0.5">Explore Properties</span>
+                                        <span className="border-b border-white pb-0.5">EXPLORE BUSINESSES</span>
                                         <div className="w-8 h-8 rounded-full bg-yellow-400 text-black flex items-center justify-center transition-transform duration-300 group-hover/btn:scale-110">
                                             <ArrowRight className="w-4 h-4" />
                                         </div>

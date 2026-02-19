@@ -29,6 +29,8 @@ const Gallery = () => {
 
     return (
         <section className="py-20 bg-[#0a0a0a] overflow-hidden">
+            <h1 className="text-6xl font-bold mb-4 font-[Albra] text-white text-center pb-2">Experience luxury with TheLuxuryFocus</h1>
+
             <div className="flex w-max" ref={trackRef}>
                 {/* First Set */}
                 {images.map((src, i) => (
