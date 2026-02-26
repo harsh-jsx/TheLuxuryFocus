@@ -3,16 +3,17 @@ import { Moon, Coffee, MapPin, Bed, Sparkles, ArrowUpRight } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import SplitText from './SplitText'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const categories = [
     {
         id: 1,
-        title: 'FAMILY FRIENDLY',
+        title: 'PUBS',
         icon: Moon,
         image: 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=1740&auto=format&fit=crop',
-        desc: "It's always time for fun.",
+        desc: "Its never time for.",
         count: 12,
         span: 'md:col-span-2 md:row-span-2',
         aspect: 'aspect-square md:aspect-auto',
@@ -92,15 +93,15 @@ const DiscoverCategories = () => {
                         <span className="text-[11px] font-semibold tracking-[0.15em] text-primary uppercase">Discover</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-5">
-                        Are you still
+                    <SplitText className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-5">
+                        Still
                         <br />
-                        <span className="text-gradient-pink">lost?</span>
-                    </h1>
+                        <SplitText className="text-gradient-pink">Searching?</SplitText>
+                    </SplitText>
 
-                    <p className="text-muted-foreground text-base sm:text-lg max-w-md leading-relaxed">
+                    <SplitText className="text-muted-foreground text-base sm:text-lg max-w-md leading-relaxed">
                         Try the following suggested topics to find exactly what you're looking for.
-                    </p>
+                    </SplitText>
                 </div>
 
                 {/* Bento Grid */}

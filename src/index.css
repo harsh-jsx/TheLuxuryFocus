@@ -12,6 +12,11 @@
   src: url('../public/fonts/AlbraGrotesk-Bold.otf');
 }
 
+@font-face {
+  font-family: 'neue';
+  src: url('../public/fonts/NeueMontreal-Light.otf') format('opentype');
+}
+
 h1,
 h2,
 h3,
@@ -22,5 +27,9 @@ h6 {
 }
 
 p {
-  @apply font-[ABC];
+  @apply font-[neue];
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
 }

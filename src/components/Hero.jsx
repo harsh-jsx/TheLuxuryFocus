@@ -125,31 +125,25 @@ const Hero = () => {
                         <Search className="w-5 h-5" />
                     </button>
 
-                    {/* Floating Settings/Default Badges - Absoluted for style */}
-                    <div className="absolute -top-3 left-6 px-3 py-1 bg-[#2D45FF] text-white text-[10px] uppercase font-bold tracking-wider rounded-md transform -rotate-2">
-                        Settings
-                    </div>
-                    <div className="absolute -top-3 left-28 px-3 py-1 bg-white text-black border border-gray-200 text-[10px] uppercase font-bold tracking-wider rounded-md transform rotate-1">
-                        Default Search
-                    </div>
+
                 </div>
 
                 {/* Hand / Highlight link */}
-                <div className="hero-element flex items-center gap-3 text-white/80 mb-16 cursor-pointer hover:text-white transition-colors">
+                {/* <div className="hero-element flex items-center gap-3 text-white/80 mb-16 cursor-pointer hover:text-white transition-colors">
                     <HandMetal className="w-5 h-5 -rotate-45" />
                     <div className="text-left">
                         <div className="text-xs uppercase tracking-wider text-white/50">Need a Hand?</div>
                         <div className="text-sm font-medium">Click & Browse Highlights...</div>
                     </div>
                     <CornerRightDown className="w-4 h-4 ml-2 text-white/50" />
-                </div>
+                </div> */}
 
                 {/* Categories */}
                 <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap">
-                    <CategoryIcon icon={Moon} label="Nightlife" />
+                    {/* <CategoryIcon icon={Moon} label="Nightlife" />
                     <CategoryIcon icon={BedDouble} label="Stay" />
                     <CategoryIcon icon={Landmark} label="Museum" />
-                    <CategoryIcon icon={Trees} label="Outdoor" />
+                    <CategoryIcon icon={Trees} label="Outdoor" /> */}
                     {/* <div className="category-icon w-12 h-12 rounded-full bg-white text-black flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
                         <MoreHorizontal className="w-5 h-5" />
                     </div> */}

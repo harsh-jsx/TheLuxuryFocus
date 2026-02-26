@@ -1,15 +1,20 @@
 import React from 'react'
 import { ArrowUpRight } from 'lucide-react'
+import SplitText from './SplitText'
 
 const Footer = () => {
     return (
         <footer className="bg-black text-[#E4E0D9] pt-32 pb-12 px-4 md:px-12 relative overflow-hidden">
             {/* Large CTA */}
             <div className="max-w-7xl mx-auto flex flex-col items-center text-center border-b border-white/10 pb-32">
-                <h2 className="font-[Albra] text-6xl md:text-9xl tracking-tight leading-[0.8]">
-                    Let's create <br />
-                    <span className="text-[#2D45FF] italic">something new.</span>
-                </h2>
+                <div className="font-[Albra] text-6xl md:text-9xl">
+                    <SplitText animationType="spring">
+                        Let's create
+                    </SplitText>
+                    <SplitText animationType="spring" className="text-[#D0B887] italic">
+                        something new.
+                    </SplitText>
+                </div>
                 <button className="mt-12 px-8 py-4 bg-white text-black font-[ABC] text-sm uppercase tracking-widest rounded-full hover:scale-105 transition-transform duration-300">
                     Get in Touch
                 </button>
@@ -18,7 +23,7 @@ const Footer = () => {
             {/* Links */}
             <div className="max-w-7xl mx-auto mt-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
                 <div className="flex flex-col gap-8">
-                    <span className="font-[Albra] text-4xl">TLF</span>
+                    <SplitText className="font-[Albra] text-4xl">TLF</SplitText>
                     <div className="flex gap-6">
                         {['Instagram', 'LinkedIn', 'Twitter'].map(social => (
                             <a href="#" key={social} className="font-[ABC] text-xs uppercase tracking-widest hover:text-[#2D45FF] transition-colors">

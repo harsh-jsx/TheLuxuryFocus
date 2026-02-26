@@ -1,55 +1,131 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const SplitText = ({ children, className, style, delay = 0, type = "words" }) => {
+gsap.registerPlugin(ScrollTrigger);
+
+const SplitText = ({
+    children,
+    className = "",
+    style = {},
+    delay = 0,
+    type = "words",
+    stagger = 0.04,
+    animationType = "spring",
+    scrollTrigger = true,
+    once = true
+}) => {
     const elRef = useRef(null);
 
     useGSAP(() => {
         const el = elRef.current;
         if (!el) return;
 
-        // Reset
-        gsap.set(el, { autoAlpha: 1 });
+        const ctx = gsap.context(() => {
+            const elements = el.querySelectorAll(
+                type === "chars" ? ".char" : ".word"
+            );
 
-        const q = gsap.utils.selector(el);
-        const elements = q(type === "chars" ? ".char" : ".word");
+            let fromVars = {};
+            let toVars = {};
 
-        gsap.set(elements, {
-            y: "100%",
-            opacity: 0,
-            rotateX: -90
-        });
+            switch (animationType) {
+                case "spring":
+                    fromVars = {
+                        y: "120%",
+                        opacity: 0,
+                        rotateX: -60,
+                        transformOrigin: "bottom center"
+                    };
+                    toVars = {
+                        y: "0%",
+                        opacity: 1,
+                        rotateX: 0,
+                        ease: "back.out(1.4)",
+                        duration: 1.2
+                    };
+                    break;
 
-        gsap.to(elements, {
-            y: "0%",
-            opacity: 1,
-            rotateX: 0,
-            duration: 1.2,
-            stagger: 0.02,
-            ease: "power4.out",
-            delay: delay
-        });
+                case "fade":
+                    fromVars = { y: "20%", opacity: 0 };
+                    toVars = {
+                        y: "0%",
+                        opacity: 1,
+                        ease: "power3.out",
+                        duration: 1.2
+                    };
+                    break;
 
-    }, { scope: elRef, dependencies: [delay, type] });
+                default:
+                    fromVars = { y: "110%", opacity: 0 };
+                    toVars = {
+                        y: "0%",
+                        opacity: 1,
+                        ease: "power4.out",
+                        duration: 1.2
+                    };
+            }
+
+            if (scrollTrigger) {
+                gsap.fromTo(
+                    elements,
+                    fromVars,
+                    {
+                        ...toVars,
+                        stagger,
+                        delay,
+                        scrollTrigger: {
+                            trigger: el,
+                            start: "top 80%",
+                            once: once,
+                            invalidateOnRefresh: true
+                        }
+                    }
+                );
+            } else {
+                gsap.fromTo(elements, fromVars, {
+                    ...toVars,
+                    stagger,
+                    delay
+                });
+            }
+        }, elRef);
+
+        return () => ctx.revert();
+    }, [delay, type, stagger, animationType, scrollTrigger, once]);
 
     if (typeof children !== 'string') {
         return <div className={className} style={style}>{children}</div>;
     }
 
-    const renderWords = () => {
-        return children.split(' ').map((word, i) => (
-            <div key={i} className="inline-block overflow-hidden align-top mr-[0.25em] pb-1">
-                <span className="word inline-block transform-style-3d origin-bottom">
-                    {word}
-                </span>
+    const renderElements = () =>
+        children.trim().split(/\s+/).map((word, wordIndex) => (
+            <div
+                key={wordIndex}
+                className="inline-block overflow-hidden align-top mr-[0.25em]"
+            >
+                {type === "chars"
+                    ? word.split('').map((char, i) => (
+                        <span key={i} className="char inline-block">
+                            {char}
+                        </span>
+                    ))
+                    : (
+                        <span className="word inline-block">
+                            {word}
+                        </span>
+                    )}
             </div>
         ));
-    };
 
     return (
-        <div ref={elRef} className={`${className} leading-tight`} style={{ ...style, perspective: '1000px' }}>
-            {renderWords()}
+        <div
+            ref={elRef}
+            className={`${className} leading-tight`}
+            style={{ ...style, perspective: '1000px' }}
+        >
+            {renderElements()}
         </div>
     );
 };

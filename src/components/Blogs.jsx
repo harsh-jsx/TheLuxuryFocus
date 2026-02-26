@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import SplitText from './SplitText'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -69,9 +70,9 @@ const Blogs = () => {
             <div className="container mx-auto px-4">
                 {/* Header */}
                 <div ref={titleRef} className="text-center mb-16">
-                    <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-6">
+                    <SplitText className="text-4xl md:text-6xl font-bold tracking-tighter mb-6">
                         Latest Insights
-                    </h2>
+                    </SplitText>
                     <div className="w-20 h-1 bg-black mx-auto"></div>
                 </div>
 

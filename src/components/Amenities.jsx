@@ -3,6 +3,7 @@ import { Baby, Calendar, Martini, Accessibility, ArrowUpRight } from "lucide-rea
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SplitText from "./SplitText";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,16 +67,16 @@ const Amenities = () => {
             <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8">
                 {/* Header */}
                 <div className="mb-14 sm:mb-20">
-                    <span className="text-primary text-xs font-semibold tracking-[0.2em] uppercase mb-4 block">
+                    <SplitText className="text-primary text-xs font-semibold tracking-[0.2em] uppercase mb-4 block">
                         Amenities
-                    </span>
+                    </SplitText>
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-                            Explore <span className="text-gradient-pink">Amenities</span>
-                        </h2>
-                        <p className="text-muted-foreground text-sm sm:text-base max-w-sm leading-relaxed">
+                        <SplitText className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+                            Explore <SplitText className="text-gradient-pink">Amenities</SplitText>
+                        </SplitText>
+                        <SplitText className="text-muted-foreground text-sm sm:text-base max-w-sm leading-relaxed">
                             World-class amenities designed for your comfort and lifestyle.
-                        </p>
+                        </SplitText>
                     </div>
                 </div>
 
