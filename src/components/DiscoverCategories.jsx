@@ -93,13 +93,13 @@ const DiscoverCategories = () => {
                         <span className="text-[11px] font-semibold tracking-[0.15em] text-primary uppercase">Discover</span>
                     </div>
 
-                    <SplitText className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-5">
+                    <SplitText className="text-4xl font-[druk] sm:text-5xl md:text-[10vw] font-bold  leading-[.8] mb-5">
                         Still
                         <br />
                         <SplitText className="text-gradient-pink">Searching?</SplitText>
                     </SplitText>
 
-                    <SplitText className="text-muted-foreground text-base sm:text-lg max-w-md leading-relaxed">
+                    <SplitText className=" text-base sm:text-lg max-w-md leading-relaxed font-[neue] text-18px font-black">
                         Try the following suggested topics to find exactly what you're looking for.
                     </SplitText>
                 </div>

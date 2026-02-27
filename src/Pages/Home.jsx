@@ -54,12 +54,12 @@ const Home = () => {
     return (
         <div ref={mainContainerRef} className="bg-[#0a0a0a] min-h-screen transition-colors duration-500">
             <Hero />
+            <About />
             <HomeCities />
             <DiscoverCategories />
             <HowItWorks />
             <Amenities />
             <Blogs />
-            {/* <About /> */}
             <Gallery />
         </div>
     )

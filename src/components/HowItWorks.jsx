@@ -3,6 +3,8 @@ import { UserPlus, Link2, TrendingUp } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import TiltedCard from "./TiltedCard";
+import SplitText from "./SplitText";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -58,9 +60,9 @@ const HowItWorks = () => {
             <div className="max-w-7xl mx-auto px-6 text-center">
 
                 {/* Heading */}
-                <h2 className="text-4xl md:text-5xl font-semibold mb-6">
+                <SplitText className="text-4xl md:text-[10vw] font-[druk] leading-[.8] ">
                     How It Works
-                </h2>
+                </SplitText>
 
                 <p className="text-black font-[neue] text-[18px] font-bold tracking-[0.02em] leading-[1.2] mb-20">
                     A seamless process designed to connect businesses and customers efficiently.
@@ -68,36 +70,65 @@ const HowItWorks = () => {
 
                 {/* Cards */}
                 <div className="grid md:grid-cols-3 gap-10">
-                    {stepsData.map((step, i) => {
-                        const Icon = step.icon;
-                        return (
-                            <div
-                                key={i}
-                                ref={(el) => (cardsRef.current[i] = el)}
-                                className="group p-10 rounded-2xl border border-gray-100 hover:border-indigo-200 transition-all duration-300 hover:shadow-xl"
-                            >
-                                {/* Icon */}
-                                <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-600 transition-all duration-300">
-                                    <Icon className="w-8 h-8 text-indigo-600 group-hover:text-white transition-colors duration-300" />
-                                </div>
 
-                                {/* Number */}
-                                <div className="text-black font-[neue] text-[18px] font-bold tracking-[0.02em] leading-[1.2] text-sm font-semibold mb-2">
-                                    {step.number}
-                                </div>
+                    <TiltedCard
+                        imageSrc="https://i.scdn.co/image/ab67616d0000b273d9985092cd88bffd97653b58"
+                        altText="Kendrick Lamar - GNX Album Cover"
+                        captionText="Kendrick Lamar - GNX"
+                        containerHeight="300px"
+                        containerWidth="300px"
+                        imageHeight="300px"
+                        imageWidth="300px"
+                        rotateAmplitude={12}
+                        scaleOnHover={1.05}
+                        showMobileWarning={false}
+                        showTooltip
+                        displayOverlayContent
+                        overlayContent={
+                            <p className="tilted-card-demo-text">
+                                Kendrick Lamar - GNX
+                            </p>
+                        }
+                    />
+                    <TiltedCard
+                        imageSrc="https://i.scdn.co/image/ab67616d0000b273d9985092cd88bffd97653b58"
+                        altText="Kendrick Lamar - GNX Album Cover"
+                        captionText="Kendrick Lamar - GNX"
+                        containerHeight="300px"
+                        containerWidth="300px"
+                        imageHeight="300px"
+                        imageWidth="300px"
+                        rotateAmplitude={12}
+                        scaleOnHover={1.05}
+                        showMobileWarning={false}
+                        showTooltip
+                        displayOverlayContent
+                        overlayContent={
+                            <p className="tilted-card-demo-text">
+                                Kendrick Lamar - GNX
+                            </p>
+                        }
+                    />
+                    <TiltedCard
+                        imageSrc="https://i.scdn.co/image/ab67616d0000b273d9985092cd88bffd97653b58"
+                        altText="Kendrick Lamar - GNX Album Cover"
+                        captionText="Kendrick Lamar - GNX"
+                        containerHeight="300px"
+                        containerWidth="300px"
+                        imageHeight="300px"
+                        imageWidth="300px"
+                        rotateAmplitude={12}
+                        scaleOnHover={1.05}
+                        showMobileWarning={false}
+                        showTooltip
+                        displayOverlayContent
+                        overlayContent={
+                            <p className="tilted-card-demo-text">
+                                Kendrick Lamar - GNX
+                            </p>
+                        }
+                    />
 
-                                {/* Title */}
-                                <h3 className="text-xl font-semibold mb-4">
-                                    {step.title}
-                                </h3>
-
-                                {/* Description */}
-                                <p className="text-black font-[neue] text-[18px] font-bold tracking-[0.02em] leading-[1.2] text-sm leading-relaxed">
-                                    {step.desc}
-                                </p>
-                            </div>
-                        );
-                    })}
                 </div>
 
             </div>
