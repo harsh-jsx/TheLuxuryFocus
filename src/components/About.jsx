@@ -25,43 +25,18 @@ const About = () => {
     useGSAP(() => {
         if (!containerRef.current) return
 
-        // Heading fade in
-        gsap.fromTo(
-            headingRef.current,
-            { opacity: 0, y: 40 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: 'top 80%',
-                },
-            }
-        )
+        const reduceMotion =
+            typeof window !== 'undefined' &&
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-        // Line expansion
-        gsap.fromTo(
-            lineRef.current,
-            { width: 0 },
-            {
-                width: '4rem',
-                ease: 'power3.inOut',
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: 'top 75%',
-                    end: 'top 50%',
-                    scrub: 1,
-                },
-            }
-        )
-
-        // Word-by-word text reveal
+        // Prepare word-by-word spans once (but keep the same layout)
+        let wordEls = []
         if (textRef.current) {
-            const text = textRef.current.innerText.trim()
-            const words = text.split(/\s+/)
+            const original = textRef.current.innerText.trim()
+            const words = original.split(/\s+/)
             textRef.current.innerHTML = ''
+
             words.forEach((word) => {
                 const wrapper = document.createElement('span')
                 wrapper.style.display = 'inline-block'
@@ -71,93 +46,91 @@ const About = () => {
                 const inner = document.createElement('span')
                 inner.innerText = word
                 inner.style.display = 'inline-block'
-                inner.style.opacity = '0'
-                inner.style.transform = 'translateY(100%)'
                 inner.className = 'word-reveal'
-
                 wrapper.appendChild(inner)
+
                 textRef.current.appendChild(wrapper)
                 textRef.current.appendChild(document.createTextNode(' '))
             })
 
-            gsap.to(textRef.current.querySelectorAll('.word-reveal'), {
-                scrollTrigger: {
-                    trigger: textRef.current,
-                    start: 'top 85%',
-                    end: 'center center',
-                    scrub: 1,
-                },
-                opacity: 1,
-                y: 0,
-                stagger: 0.04,
-                ease: 'power2.out',
-            })
+            wordEls = Array.from(textRef.current.querySelectorAll('.word-reveal'))
+            gsap.set(wordEls, { opacity: 0, yPercent: 110, filter: 'blur(6px)' })
         }
 
-        // Subtitle fade
-        gsap.fromTo(
-            subtitleRef.current,
-            { opacity: 0, y: 20 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 1,
-                ease: 'power2.out',
-                scrollTrigger: {
-                    trigger: subtitleRef.current,
-                    start: 'top 85%',
-                },
-            }
-        )
+        // Initial states (no visual change; just ensures consistent animation start)
+        gsap.set(headingRef.current, { opacity: 0, y: reduceMotion ? 0 : 24 })
+        gsap.set(subtitleRef.current, { opacity: 0, y: reduceMotion ? 0 : 16 })
+        gsap.set(featuresRef.current.filter(Boolean), { opacity: 0, y: reduceMotion ? 0 : 18 })
+        gsap.set(lineRef.current, { width: 0 })
 
-        // Image clip-path reveal
-        gsap.fromTo(
-            imageContainerRef.current,
-            { clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)' },
-            {
-                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-                ease: 'power3.inOut',
-                scrollTrigger: {
-                    trigger: imageContainerRef.current,
-                    start: 'top 85%',
-                    end: 'center center',
-                    scrub: 1,
-                },
-            }
-        )
+        if (imageContainerRef.current) {
+            gsap.set(imageContainerRef.current, {
+                clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)',
+            })
+        }
+        if (imageRef.current) {
+            gsap.set(imageRef.current, { scale: reduceMotion ? 1 : 1.25, y: reduceMotion ? 0 : 18 })
+        }
 
-        // Image zoom out
-        gsap.fromTo(
-            imageRef.current,
-            { scale: 1.3 },
-            {
-                scale: 1,
-                ease: 'power2.out',
-                scrollTrigger: {
-                    trigger: imageContainerRef.current,
-                    start: 'top 85%',
-                    end: 'center center',
-                    scrub: 1,
-                },
-            }
-        )
+        const tl = gsap.timeline({
+            defaults: { ease: 'power3.out' },
+            scrollTrigger: {
+                trigger: containerRef.current,
+                start: 'top 80%',
+                end: 'top 20%',
+                scrub: reduceMotion ? false : 0.8,
+            },
+        })
 
-        // Features stagger
-        gsap.fromTo(
-            featuresRef.current.filter(Boolean),
-            { opacity: 0, y: 40 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                stagger: 0.15,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: featuresRef.current[0],
-                    start: 'top 90%',
+        tl.to(lineRef.current, { width: '4rem', duration: 0.35, ease: 'power2.inOut' }, 0)
+            .to(headingRef.current, { opacity: 1, y: 0, duration: 0.6 }, 0.05)
+            .to(
+                imageContainerRef.current,
+                { clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', duration: 0.7, ease: 'power3.inOut' },
+                0.1
+            )
+            .to(imageRef.current, { scale: 1, y: 0, duration: 0.9, ease: 'power2.out' }, 0.15)
+
+        if (wordEls.length) {
+            tl.to(
+                wordEls,
+                {
+                    opacity: 1,
+                    yPercent: 0,
+                    filter: 'blur(0px)',
+                    duration: reduceMotion ? 0.01 : 0.5,
+                    stagger: reduceMotion ? 0 : 0.025,
+                    ease: 'power2.out',
                 },
-            }
-        )
+                0.25
+            )
+        }
+
+        tl.to(subtitleRef.current, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0.55)
+            .to(
+                featuresRef.current.filter(Boolean),
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.5,
+                    stagger: reduceMotion ? 0 : 0.12,
+                },
+                0.62
+            )
+
+        // Subtle, premium parallax on the image while scrolling through section
+        if (!reduceMotion && imageRef.current) {
+            gsap.to(imageRef.current, {
+                y: -12,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: containerRef.current,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1.2,
+                },
+            })
+        }
     }, { scope: containerRef })
 
     return (

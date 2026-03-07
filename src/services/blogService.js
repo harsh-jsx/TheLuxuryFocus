@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, orderBy, limit, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const BLOGS_COLLECTION = 'blogs';
@@ -50,6 +50,46 @@ export const blogService = {
             }));
         } catch (error) {
             console.error("Error fetching featured blogs: ", error);
+            throw error;
+        }
+    },
+
+    // Add a new blog
+    addBlog: async (blogData) => {
+        try {
+            const docRef = await addDoc(collection(db, BLOGS_COLLECTION), {
+                ...blogData,
+                createdAt: serverTimestamp(),
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error adding blog: ", error);
+            throw error;
+        }
+    },
+
+    // Update an existing blog
+    updateBlog: async (id, blogData) => {
+        try {
+            const docRef = doc(db, BLOGS_COLLECTION, id);
+            await updateDoc(docRef, {
+                ...blogData,
+                updatedAt: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Error updating blog: ", error);
+            throw error;
+        }
+    },
+
+    // Delete a blog
+    deleteBlog: async (id) => {
+        try {
+            const docRef = doc(db, BLOGS_COLLECTION, id);
+            await deleteDoc(docRef);
+        } catch (error) {
+            console.error("Error deleting blog: ", error);
             throw error;
         }
     }

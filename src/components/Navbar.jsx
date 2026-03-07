@@ -5,7 +5,7 @@ import { useGSAP } from '@gsap/react'
 import { useAuth } from '../context/AuthContext'
 
 const Navbar = () => {
-    const { currentUser, logout } = useAuth()
+    const { currentUser, logout, isAdmin } = useAuth()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [activeLinkIndex, setActiveLinkIndex] = useState(null)
     const [showNavbar, setShowNavbar] = useState(true)
@@ -22,6 +22,7 @@ const Navbar = () => {
         { title: 'Packages', path: '/packages' },
         { title: 'Stores', path: '/stores' },
         { title: 'Dashboard', path: '/dashboard' },
+        ...(isAdmin ? [{ title: 'Admin', path: '/admin' }] : [])
     ]
 
     const navLinks = [
@@ -104,15 +105,15 @@ const Navbar = () => {
         <div ref={containerRef}>
             {/* Top Bar */}
             <nav
-                className={`fixed top-0 left-0 w-full z-[999] px-8 py-6 flex justify-between items-center transition-transform duration-500 ease-in-out mix-blend-difference text-[#E4E0D9]
+                className={`fixed top-0 left-0 w-full z-999 px-8 py-6 flex justify-between items-center transition-transform duration-500 ease-in-out mix-blend-difference text-[#E4E0D9]
                 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}
             >
                 {/* Logo */}
-                <Link to="/" className="font-[Albra] text-3xl tracking-tighter relative z-[1000]">
+                <Link to="/" className="font-[Albra] text-3xl tracking-tighter relative z-1000">
                     TLF
                 </Link>
 
-                <div className="flex items-center gap-8 relative z-[1000]">
+                <div className="flex items-center gap-8 relative z-1000">
                     {/* <Link
                         to="/contact"
                         className="hidden md:block font-[ABC] text-xs uppercase tracking-widest hover:opacity-70 transition-opacity"
@@ -135,7 +136,7 @@ const Navbar = () => {
 
             <div
                 ref={menuRef}
-                className="fixed inset-0 bg-[#0a0a0a] z-[990] text-[#E4E0D9] pt-32 pb-10 px-8 flex flex-col md:flex-row"
+                className="fixed inset-0 bg-[#0a0a0a] z-990 text-[#E4E0D9] pt-32 pb-10 px-8 flex flex-col md:flex-row"
             >
                 {/* Visual Divider (Mobile: Hidden, Desktop: Vertical Line) */}
                 <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-white/10 menu-divider origin-top" />

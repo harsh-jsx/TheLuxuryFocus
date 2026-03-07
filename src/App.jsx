@@ -13,6 +13,12 @@ import Checkout from './components/Checkout'
 import Dashboard from './Pages/Dashboard'
 import Stores from './Pages/Stores'
 import BlogPost from './Pages/BlogPost'
+import AdminLayout from './Pages/Admin/AdminLayout'
+import AdminDashboard from './Pages/Admin/AdminDashboard'
+import AdminBlogs from './Pages/Admin/AdminBlogs'
+import AdminUsers from './Pages/Admin/AdminUsers'
+
+import RootLayout from './components/RootLayout'
 
 const App = () => {
 
@@ -31,19 +37,28 @@ const App = () => {
   return (
     <Router>
       <Preloader />
-      <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/packages" element={<Packages />} />
-        <Route path="/stores" element={<Stores />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/blog/:id" element={<BlogPost />} />
+        {/* Public Routes with Navbar and Footer */}
+        <Route element={<RootLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/packages" element={<Packages />} />
+          <Route path="/stores" element={<Stores />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
+        </Route>
+
+        {/* Admin Routes - Clean slate without global Navbar/Footer */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="blogs" element={<AdminBlogs />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="settings" element={<div>Settings Component (TBD)</div>} />
+        </Route>
       </Routes>
-      <Footer />
     </Router>
   )
 }
