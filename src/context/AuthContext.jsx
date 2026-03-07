@@ -11,35 +11,13 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null)
+    const [userData, setUserData] = useState(null)
     const [loading, setLoading] = useState(true)
 
     async function googleSignIn() {
         try {
             const result = await signInWithPopup(auth, googleAuthProvider)
-            const user = result.user
-
-            // Check if user exists in Firestore
-            const userRef = doc(db, 'users', user.uid)
-            const userSnap = await getDoc(userRef)
-
-            if (!userSnap.exists()) {
-                // Create new user document
-                await setDoc(userRef, {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    createdAt: serverTimestamp(),
-                    lastLogin: serverTimestamp()
-                })
-            } else {
-                // Update last login
-                await setDoc(userRef, {
-                    lastLogin: serverTimestamp()
-                }, { merge: true })
-            }
-
-            return user
+            return result.user
         } catch (error) {
             console.error("Error signing in with Google", error)
             throw error
@@ -51,8 +29,33 @@ export function AuthProvider({ children }) {
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user)
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                setCurrentUser(user)
+                // Fetch user data from Firestore
+                const userRef = doc(db, 'users', user.uid)
+                const userSnap = await getDoc(userRef)
+
+                if (userSnap.exists()) {
+                    setUserData(userSnap.data())
+                } else {
+                    // Initialize user document if not exists (should have been handled in sign in, but just in case)
+                    const newUserData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp(),
+                        is_admin: false // Default to false
+                    }
+                    await setDoc(userRef, newUserData)
+                    setUserData(newUserData)
+                }
+            } else {
+                setCurrentUser(null)
+                setUserData(null)
+            }
             setLoading(false)
         })
 
@@ -61,6 +64,8 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
+        userData,
+        isAdmin: userData?.is_admin || false,
         googleSignIn,
         logout
     }

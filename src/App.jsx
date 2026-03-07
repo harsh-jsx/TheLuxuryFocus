@@ -12,6 +12,7 @@ import Signup from './Pages/Signup'
 import Checkout from './components/Checkout'
 import Dashboard from './Pages/Dashboard'
 import Stores from './Pages/Stores'
+import BlogPost from './Pages/BlogPost'
 
 const App = () => {
 
@@ -40,6 +41,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
       </Routes>
       <Footer />
     </Router>
