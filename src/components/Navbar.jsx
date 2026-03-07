@@ -15,6 +15,7 @@ const Navbar = () => {
 
     const baseNavLinks = [
         { title: 'Home', path: '/' },
+        { title: 'About', path: '/about' },
         {
             title: 'Categories',
             path: '/categories',

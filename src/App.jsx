@@ -20,6 +20,7 @@ import AdminUsers from './Pages/Admin/AdminUsers'
 import AdminStores from './Pages/Admin/AdminStores'
 import AdminOrders from './Pages/Admin/AdminOrders'
 import StoreProfile from './Pages/StoreProfile'
+import About from './Pages/About'
 
 import RootLayout from './components/RootLayout'
 
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="/categories" element={<Categories />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/stores" element={<Stores />} />
+          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/checkout" element={<Checkout />} />

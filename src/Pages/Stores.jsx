@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { Search, MapPin, Tag, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Tag, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Stores = () => {
     const [stores, setStores] = useState([]);
@@ -12,6 +17,11 @@ const Stores = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [cities, setCities] = useState([]);
     const [categories, setCategories] = useState([]);
+
+    const containerRef = useRef(null);
+    const headerRef = useRef(null);
+    const filtersRef = useRef(null);
+    const cardsRef = useRef([]);
 
     useEffect(() => {
         const fetchStores = async () => {
@@ -23,7 +33,6 @@ const Stores = () => {
                 }));
                 setStores(storesData);
 
-                // Extract unique cities and categories for filters
                 const uniqueCities = [...new Set(storesData.map(store => store.storeCity).filter(Boolean))];
                 const uniqueCategories = [...new Set(storesData.map(store => store.storeCategory).filter(Boolean))];
 
@@ -43,43 +52,80 @@ const Stores = () => {
         const matchesSearch = store.storeName?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCity = selectedCity ? store.storeCity === selectedCity : true;
         const matchesCategory = selectedCategory ? store.storeCategory === selectedCategory : true;
-
         return matchesSearch && matchesCity && matchesCategory;
     });
 
+    useGSAP(() => {
+        if (!containerRef.current) return;
+
+        gsap.from(headerRef.current, {
+            y: 50,
+            opacity: 0,
+            duration: 0.9,
+            ease: 'power3.out',
+        });
+
+        gsap.from(filtersRef.current, {
+            y: 30,
+            opacity: 0,
+            duration: 0.7,
+            delay: 0.15,
+            ease: 'power3.out',
+        });
+
+        gsap.from(cardsRef.current.filter(Boolean), {
+            y: 60,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.08,
+            ease: 'power3.out',
+            scrollTrigger: {
+                trigger: cardsRef.current[0] || containerRef.current,
+                start: 'top 85%',
+                once: true,
+            },
+        });
+    }, { scope: containerRef, dependencies: [loading, filteredStores] });
+
     return (
-        <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4">
-            <div className="container mx-auto max-w-7xl">
+        <div ref={containerRef} className="min-h-screen bg-white text-gray-900 pt-28 pb-24 px-4 md:px-8">
+            <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 font-[Albra]">Discover Luxury Stores</h1>
-                    <p className="text-gray-500 font-[ABC] max-w-2xl mx-auto">
+                <div ref={headerRef} className="text-center mb-16 md:mb-20">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-100 border border-gray-200 mb-8">
+                        <Sparkles className="w-3.5 h-3.5 text-gray-600" />
+                        <span className="font-[ABC] text-[11px] tracking-[0.15em] text-gray-600 uppercase">Discover</span>
+                    </div>
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-[Albra] tracking-tight mb-6">
+                        Luxury Stores
+                    </h1>
+                    <p className="text-gray-500 font-[ABC] max-w-2xl mx-auto text-sm md:text-base tracking-wide">
                         Explore our curated collection of premium brands and boutiques.
                     </p>
                 </div>
 
-                {/* Search & Filters */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-12">
+                {/* Filters */}
+                <div
+                    ref={filtersRef}
+                    className="bg-gray-50 rounded-2xl p-5 md:p-6 border border-gray-100 mb-14"
+                >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Search Bar */}
                         <div className="relative">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                             <input
                                 type="text"
                                 placeholder="Search by name..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
+                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm"
                             />
                         </div>
-
-                        {/* City Filter */}
                         <div className="relative">
-                            <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                             <select
                                 value={selectedCity}
                                 onChange={(e) => setSelectedCity(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC] appearance-none bg-white"
+                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
                             >
                                 <option value="">All Cities</option>
                                 {cities.map(city => (
@@ -87,14 +133,12 @@ const Stores = () => {
                                 ))}
                             </select>
                         </div>
-
-                        {/* Category Filter */}
                         <div className="relative">
-                            <Tag className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                            <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC] appearance-none bg-white"
+                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
                             >
                                 <option value="">All Categories</option>
                                 {categories.map(category => (
@@ -105,98 +149,102 @@ const Stores = () => {
                     </div>
                 </div>
 
-                {/* Loading State */}
+                {/* Loading */}
                 {loading && (
-                    <div className="text-center py-20">
-                        <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-gray-500 font-[ABC]">Loading stores...</p>
+                    <div className="flex flex-col items-center justify-center py-32">
+                        <div className="w-12 h-12 border-2 border-gray-200 border-t-gray-600 rounded-full animate-spin mb-6" />
+                        <p className="font-[ABC] text-xs uppercase tracking-widest text-gray-500">Curating stores...</p>
                     </div>
                 )}
 
-                {/* Results */}
-                {!loading && filteredStores.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-gray-100">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Search className="text-gray-400" size={32} />
+                {/* Empty State */}
+                {!loading && filteredStores.length === 0 && (
+                    <div className="text-center py-24 bg-gray-50 rounded-3xl border border-gray-100">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Search className="text-gray-400" size={28} />
                         </div>
-                        <h3 className="text-xl font-bold mb-2 font-[Albra]">No stores found</h3>
-                        <p className="text-gray-500 font-[ABC]">Try adjusting your search or filters.</p>
+                        <h3 className="text-xl font-[Albra] mb-2">No stores found</h3>
+                        <p className="text-gray-500 font-[ABC] text-sm mb-8">Try adjusting your search or filters.</p>
                         <button
                             onClick={() => { setSearchTerm(''); setSelectedCity(''); setSelectedCategory(''); }}
-                            className="mt-6 text-purple-600 font-bold hover:underline font-[ABC]"
+                            className="px-6 py-3 rounded-full border border-gray-300 text-gray-700 font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors"
                         >
-                            Clear all filters
+                            Clear filters
                         </button>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {!loading && filteredStores.map(store => (
+                )}
+
+                {/* Store Cards */}
+                {!loading && filteredStores.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        {filteredStores.map((store, idx) => (
                             <Link
                                 key={store.id}
+                                ref={el => { cardsRef.current[idx] = el }}
                                 to={`/store/${store.id}`}
-                                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group block"
+                                className="group block"
                             >
-                                {/* Banner Image */}
-                                <div className="h-48 bg-gray-200 relative overflow-hidden">
-                                    {store.bannerUrl ? (
-                                        <img
-                                            src={store.bannerUrl}
-                                            alt={store.storeName}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
-                                            <span className="font-[Albra] text-4xl opacity-20">{store.storeName[0]}</span>
-                                        </div>
-                                    )}
+                                <article className="h-full bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-500">
+                                    <div className="h-52 md:h-56 relative overflow-hidden">
+                                        {store.bannerUrl ? (
+                                            <img
+                                                src={store.bannerUrl}
+                                                alt={store.storeName}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                                <span className="font-[Albra] text-5xl text-gray-300">{store.storeName?.[0] || '?'}</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                                        {store.storeCategory && (
+                                            <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] font-[ABC] uppercase tracking-wider text-gray-800">
+                                                {store.storeCategory}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                    {/* Category Badge */}
-                                    {store.storeCategory && (
-                                        <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                                            {store.storeCategory}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Content */}
-                                <div className="p-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        {/* Logo */}
-                                        <div className="-mt-12 w-20 h-20 bg-white rounded-xl p-1 shadow-md relative z-10 overflow-hidden">
-                                            {store.logoUrl ? (
-                                                <img
-                                                    src={store.logoUrl}
-                                                    alt={`${store.storeName} logo`}
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                                                    <span className="font-bold text-xl">{store.storeName[0]}</span>
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-start -mt-10 relative z-10 mb-4">
+                                            <div className="w-16 h-16 rounded-xl bg-white p-1.5 border border-gray-100 shadow-md overflow-hidden shrink-0">
+                                                {store.logoUrl ? (
+                                                    <img
+                                                        src={store.logoUrl}
+                                                        alt=""
+                                                        className="w-full h-full object-cover rounded-lg"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
+                                                        <span className="font-[Albra] text-lg text-gray-400">{store.storeName?.[0] || '?'}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {store.storeCity && (
+                                                <div className="flex items-center text-gray-500 text-xs gap-1.5 font-[ABC]">
+                                                    <MapPin size={12} />
+                                                    {store.storeCity}
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* City Badge */}
-                                        {store.storeCity && (
-                                            <div className="flex items-center text-gray-500 text-sm gap-1">
-                                                <MapPin size={14} />
-                                                <span className="font-medium">{store.storeCity}</span>
+                                        <h3 className="text-xl font-[Albra] text-gray-900 mb-2 group-hover:text-gray-700 transition-colors">
+                                            {store.storeName}
+                                        </h3>
+                                        <p className="text-gray-500 text-sm line-clamp-2 font-[ABC] leading-relaxed mb-6">
+                                            {store.storeDescription || "Premium establishment."}
+                                        </p>
+
+                                        <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                                            <span className="text-[10px] font-[ABC] uppercase tracking-widest text-gray-400 group-hover:text-gray-700 transition-colors">
+                                                View details
+                                            </span>
+                                            <div className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-900 group-hover:text-white text-gray-600 transition-all">
+                                                <ArrowRight size={16} />
                                             </div>
-                                        )}
-                                    </div>
-
-                                    <h3 className="text-xl font-bold mb-2 font-[Albra] text-gray-900">{store.storeName}</h3>
-                                    <p className="text-gray-500 text-sm mb-6 line-clamp-2 font-[ABC] leading-relaxed">
-                                        {store.storeDescription || "No description available."}
-                                    </p>
-
-                                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-black transition-colors">Examine Details</span>
-                                        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all transform group-hover:translate-x-1">
-                                            <ArrowRight size={16} />
                                         </div>
                                     </div>
-                                </div>
+                                </article>
                             </Link>
                         ))}
                     </div>

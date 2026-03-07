@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -170,6 +171,12 @@ const About = () => {
                         >
                             Elevating brand narratives through meticulous design, immersive interactions, and robust engineering. We don't just build websites — we create digital destinations.
                         </p>
+                        <Link
+                            to="/about"
+                            className="inline-flex items-center gap-2 font-[ABC] text-xs uppercase tracking-widest text-[#D0B887] hover:text-[#E4E0D9] transition-colors mt-6"
+                        >
+                            Learn more about us →
+                        </Link>
                     </div>
 
                     {/* Right: Image + Features */}
