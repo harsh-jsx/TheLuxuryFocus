@@ -1,0 +1,22 @@
+export const LUXURY_CATEGORIES = [
+    "Hotels & Resorts",
+    "Restaurants & Fine Dining",
+    "Travel & Tourism",
+    "Fashion & Apparel",
+    "Jewelry & Watches",
+    "Real Estate",
+    "Automobiles",
+    "Yachts & Aviation",
+    "Beauty & Wellness",
+    "Art & Collectibles",
+    "Event Management",
+    "Private Clubs & Lifestyle",
+    "Finance & Wealth Management",
+    "Technology & Gadgets",
+    "Education & Training",
+    "Health & Medical",
+    "Legal Services",
+    "Interior Design & Architecture",
+    "Pet Care & Services",
+    "Gifting & Luxury Services"
+];

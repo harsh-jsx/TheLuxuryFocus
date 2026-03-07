@@ -131,7 +131,11 @@ const Stores = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {!loading && filteredStores.map(store => (
-                            <div key={store.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                            <Link
+                                key={store.id}
+                                to={`/store/${store.id}`}
+                                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group block"
+                            >
                                 {/* Banner Image */}
                                 <div className="h-48 bg-gray-200 relative overflow-hidden">
                                     {store.bannerUrl ? (
@@ -148,7 +152,7 @@ const Stores = () => {
 
                                     {/* Category Badge */}
                                     {store.storeCategory && (
-                                        <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
+                                        <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
                                             {store.storeCategory}
                                         </span>
                                     )}
@@ -158,7 +162,7 @@ const Stores = () => {
                                 <div className="p-6">
                                     <div className="flex justify-between items-start mb-4">
                                         {/* Logo */}
-                                        <div className="-mt-12 w-20 h-20 bg-white rounded-xl p-1 shadow-md relative z-10">
+                                        <div className="-mt-12 w-20 h-20 bg-white rounded-xl p-1 shadow-md relative z-10 overflow-hidden">
                                             {store.logoUrl ? (
                                                 <img
                                                     src={store.logoUrl}
@@ -176,24 +180,24 @@ const Stores = () => {
                                         {store.storeCity && (
                                             <div className="flex items-center text-gray-500 text-sm gap-1">
                                                 <MapPin size={14} />
-                                                <span>{store.storeCity}</span>
+                                                <span className="font-medium">{store.storeCity}</span>
                                             </div>
                                         )}
                                     </div>
 
-                                    <h3 className="text-xl font-bold mb-2 font-[Albra]">{store.storeName}</h3>
-                                    <p className="text-gray-500 text-sm mb-6 line-clamp-2 font-[ABC]">
+                                    <h3 className="text-xl font-bold mb-2 font-[Albra] text-gray-900">{store.storeName}</h3>
+                                    <p className="text-gray-500 text-sm mb-6 line-clamp-2 font-[ABC] leading-relaxed">
                                         {store.storeDescription || "No description available."}
                                     </p>
 
                                     <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                                        <span className="text-sm text-gray-400 font-[ABC]">View Store</span>
-                                        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-black transition-colors">Examine Details</span>
+                                        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all transform group-hover:translate-x-1">
                                             <ArrowRight size={16} />
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}

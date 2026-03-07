@@ -17,6 +17,9 @@ import AdminLayout from './Pages/Admin/AdminLayout'
 import AdminDashboard from './Pages/Admin/AdminDashboard'
 import AdminBlogs from './Pages/Admin/AdminBlogs'
 import AdminUsers from './Pages/Admin/AdminUsers'
+import AdminStores from './Pages/Admin/AdminStores'
+import AdminOrders from './Pages/Admin/AdminOrders'
+import StoreProfile from './Pages/StoreProfile'
 
 import RootLayout from './components/RootLayout'
 
@@ -49,6 +52,7 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/blog/:id" element={<BlogPost />} />
+          <Route path="/store/:id" element={<StoreProfile />} />
         </Route>
 
         {/* Admin Routes - Clean slate without global Navbar/Footer */}
@@ -56,6 +60,8 @@ const App = () => {
           <Route index element={<AdminDashboard />} />
           <Route path="blogs" element={<AdminBlogs />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="stores" element={<AdminStores />} />
+          <Route path="orders" element={<AdminOrders />} />
           <Route path="settings" element={<div>Settings Component (TBD)</div>} />
         </Route>
       </Routes>

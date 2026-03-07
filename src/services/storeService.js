@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy, addDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const STORES_COLLECTION = 'stores';
@@ -15,6 +15,22 @@ export const storeService = {
             }));
         } catch (error) {
             console.error("Error fetching stores: ", error);
+            throw error;
+        }
+    },
+
+    // Get a single store by ID
+    getStoreById: async (id) => {
+        try {
+            const docRef = doc(db, STORES_COLLECTION, id);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                return { id: docSnap.id, ...docSnap.data() };
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching store by ID: ", error);
             throw error;
         }
     },
@@ -40,6 +56,21 @@ export const storeService = {
             await deleteDoc(docRef);
         } catch (error) {
             console.error("Error deleting store: ", error);
+            throw error;
+        }
+    },
+
+    // Add a new store
+    addStore: async (storeData) => {
+        try {
+            const docRef = await addDoc(collection(db, STORES_COLLECTION), {
+                ...storeData,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error adding store: ", error);
             throw error;
         }
     }
