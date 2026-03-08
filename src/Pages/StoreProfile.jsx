@@ -6,6 +6,7 @@ import {
   logStoreEventToFirebase,
   STORE_ANALYTICS_EVENTS,
 } from "../services/storeAnalyticsService";
+import { submitConciergeRequest } from "../services/conciergeRequestService";
 import {
   MapPin,
   Instagram,
@@ -20,6 +21,8 @@ import {
   Star,
   Share2,
   ExternalLink,
+  X,
+  CheckCircle,
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -31,6 +34,15 @@ const StoreProfile = () => {
   const { id } = useParams();
   const [store, setStore] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [conciergeModalOpen, setConciergeModalOpen] = useState(false);
+  const [conciergeSubmitting, setConciergeSubmitting] = useState(false);
+  const [conciergeSubmitted, setConciergeSubmitted] = useState(false);
+  const [conciergeForm, setConciergeForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
   const containerRef = useRef(null);
   const heroRef = useRef(null);
   const cardRef = useRef(null);
@@ -51,12 +63,41 @@ const StoreProfile = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Record profile view when store is loaded (once per visit)
-  useEffect(() => {
-    if (!store?.id) return;
-    recordStoreEvent(store.id, STORE_ANALYTICS_EVENTS.STORE_PROFILE_VIEW);
-    logStoreEventToFirebase("store_profile_view", { store_id: store.id });
-  }, [store?.id]);
+    // Record profile view when store is loaded (once per visit)
+    useEffect(() => {
+      if (!store?.id) return;
+      recordStoreEvent(store.id, STORE_ANALYTICS_EVENTS.STORE_PROFILE_VIEW);
+      logStoreEventToFirebase("store_profile_view", { store_id: store.id });
+    }, [store?.id]);
+
+  const handleConciergeChange = (e) => {
+    setConciergeForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleConciergeSubmit = async (e) => {
+    e.preventDefault();
+    if (!store?.id || conciergeSubmitting) return;
+    setConciergeSubmitting(true);
+    try {
+      await submitConciergeRequest(store.id, conciergeForm);
+      recordStoreEvent(store.id, STORE_ANALYTICS_EVENTS.STORE_REQUEST_CONCIERGE_CLICK);
+      setConciergeSubmitted(true);
+      setConciergeForm({ name: "", email: "", phone: "", message: "" });
+    } catch (err) {
+      console.error("Concierge request failed:", err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setConciergeSubmitting(false);
+    }
+  };
+
+  const closeConciergeModal = () => {
+    setConciergeModalOpen(false);
+    setConciergeSubmitted(false);
+  };
 
   useGSAP(() => {
     if (!store || !containerRef.current) return;
@@ -446,12 +487,152 @@ const StoreProfile = () => {
               Get priority access to their upcoming collections and seasonal
               experiences.
             </p>
-            <button className="w-full py-4 bg-gray-900 text-white rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors">
+            <button
+              type="button"
+              onClick={() => setConciergeModalOpen(true)}
+              className="w-full py-4 bg-gray-900 text-white rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
+            >
               Request Concierge
             </button>
           </div>
         </div>
       </section>
+
+      {/* Concierge request modal */}
+      {conciergeModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={closeConciergeModal}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="concierge-modal-title"
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-md max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 md:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 id="concierge-modal-title" className="text-xl font-[Albra] text-gray-900">
+                  Request Concierge
+                </h3>
+                <button
+                  type="button"
+                  onClick={closeConciergeModal}
+                  className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {conciergeSubmitted ? (
+                <div className="py-8 text-center">
+                  <div className="w-14 h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle size={28} />
+                  </div>
+                  <p className="text-lg font-[Albra] text-gray-900 mb-2">Request sent</p>
+                  <p className="text-gray-600 text-sm font-[ABC] mb-6">
+                    {store?.storeName} will get in touch with you soon.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={closeConciergeModal}
+                    className="px-6 py-3 bg-gray-900 text-white rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleConciergeSubmit} className="space-y-5">
+                  <div>
+                    <label htmlFor="concierge-name" className="block text-sm font-[ABC] font-medium text-gray-700 mb-1.5">
+                      Name *
+                    </label>
+                    <input
+                      id="concierge-name"
+                      type="text"
+                      name="name"
+                      required
+                      value={conciergeForm.name}
+                      onChange={handleConciergeChange}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none font-[ABC] text-gray-900"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="concierge-email" className="block text-sm font-[ABC] font-medium text-gray-700 mb-1.5">
+                      Email *
+                    </label>
+                    <input
+                      id="concierge-email"
+                      type="email"
+                      name="email"
+                      required
+                      value={conciergeForm.email}
+                      onChange={handleConciergeChange}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none font-[ABC] text-gray-900"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="concierge-phone" className="block text-sm font-[ABC] font-medium text-gray-700 mb-1.5">
+                      Phone
+                    </label>
+                    <input
+                      id="concierge-phone"
+                      type="tel"
+                      name="phone"
+                      value={conciergeForm.phone}
+                      onChange={handleConciergeChange}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none font-[ABC] text-gray-900"
+                      placeholder="+91 ..."
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="concierge-message" className="block text-sm font-[ABC] font-medium text-gray-700 mb-1.5">
+                      Message *
+                    </label>
+                    <textarea
+                      id="concierge-message"
+                      name="message"
+                      required
+                      rows={4}
+                      value={conciergeForm.message}
+                      onChange={handleConciergeChange}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none font-[ABC] text-gray-900 resize-none"
+                      placeholder="How can we help?"
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={closeConciergeModal}
+                      className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={conciergeSubmitting}
+                      className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+                    >
+                      {conciergeSubmitting ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Submit"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

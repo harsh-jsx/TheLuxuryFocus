@@ -20,3 +20,11 @@ export const LUXURY_CATEGORIES = [
     "Pet Care & Services",
     "Gifting & Luxury Services"
 ];
+
+/** Advertising / campaign goals for brand onboarding */
+export const AD_GOALS = [
+    { id: 'brand_awareness', label: 'Brand awareness' },
+    { id: 'sales', label: 'Sales / conversions' },
+    { id: 'lead_generation', label: 'Lead generation' },
+    { id: 'other', label: 'Other' },
+];

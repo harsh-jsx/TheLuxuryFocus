@@ -5,8 +5,10 @@ import { collection, query, where, getDocs, doc, updateDoc, addDoc, serverTimest
 import { uploadToCloudinary } from '../services/cloudinaryService';
 import { storeService } from '../services/storeService';
 import { recordStoreEvent, getStoreAnalyticsSummary, STORE_ANALYTICS_EVENTS } from '../services/storeAnalyticsService';
+import { getConciergeRequestsByStoreId } from '../services/conciergeRequestService';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Upload, Store, CheckCircle } from 'lucide-react';
+import { Loader2, Upload, Store, CheckCircle, MessageSquare, Mail, User, Phone, Calendar, Globe, Instagram, Target, FileText, Image as ImageIcon, Video, Sparkles, Tag } from 'lucide-react';
+import { LUXURY_CATEGORIES, AD_GOALS } from '../constants/categories';
 
 const Dashboard = () => {
     const { currentUser } = useAuth();
@@ -16,19 +18,33 @@ const Dashboard = () => {
     const [isOnboarded, setIsOnboarded] = useState(false);
     const [storeId, setStoreId] = useState(null);
     const [analyticsSummary, setAnalyticsSummary] = useState({ profileViews: 0, listingClicks: 0, leads: 0 });
+    const [conciergeRequests, setConciergeRequests] = useState([]);
+    const [storeDetails, setStoreDetails] = useState(null);
 
     // Onboarding Form State
     const [storeData, setStoreData] = useState({
         storeName: '',
         storeEmail: '',
+        storePhone: '',
         storeState: '',
         storeCity: '',
         storeCategory: '',
         storeAddress: '',
-        storeDescription: ''
+        storeWebsite: '',
+        storeInstagram: '',
+        storeSocialOther: '',
+        storeDescription: '',
+        videoUrl: '',
+        advertisingPackages: '',
+        advertisingRequirements: '',
+        brandGuidelines: '',
+        targetAudience: '',
+        goalsOther: '',
     });
+    const [goals, setGoals] = useState([]);
     const [logoFile, setLogoFile] = useState(null);
     const [bannerFile, setBannerFile] = useState(null);
+    const [galleryFiles, setGalleryFiles] = useState([]);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -87,8 +103,14 @@ const Dashboard = () => {
                     }
                 }
                 if (sid) {
-                    const summary = await getStoreAnalyticsSummary(sid);
+                    const [summary, requests, details] = await Promise.all([
+                        getStoreAnalyticsSummary(sid),
+                        getConciergeRequestsByStoreId(sid),
+                        storeService.getStoreById(sid),
+                    ]);
                     setAnalyticsSummary(summary);
+                    setConciergeRequests(requests);
+                    setStoreDetails(details);
                 }
             } catch (err) {
                 console.error('Error loading store analytics:', err);
@@ -103,9 +125,20 @@ const Dashboard = () => {
     };
 
     const handleFileChange = (e, setFile) => {
-        if (e.target.files[0]) {
-            setFile(e.target.files[0]);
-        }
+        if (e.target.files[0]) setFile(e.target.files[0]);
+    };
+
+    const handleGalleryChange = (e) => {
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        setGalleryFiles((prev) => [...prev, ...files].slice(0, 10));
+    };
+
+    const removeGalleryFile = (index) => {
+        setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const toggleGoal = (id) => {
+        setGoals((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
     };
 
     const handleOnboardingSubmit = async (e) => {
@@ -113,36 +146,39 @@ const Dashboard = () => {
         setSubmitting(true);
 
         try {
-            // 1. Upload Images
             const logoUrl = logoFile ? await uploadToCloudinary(logoFile) : null;
             const bannerUrl = bannerFile ? await uploadToCloudinary(bannerFile) : null;
+            const galleryUrls = [];
+            for (const file of galleryFiles) {
+                const url = await uploadToCloudinary(file);
+                if (url) galleryUrls.push(url);
+            }
 
-            // 2. Save Store Details
-            const storeRef = await addDoc(collection(db, "stores"), {
+            const payload = {
                 userId: currentUser.uid,
                 orderId: order.id,
                 ...storeData,
                 logoUrl,
                 bannerUrl,
-                createdAt: serverTimestamp()
-            });
+                galleryUrls,
+                goals,
+                goalsOther: storeData.goalsOther,
+                createdAt: serverTimestamp(),
+            };
+
+            const storeRef = await addDoc(collection(db, "stores"), payload);
             const newStoreId = storeRef.id;
             recordStoreEvent(newStoreId, STORE_ANALYTICS_EVENTS.STORE_CREATED);
 
-            // 3. Update Order to set onBoarded = true
-            // IMPORTANT: We need to update the nested field `customer.onBoarded`
             const orderRef = doc(db, "orders", order.id);
-
-            // Construct the update object for nested field
-            // Note: In Firestore update, "customer.onBoarded" works for nested fields
             await updateDoc(orderRef, {
                 "customer.onBoarded": true,
-                "customer.storeName": storeData.storeName // Optional: redundancy
+                "customer.storeName": storeData.storeName,
             });
 
             setStoreId(newStoreId);
+            setStoreDetails({ id: newStoreId, ...storeData, logoUrl, bannerUrl, galleryUrls, goals, goalsOther: storeData.goalsOther });
             setIsOnboarded(true);
-
         } catch (error) {
             console.error("Onboarding failed:", error);
             alert("Failed to save details. Please try again.");
@@ -172,214 +208,213 @@ const Dashboard = () => {
     }
 
     if (!isOnboarded) {
+        const sectionClass = "border-b border-gray-100 pb-8 last:border-0 last:pb-0";
+        const sectionTitle = "text-sm font-bold text-purple-600 font-[ABC] uppercase tracking-wider mb-4 flex items-center gap-2";
+
         return (
-            <div className="min-h-screen bg-gray-50 py-32 px-4">
+            <div className="min-h-screen bg-gray-50 py-20 px-4">
                 <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100">
                     <div className="mb-10 text-center">
                         <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Store size={32} />
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4 font-[Albra]">Setup Your Store</h1>
-                        <p className="text-gray-500 font-[ABC]">Welcome to The Luxury Focus! Let's get your store ready for the spotlight.</p>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-4 font-[Albra]">Luxury Brand Onboarding</h1>
+                        <p className="text-gray-500 font-[ABC]">Share your brand story and requirements. We'll tailor our platform to you.</p>
                     </div>
 
-                    <form onSubmit={handleOnboardingSubmit} className="space-y-8">
-                        {/* Basic Info */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 font-[ABC]">Store Name</label>
-                                <input
-                                    type="text"
-                                    name="storeName"
-                                    required
-                                    value={storeData.storeName}
-                                    onChange={handleInputChange}
-                                    className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                                    placeholder="My Luxury Brand"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 font-[ABC]">Business Email</label>
-                                <input
-                                    type="email"
-                                    name="storeEmail"
-                                    required
-                                    value={storeData.storeEmail}
-                                    onChange={handleInputChange}
-                                    className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                                    placeholder="contact@brand.com"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 font-[ABC]">Category</label>
-                                <select
-                                    name="storeCategory"
-                                    required
-                                    value={storeData.storeCategory}
-                                    onChange={handleInputChange}
-                                    className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                                >
-                                    <option value="">Select Category</option>
-                                    <option value="Fashion">Fashion</option>
-                                    <option value="Electronics">Electronics</option>
-                                    <option value="Home & Living">Home & Living</option>
-                                    <option value="Beauty & Health">Beauty & Health</option>
-                                    <option value="Automotive">Automotive</option>
-                                    <option value="Real Estate">Real Estate</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 font-[ABC]">City</label>
-                                <input
-                                    type="text"
-                                    name="storeCity"
-                                    required
-                                    value={storeData.storeCity}
-                                    onChange={handleInputChange}
-                                    className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                                    placeholder="e.g. Mumbai"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 font-[ABC]">
-                                State / Union Territory
-                            </label>
-
-                            <select
-                                name="storeState"
-                                id="storeState"
-                                value={storeData.storeState}
-                                onChange={handleInputChange}
-                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                            >
-                                <option value="">Select State / UT</option>
-
-                                {/* States */}
-                                <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                                <option value="Assam">Assam</option>
-                                <option value="Bihar">Bihar</option>
-                                <option value="Chhattisgarh">Chhattisgarh</option>
-                                <option value="Goa">Goa</option>
-                                <option value="Gujarat">Gujarat</option>
-                                <option value="Haryana">Haryana</option>
-                                <option value="Himachal Pradesh">Himachal Pradesh</option>
-                                <option value="Jharkhand">Jharkhand</option>
-                                <option value="Karnataka">Karnataka</option>
-                                <option value="Kerala">Kerala</option>
-                                <option value="Madhya Pradesh">Madhya Pradesh</option>
-                                <option value="Maharashtra">Maharashtra</option>
-                                <option value="Manipur">Manipur</option>
-                                <option value="Meghalaya">Meghalaya</option>
-                                <option value="Mizoram">Mizoram</option>
-                                <option value="Nagaland">Nagaland</option>
-                                <option value="Odisha">Odisha</option>
-                                <option value="Punjab">Punjab</option>
-                                <option value="Rajasthan">Rajasthan</option>
-                                <option value="Sikkim">Sikkim</option>
-                                <option value="Tamil Nadu">Tamil Nadu</option>
-                                <option value="Telangana">Telangana</option>
-                                <option value="Tripura">Tripura</option>
-                                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                <option value="Uttarakhand">Uttarakhand</option>
-                                <option value="West Bengal">West Bengal</option>
-
-                                {/* Union Territories */}
-                                <option value="Andaman and Nicobar Islands">
-                                    Andaman and Nicobar Islands
-                                </option>
-                                <option value="Chandigarh">Chandigarh</option>
-                                <option value="Dadra and Nagar Haveli and Daman and Diu">
-                                    Dadra and Nagar Haveli and Daman and Diu
-                                </option>
-                                <option value="Delhi">Delhi</option>
-                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                                <option value="Ladakh">Ladakh</option>
-                                <option value="Lakshadweep">Lakshadweep</option>
-                                <option value="Puducherry">Puducherry</option>
-
-                            </select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 font-[ABC]">Business Address</label>
-                            <textarea
-                                name="storeAddress"
-                                required
-                                value={storeData.storeAddress}
-                                onChange={handleInputChange}
-                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                                placeholder="Full address of your store..."
-                                rows="3"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 font-[ABC]">Description</label>
-                            <textarea
-                                name="storeDescription"
-                                required
-                                value={storeData.storeDescription}
-                                onChange={handleInputChange}
-                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC]"
-                                placeholder="Tell us about your brand..."
-                                rows="4"
-                            />
-                        </div>
-
-                        {/* Image Uploads */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 font-[ABC]">Store Logo</label>
-                                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileChange(e, setLogoFile)}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                    />
-                                    <Upload className="mx-auto text-gray-400 mb-2" size={24} />
-                                    <p className="text-sm text-gray-500 font-[ABC]">
-                                        {logoFile ? logoFile.name : "Click to upload logo"}
-                                    </p>
+                    <form onSubmit={handleOnboardingSubmit} className="space-y-10">
+                        {/* 1. Brand identity */}
+                        <div className={sectionClass}>
+                            <h2 className={sectionTitle}><Sparkles size={18} /> Brand identity</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="md:col-span-2 space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Brand name *</label>
+                                    <input type="text" name="storeName" required value={storeData.storeName} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Your brand name" />
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 font-[ABC]">Banner Image</label>
-                                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileChange(e, setBannerFile)}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                    />
-                                    <Upload className="mx-auto text-gray-400 mb-2" size={24} />
-                                    <p className="text-sm text-gray-500 font-[ABC]">
-                                        {bannerFile ? bannerFile.name : "Click to upload banner"}
-                                    </p>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Logo</label>
+                                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 cursor-pointer relative">
+                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, setLogoFile)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                        <Upload className="mx-auto text-gray-400 mb-1" size={22} />
+                                        <p className="text-xs text-gray-500 font-[ABC]">{logoFile ? logoFile.name : "Upload logo"}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Banner / hero image</label>
+                                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 cursor-pointer relative">
+                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, setBannerFile)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                        <Upload className="mx-auto text-gray-400 mb-1" size={22} />
+                                        <p className="text-xs text-gray-500 font-[ABC]">{bannerFile ? bannerFile.name : "Upload banner"}</p>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-2 space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Brief description *</label>
+                                    <textarea name="storeDescription" required value={storeData.storeDescription} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="History, mission, or unique selling point..." rows="4" />
                                 </div>
                             </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={submitting}
-                            className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold text-lg uppercase tracking-wider hover:bg-purple-700 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 font-[ABC]"
-                        >
-                            {submitting ? (
-                                <>
-                                    <Loader2 className="animate-spin" size={20} />
-                                    Saving...
-                                </>
-                            ) : (
-                                "Complete Setup"
-                            )}
+                        {/* 2. Contact */}
+                        <div className={sectionClass}>
+                            <h2 className={sectionTitle}><Mail size={18} /> Contact</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Email *</label>
+                                    <input type="email" name="storeEmail" required value={storeData.storeEmail} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="contact@brand.com" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Phone</label>
+                                    <input type="tel" name="storePhone" value={storeData.storePhone} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="+91 ..." />
+                                </div>
+                                <div className="md:col-span-2 space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Address *</label>
+                                    <textarea name="storeAddress" required value={storeData.storeAddress} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Full business address" rows="2" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">City *</label>
+                                    <input type="text" name="storeCity" required value={storeData.storeCity} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="e.g. Mumbai" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">State / UT *</label>
+                                    <select name="storeState" required value={storeData.storeState} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]">
+                                        <option value="">Select State / UT</option>
+                                        {['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'].map((st) => (
+                                            <option key={st} value={st}>{st}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Website</label>
+                                    <input type="url" name="storeWebsite" value={storeData.storeWebsite} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="https://..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Instagram handle</label>
+                                    <input type="text" name="storeInstagram" value={storeData.storeInstagram} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="username (no @)" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Other social (URL)</label>
+                                    <input type="url" name="storeSocialOther" value={storeData.storeSocialOther} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Facebook, LinkedIn, etc." />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. Product/Service & media */}
+                        <div className={sectionClass}>
+                            <h2 className={sectionTitle}><Tag size={18} /> Category & media</h2>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Product / service category *</label>
+                                    <select name="storeCategory" required value={storeData.storeCategory} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]">
+                                        <option value="">Select category</option>
+                                        {LUXURY_CATEGORIES.map((c) => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Gallery (up to 10 images)</label>
+                                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 cursor-pointer relative">
+                                        <input type="file" accept="image/*" multiple onChange={handleGalleryChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                        <ImageIcon className="mx-auto text-gray-400 mb-1" size={22} />
+                                        <p className="text-xs text-gray-500 font-[ABC]">Add product/service images</p>
+                                    </div>
+                                    {galleryFiles.length > 0 && (
+                                        <ul className="flex flex-wrap gap-2 mt-2">
+                                            {galleryFiles.map((f, i) => (
+                                                <li key={i} className="flex items-center gap-1 bg-gray-100 rounded-lg px-2 py-1 text-xs font-[ABC]">
+                                                    {f.name}
+                                                    <button type="button" onClick={() => removeGalleryFile(i)} className="text-red-500 hover:underline">×</button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Video URL (optional)</label>
+                                    <input type="url" name="videoUrl" value={storeData.videoUrl} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="YouTube, Vimeo, or direct link" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Advertising */}
+                        <div className={sectionClass}>
+                            <h2 className={sectionTitle}><Target size={18} /> Advertising</h2>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Packages you're interested in</label>
+                                    <input type="text" name="advertisingPackages" value={storeData.advertisingPackages} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="e.g. Basic, Standard, Premium" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Specific advertising requirements</label>
+                                    <textarea name="advertisingRequirements" value={storeData.advertisingRequirements} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Campaign goals, formats, timelines..." rows="3" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Goals for advertising</label>
+                                    <div className="flex flex-wrap gap-3">
+                                        {AD_GOALS.map((g) => (
+                                            <label key={g.id} className="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" checked={goals.includes(g.id)} onChange={() => toggleGoal(g.id)} className="rounded border-gray-300" />
+                                                <span className="text-sm font-[ABC] text-gray-700">{g.label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                    {goals.includes('other') && (
+                                        <input type="text" name="goalsOther" value={storeData.goalsOther} onChange={handleInputChange}
+                                            className="mt-2 w-full p-3 rounded-xl border border-gray-200 font-[ABC] text-sm"
+                                            placeholder="Describe other goals" />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 5. Brand guidelines & audience */}
+                        <div className={sectionClass}>
+                            <h2 className={sectionTitle}><FileText size={18} /> Brand guidelines & audience</h2>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Brand guidelines</label>
+                                    <textarea name="brandGuidelines" value={storeData.brandGuidelines} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Logo usage, tone of voice, do's and don'ts..." rows="3" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Target audience demographics</label>
+                                    <textarea name="targetAudience" value={storeData.targetAudience} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Age, location, interests, income segment..." rows="3" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" disabled={submitting}
+                            className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold text-lg uppercase tracking-wider hover:bg-purple-700 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 font-[ABC]">
+                            {submitting ? (<><Loader2 className="animate-spin" size={20} /> Saving...</>) : "Complete setup"}
                         </button>
                     </form>
                 </div>
@@ -387,20 +422,30 @@ const Dashboard = () => {
         );
     }
 
+    const s = storeDetails || {};
+    const goalLabels = (s.goals || []).map((id) => AD_GOALS.find((g) => g.id === id)?.label || id).filter(Boolean);
+    if (s.goals?.includes('other') && s.goalsOther) goalLabels.push(s.goalsOther);
+
     return (
-        <div className="min-h-screen bg-gray-50 py-32 px-4">
-            <div className="container mx-auto max-w-7xl">
-                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold mb-2 font-[Albra]">Welcome back, {currentUser.displayName}!</h1>
-                        <p className="text-gray-500 font-[ABC]">Your store is live and ready.</p>
+        <div className="min-h-screen bg-gray-50 py-24 px-4">
+            <div className="container mx-auto max-w-7xl space-y-8">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        {s.logoUrl && (
+                            <img src={s.logoUrl} alt="" className="w-16 h-16 rounded-xl object-cover border border-gray-100" />
+                        )}
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold font-[Albra]">{s.storeName || 'Your brand'}</h1>
+                            <p className="text-gray-500 font-[ABC]">Welcome back, {currentUser.displayName}</p>
+                        </div>
                     </div>
                     <div className="bg-green-100 text-green-600 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 font-[ABC]">
                         <CheckCircle size={16} />
-                        Active Plan: {order.packageName}
+                        {order?.packageName || 'Active plan'}
                     </div>
                 </div>
 
+                {/* Analytics */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">Profile Views</h3>
@@ -417,6 +462,145 @@ const Dashboard = () => {
                         <p className="text-4xl font-bold text-gray-900 font-[Albra]">{analyticsSummary.listingClicks}</p>
                         <p className="text-xs text-gray-400 mt-1 font-[ABC]">Clicks from stores page</p>
                     </div>
+                </div>
+
+                {/* Brand profile summary */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                        <h2 className="text-lg font-bold text-gray-900 font-[Albra] mb-4 flex items-center gap-2">
+                            <Sparkles size={20} className="text-purple-600" /> Brand & contact
+                        </h2>
+                        <div className="space-y-3 text-sm">
+                            {s.storeDescription && (
+                                <p className="text-gray-600 leading-relaxed font-[ABC]">{s.storeDescription}</p>
+                            )}
+                            <div className="pt-2 border-t border-gray-100 space-y-2">
+                                {s.storeEmail && <p className="flex items-center gap-2 font-[ABC]"><Mail size={14} /> {s.storeEmail}</p>}
+                                {s.storePhone && <p className="flex items-center gap-2 font-[ABC]"><Phone size={14} /> {s.storePhone}</p>}
+                                {s.storeAddress && <p className="flex items-center gap-2 font-[ABC]"><Target size={14} /> {s.storeAddress}, {s.storeCity}{s.storeState ? `, ${s.storeState}` : ''}</p>}
+                                {s.storeWebsite && <a href={s.storeWebsite} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-purple-600 hover:underline font-[ABC]"><Globe size={14} /> {s.storeWebsite}</a>}
+                                {s.storeInstagram && <a href={`https://instagram.com/${s.storeInstagram}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-purple-600 hover:underline font-[ABC]"><Instagram size={14} /> @{s.storeInstagram}</a>}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                        <h2 className="text-lg font-bold text-gray-900 font-[Albra] mb-4 flex items-center gap-2">
+                            <Tag size={20} className="text-purple-600" /> Category & goals
+                        </h2>
+                        <div className="space-y-3 text-sm">
+                            {s.storeCategory && <p className="font-[ABC]"><span className="text-gray-500">Category:</span> {s.storeCategory}</p>}
+                            {goalLabels.length > 0 && (
+                                <div>
+                                    <p className="text-gray-500 font-[ABC] mb-1">Advertising goals:</p>
+                                    <ul className="list-disc list-inside font-[ABC] text-gray-700">{goalLabels.map((l, i) => <li key={i}>{l}</li>)}</ul>
+                                </div>
+                            )}
+                            {s.targetAudience && (
+                                <div className="pt-2 border-t border-gray-100">
+                                    <p className="text-gray-500 font-[ABC] mb-1">Target audience:</p>
+                                    <p className="font-[ABC] text-gray-700 leading-relaxed">{s.targetAudience}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {(s.brandGuidelines || s.advertisingPackages || s.advertisingRequirements) && (
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                        <h2 className="text-lg font-bold text-gray-900 font-[Albra] mb-4 flex items-center gap-2">
+                            <FileText size={20} className="text-purple-600" /> Guidelines & advertising
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                            {s.brandGuidelines && (
+                                <div>
+                                    <p className="text-gray-500 font-[ABC] mb-1">Brand guidelines</p>
+                                    <p className="font-[ABC] text-gray-700 leading-relaxed whitespace-pre-wrap">{s.brandGuidelines}</p>
+                                </div>
+                            )}
+                            {s.advertisingPackages && (
+                                <div>
+                                    <p className="text-gray-500 font-[ABC] mb-1">Packages interested in</p>
+                                    <p className="font-[ABC] text-gray-700">{s.advertisingPackages}</p>
+                                </div>
+                            )}
+                            {s.advertisingRequirements && (
+                                <div>
+                                    <p className="text-gray-500 font-[ABC] mb-1">Ad requirements</p>
+                                    <p className="font-[ABC] text-gray-700 leading-relaxed whitespace-pre-wrap">{s.advertisingRequirements}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {s.galleryUrls?.length > 0 && (
+                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                        <h2 className="text-lg font-bold text-gray-900 font-[Albra] mb-4 flex items-center gap-2">
+                            <ImageIcon size={20} className="text-purple-600" /> Gallery
+                        </h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {s.galleryUrls.slice(0, 8).map((url, i) => (
+                                <div key={i} className="aspect-square rounded-xl overflow-hidden border border-gray-100">
+                                    <img src={url} alt="" className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Concierge requests */}
+                <div className="mt-10">
+                    <h2 className="text-xl font-bold text-gray-900 font-[Albra] mb-4 flex items-center gap-2">
+                        <MessageSquare className="text-purple-600" size={24} />
+                        Concierge Requests
+                    </h2>
+                    {conciergeRequests.length === 0 ? (
+                        <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                            <MessageSquare className="mx-auto text-gray-300 mb-3" size={40} />
+                            <p className="text-gray-500 font-[ABC]">No concierge requests yet.</p>
+                            <p className="text-gray-400 text-sm mt-1 font-[ABC]">Requests from your store page will appear here.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {conciergeRequests.map((req) => (
+                                <div
+                                    key={req.id}
+                                    className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                    <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                                                <User size={18} />
+                                            </div>
+                                            <div>
+                                                <p className="font-[Albra] text-gray-900">{req.name}</p>
+                                                <p className="text-sm text-gray-500 font-[ABC] flex items-center gap-1">
+                                                    <Mail size={12} /> {req.email}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {req.createdAt && (
+                                            <span className="text-xs text-gray-400 font-[ABC] flex items-center gap-1">
+                                                <Calendar size={12} />
+                                                {new Date(req.createdAt).toLocaleString(undefined, {
+                                                    dateStyle: 'medium',
+                                                    timeStyle: 'short',
+                                                })}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {req.phone && (
+                                        <p className="text-sm text-gray-600 font-[ABC] flex items-center gap-2 mb-2">
+                                            <Phone size={14} /> {req.phone}
+                                        </p>
+                                    )}
+                                    <p className="text-gray-700 text-sm leading-relaxed mt-2 pt-3 border-t border-gray-100">
+                                        {req.message}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
