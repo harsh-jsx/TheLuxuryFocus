@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { recordStoreEvent, STORE_ANALYTICS_EVENTS } from '../services/storeAnalyticsService';
 import { Search, MapPin, Tag, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
@@ -183,6 +184,7 @@ const Stores = () => {
                                 ref={el => { cardsRef.current[idx] = el }}
                                 to={`/store/${store.id}`}
                                 className="group block"
+                                onClick={() => recordStoreEvent(store.id, STORE_ANALYTICS_EVENTS.STORE_LISTING_CLICK)}
                             >
                                 <article className="h-full bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-500">
                                     <div className="h-52 md:h-56 relative overflow-hidden">

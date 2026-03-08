@@ -1,9 +1,26 @@
-import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy, addDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy, addDoc, getDoc, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const STORES_COLLECTION = 'stores';
 
 export const storeService = {
+    // Get store by owner userId (for dashboard)
+    getStoreByUserId: async (userId) => {
+        try {
+            const q = query(
+                collection(db, STORES_COLLECTION),
+                where('userId', '==', userId)
+            );
+            const snapshot = await getDocs(q);
+            if (snapshot.empty) return null;
+            const storeDoc = snapshot.docs[0];
+            return { id: storeDoc.id, ...storeDoc.data() };
+        } catch (error) {
+            console.error('Error fetching store by userId:', error);
+            throw error;
+        }
+    },
+
     // Get all stores
     getAllStores: async () => {
         try {

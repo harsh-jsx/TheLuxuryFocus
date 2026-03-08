@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { uploadToCloudinary } from '../services/cloudinaryService';
+import { storeService } from '../services/storeService';
+import { recordStoreEvent, getStoreAnalyticsSummary, STORE_ANALYTICS_EVENTS } from '../services/storeAnalyticsService';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Upload, Store, CheckCircle } from 'lucide-react';
 
@@ -12,6 +14,8 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [order, setOrder] = useState(null);
     const [isOnboarded, setIsOnboarded] = useState(false);
+    const [storeId, setStoreId] = useState(null);
+    const [analyticsSummary, setAnalyticsSummary] = useState({ profileViews: 0, listingClicks: 0, leads: 0 });
 
     // Onboarding Form State
     const [storeData, setStoreData] = useState({
@@ -68,6 +72,32 @@ const Dashboard = () => {
         checkStatus();
     }, [currentUser, navigate]);
 
+    // When onboarded, ensure we have storeId and load analytics
+    useEffect(() => {
+        if (!currentUser || !isOnboarded) return;
+
+        const loadStoreAndAnalytics = async () => {
+            try {
+                let sid = storeId;
+                if (!sid) {
+                    const store = await storeService.getStoreByUserId(currentUser.uid);
+                    if (store) {
+                        sid = store.id;
+                        setStoreId(sid);
+                    }
+                }
+                if (sid) {
+                    const summary = await getStoreAnalyticsSummary(sid);
+                    setAnalyticsSummary(summary);
+                }
+            } catch (err) {
+                console.error('Error loading store analytics:', err);
+            }
+        };
+
+        loadStoreAndAnalytics();
+    }, [currentUser, isOnboarded, storeId]);
+
     const handleInputChange = (e) => {
         setStoreData({ ...storeData, [e.target.name]: e.target.value });
     };
@@ -88,7 +118,7 @@ const Dashboard = () => {
             const bannerUrl = bannerFile ? await uploadToCloudinary(bannerFile) : null;
 
             // 2. Save Store Details
-            await addDoc(collection(db, "stores"), {
+            const storeRef = await addDoc(collection(db, "stores"), {
                 userId: currentUser.uid,
                 orderId: order.id,
                 ...storeData,
@@ -96,6 +126,8 @@ const Dashboard = () => {
                 bannerUrl,
                 createdAt: serverTimestamp()
             });
+            const newStoreId = storeRef.id;
+            recordStoreEvent(newStoreId, STORE_ANALYTICS_EVENTS.STORE_CREATED);
 
             // 3. Update Order to set onBoarded = true
             // IMPORTANT: We need to update the nested field `customer.onBoarded`
@@ -108,6 +140,7 @@ const Dashboard = () => {
                 "customer.storeName": storeData.storeName // Optional: redundancy
             });
 
+            setStoreId(newStoreId);
             setIsOnboarded(true);
 
         } catch (error) {
@@ -369,18 +402,20 @@ const Dashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Placeholder Dashboard Cards */}
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">Total Views</h3>
-                        <p className="text-4xl font-bold text-gray-900 font-[Albra]">0</p>
+                        <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">Profile Views</h3>
+                        <p className="text-4xl font-bold text-gray-900 font-[Albra]">{analyticsSummary.profileViews}</p>
+                        <p className="text-xs text-gray-400 mt-1 font-[ABC]">Store page visits</p>
                     </div>
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">Leads</h3>
-                        <p className="text-4xl font-bold text-gray-900 font-[Albra]">0</p>
+                        <p className="text-4xl font-bold text-gray-900 font-[Albra]">{analyticsSummary.leads}</p>
+                        <p className="text-xs text-gray-400 mt-1 font-[ABC]">Connect / Concierge / Phone</p>
                     </div>
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">Messages</h3>
-                        <p className="text-4xl font-bold text-gray-900 font-[Albra]">0</p>
+                        <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">From Listing</h3>
+                        <p className="text-4xl font-bold text-gray-900 font-[Albra]">{analyticsSummary.listingClicks}</p>
+                        <p className="text-xs text-gray-400 mt-1 font-[ABC]">Clicks from stores page</p>
                     </div>
                 </div>
             </div>
