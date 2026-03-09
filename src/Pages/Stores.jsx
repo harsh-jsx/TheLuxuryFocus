@@ -3,7 +3,7 @@ import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { recordStoreEvent, STORE_ANALYTICS_EVENTS } from '../services/storeAnalyticsService';
 import { Search, MapPin, Tag, ArrowRight, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -18,6 +18,8 @@ const Stores = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [cities, setCities] = useState([]);
     const [categories, setCategories] = useState([]);
+
+    const location = useLocation();
 
     const containerRef = useRef(null);
     const headerRef = useRef(null);
@@ -51,10 +53,24 @@ const Stores = () => {
 
     const filteredStores = stores.filter(store => {
         const matchesSearch = store.storeName?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCity = selectedCity ? store.storeCity === selectedCity : true;
+        const matchesCity = selectedCity
+            ? store.storeCity?.toLowerCase() === selectedCity.toLowerCase()
+            : true;
         const matchesCategory = selectedCategory ? store.storeCategory === selectedCategory : true;
         return matchesSearch && matchesCity && matchesCategory;
     });
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const cityParam = params.get('city');
+
+        if (cityParam) {
+            const normalized = cities.find(
+                (city) => city.toLowerCase() === cityParam.toLowerCase()
+            );
+            setSelectedCity(normalized || cityParam);
+        }
+    }, [location.search, cities]);
 
     useGSAP(() => {
         if (!containerRef.current) return;
@@ -112,40 +128,61 @@ const Stores = () => {
                 >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type="text"
-                                placeholder="Search by name..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm"
-                            />
+                            <span className="block text-[11px] font-[ABC] uppercase tracking-[0.18em] text-gray-400 mb-2">
+                                Search
+                            </span>
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <input
+                                    type="text"
+                                    placeholder="Search by store name..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm"
+                                />
+                            </div>
                         </div>
                         <div className="relative">
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <select
-                                value={selectedCity}
-                                onChange={(e) => setSelectedCity(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
-                            >
-                                <option value="">All Cities</option>
-                                {cities.map(city => (
-                                    <option key={city} value={city}>{city}</option>
-                                ))}
-                            </select>
+                            <span className="block text-[11px] font-[ABC] uppercase tracking-[0.18em] text-gray-400 mb-2">
+                                City
+                            </span>
+                            <div className="relative">
+                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <select
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                    className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
+                                >
+                                    <option value="">All Cities</option>
+                                    {cities.map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
+                                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                                    ▼
+                                </span>
+                            </div>
                         </div>
                         <div className="relative">
-                            <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
-                            >
-                                <option value="">All Categories</option>
-                                {categories.map(category => (
-                                    <option key={category} value={category}>{category}</option>
-                                ))}
-                            </select>
+                            <span className="block text-[11px] font-[ABC] uppercase tracking-[0.18em] text-gray-400 mb-2">
+                                Category
+                            </span>
+                            <div className="relative">
+                                <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
+                                >
+                                    <option value="">All Categories</option>
+                                    {categories.map(category => (
+                                        <option key={category} value={category}>{category}</option>
+                                    ))}
+                                </select>
+                                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                                    ▼
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

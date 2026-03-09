@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import gsap from 'gsap'
 import SplitText from './SplitText'
@@ -9,41 +10,49 @@ gsap.registerPlugin(ScrollTrigger)
 const cities = [
     {
         name: 'AGRA',
+        filterCity: 'Agra',
         image: 'https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=1776&auto=format&fit=crop',
         desc: 'Home of the Taj Mahal'
     },
     {
         name: 'CHENNAI',
+        filterCity: 'Chennai',
         image: 'https://images.unsplash.com/photo-1616843413587-9e3a37f7bbd8?q=80&w=2070&auto=format&fit=crop', // Replaced
         desc: 'Gateway to South India'
     },
     {
         name: 'JAIPUR',
+        filterCity: 'Jaipur',
         image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=2070&auto=format&fit=crop',
         desc: 'The Pink City'
     },
     {
         name: 'AHMEDABAD',
+        filterCity: 'Ahmedabad',
         image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1928&auto=format&fit=crop',
         desc: 'Heritage & Modernity'
     },
     {
         name: 'HYDERABAD',
+        filterCity: 'Hyderabad',
         image: 'https://images.unsplash.com/photo-1572455044327-7348c1be7267?q=80&w=2070&auto=format&fit=crop', // Replaced
         desc: 'City of Pearls'
     },
     {
         name: 'LUCKNOW',
+        filterCity: 'Lucknow',
         image: 'https://images.unsplash.com/photo-1723981132479-d824a62a24c0?q=80&w=737&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Replaced (Rumi Darwaza)
         desc: 'The City of Nawabs'
     },
     {
         name: 'MUMBAI',
+        filterCity: 'Mumbai',
         image: 'https://images.unsplash.com/photo-1562979314-bee7453e911c?q=80&w=1974&auto=format&fit=crop',
         desc: 'The City of Dreams'
     },
     {
         name: 'DELHI',
+        filterCity: 'Delhi',
         image: 'https://images.unsplash.com/photo-1678966432189-d58296e45ad2?q=80&w=2127&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Replaced (India Gate)
         desc: 'Heart of India'
     }
@@ -54,6 +63,7 @@ const HomeCities = () => {
     const triggerRef = useRef(null)
     const cityRefs = useRef([])
     const [activeCity, setActiveCity] = useState(null)
+    const navigate = useNavigate()
 
     useEffect(() => {
         const intersectionRatios = {}
@@ -213,6 +223,7 @@ const HomeCities = () => {
                                 ref={(el) => (cityRefs.current[index] = el)}
                                 data-index={index}
                                 className="group relative w-[80vw] md:w-[30vw] lg:w-[22vw] h-[60vh] md:h-[70vh] shrink-0 overflow-hidden cursor-pointer rounded-sm"
+                                onClick={() => navigate(`/stores?city=${encodeURIComponent(city.filterCity || city.name)}`)}
                             >
                                 <div className="absolute inset-0 bg-gray-200" />
 
