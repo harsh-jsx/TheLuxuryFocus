@@ -21,6 +21,13 @@ import { useGSAP } from "@gsap/react";
 import { storeService } from "../services/storeService";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+
+const ACCENT = {
+  amber: "#C9A227",
+  amberLight: "#E8D5A3",
+  amberBg: "rgba(201, 162, 39, 0.12)",
+};
+
 const Hero = () => {
   const containerRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,7 +79,7 @@ const Hero = () => {
 
       // Sequence
       tl.to(".hero-video-bg", {
-        opacity: 0.6,
+        opacity: 0.78,
         scale: 1,
         duration: 2,
         ease: "power2.inOut",
@@ -116,31 +123,6 @@ const Hero = () => {
           },
           "-=0.5",
         );
-
-      // Interactive Animations for Search Input
-      const input = document.querySelector(".search-input");
-      if (input) {
-        input.addEventListener("focus", () => {
-          gsap.to(".search-glow", { opacity: 0.6, duration: 0.5 });
-          gsap.to(".search-container", {
-            borderColor: "rgba(255,255,255,0.4)",
-            boxShadow: "0 0 30px rgba(255,255,255,0.1)",
-            scale: 1.01,
-            duration: 0.4,
-          });
-        });
-        input.addEventListener("blur", () => {
-          setTimeout(() => {
-            gsap.to(".search-glow", { opacity: 0, duration: 0.5 });
-            gsap.to(".search-container", {
-              borderColor: "transparent",
-              boxShadow: "none",
-              scale: 1,
-              duration: 0.4,
-            });
-          }, 200);
-        });
-      }
     },
     { scope: containerRef },
   );
@@ -148,11 +130,24 @@ const Hero = () => {
   return (
     <section
       ref={containerRef}
-      className="relative pt-35 md:pt-20 h-screen w-full bg-[#0a0a0a] text-white overflow-hidden flex flex-col items-center justify-center"
+      className="relative pt-28 md:pt-24 min-h-screen w-full bg-[#0a0a0a] text-white overflow-hidden flex flex-col items-center justify-center"
     >
       {/* Background Video */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0  z-10" />
+        {/* Overlays (vignette + subtle accent) */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/55 via-black/30 to-black/70" />
+        <div
+          className="absolute -top-40 -right-40 w-[520px] h-[520px] rounded-full blur-[110px] opacity-25 z-10"
+          style={{
+            background: `radial-gradient(circle, ${ACCENT.amberLight} 0%, transparent 70%)`,
+          }}
+        />
+        <div
+          className="absolute top-1/2 -left-40 w-[520px] h-[520px] rounded-full blur-[120px] opacity-20 z-10"
+          style={{
+            background: `radial-gradient(circle, ${ACCENT.amberLight} 0%, transparent 70%)`,
+          }}
+        />
         <video
           autoPlay
           loop
@@ -166,37 +161,71 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-20 flex flex-col items-center text-center px-4 max-w-5xl mx-auto w-full">
-        <h1 className="hero-element font-[Albra]  text-4xl md:text-5xl lg:text-6xl leading-[1.2] tracking-tight mb-6">
-          <SplitText delay={0.2}>Your Gateway to Premium Services</SplitText>
+        <div
+          className="hero-element inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8"
+          style={{ boxShadow: "0 0 0 1px rgba(201,162,39,0.12) inset" }}
+        >
+          <SparklesBadge />
+          <span className="font-[ABC] text-[11px] uppercase tracking-[0.2em] text-white/75">
+            Curated luxury brands & services
+          </span>
+        </div>
+
+        <h1 className="hero-element font-[Albra] text-4xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6">
+          <SplitText delay={0.2}>
+            Your gateway to{" "}
+            <span style={{ color: ACCENT.amber }} className="italic">
+              premium
+            </span>{" "}
+            experiences
+          </SplitText>
         </h1>
 
-        <p className="hero-element max-w-xl font-[ABC] text-base md:text-lg leading-relaxed text-white/70 tracking-wide mb-12">
-          Experience the Finest Luxury Brands – Get the Pampered Treatment
+        <p className="hero-element max-w-2xl font-[ABC] text-sm md:text-lg leading-relaxed text-white/70 tracking-wide mb-10">
+          Discover verified luxury brands, boutiques, and services — crafted for
+          people who don’t compromise on quality.
         </p>
 
         {/* Search Bar */}
-        <div className="search-container relative w-full max-w-2xl bg-white rounded-full p-2 flex items-center shadow-2xl shadow-white/10 mx-auto mb-16 group">
-          <div className="flex-1 flex items-center px-4 md:px-6 border-r border-gray-200">
-            <Compass className="text-gray-400 mr-3 w-5 h-5 shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => searchQuery.length > 1 && setIsSearching(true)}
-              className="search-input w-full bg-transparent text-black text-lg placeholder:text-gray-500 focus:outline-none font-[ABC]"
-              placeholder="What do you need?"
-            />
-          </div>
+        <div className="search-container relative w-full max-w-2xl mx-auto mb-10 group">
+          {/* Glow (CSS-driven) */}
+          <div
+            className="absolute -inset-1 rounded-full blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"
+            style={{
+              background: `radial-gradient(circle, ${ACCENT.amberLight} 0%, transparent 60%)`,
+            }}
+          />
 
-          <div className="hidden md:flex items-center px-6">
-            <span className="text-black font-[ABC] font-medium text-sm mr-2 whitespace-nowrap">
-              Where?
-            </span>
-          </div>
+          <div className="relative w-full bg-white/95 backdrop-blur-xl rounded-full p-2 flex items-center shadow-2xl shadow-black/30 border border-white/30">
+            <div className="flex-1 flex items-center px-4 md:px-6 border-r border-gray-200/80">
+              <Compass className="text-gray-400 mr-3 w-5 h-5 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.length > 1 && setIsSearching(true)}
+                className="search-input w-full bg-transparent text-black text-lg placeholder:text-gray-500 focus:outline-none font-[ABC]"
+                placeholder="Search brands, categories, city…"
+              />
+            </div>
 
-          <button className="bg-black hover:bg-[#2D45FF] text-white p-3 md:p-4 rounded-full transition-colors duration-300 shrink-0">
-            <Search className="w-5 h-5" />
-          </button>
+            <div className="hidden md:flex items-center px-6">
+              <span className="text-gray-600 font-[ABC] font-medium text-sm whitespace-nowrap">
+                All locations
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="text-white p-3 md:p-4 rounded-full transition-all duration-300 shrink-0 hover:scale-[1.02]"
+              style={{
+                background: `linear-gradient(90deg, ${ACCENT.amber}, #111)`,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+              }}
+            >
+              <Search className="w-5 h-5" />
+            </button>
+          </div>
 
           {/* Search Results Dropdown */}
           <AnimatePresence>
@@ -264,6 +293,27 @@ const Hero = () => {
           </AnimatePresence>
         </div>
 
+        {/* Quick actions */}
+        <div className="hero-element flex flex-wrap items-center justify-center gap-4 mb-12">
+          <Link
+            to="/stores"
+            className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 backdrop-blur-md transition-colors font-[ABC] text-[11px] uppercase tracking-[0.2em]"
+          >
+            Browse stores
+          </Link>
+          <Link
+            to="/packages"
+            className="px-6 py-3 rounded-full transition-colors font-[ABC] text-[11px] uppercase tracking-[0.2em]"
+            style={{
+              backgroundColor: ACCENT.amberBg,
+              border: `1px solid ${ACCENT.amber}40`,
+              color: ACCENT.amberLight,
+            }}
+          >
+            Advertising packages
+          </Link>
+        </div>
+
         {/* Hand / Highlight link */}
         {/* <div className="hero-element flex items-center gap-3 text-white/80 mb-16 cursor-pointer hover:text-white transition-colors">
                     <HandMetal className="w-5 h-5 -rotate-45" />
@@ -276,10 +326,10 @@ const Hero = () => {
 
         {/* Categories */}
         <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap">
-          {/* <CategoryIcon icon={Moon} label="Nightlife" />
-                    <CategoryIcon icon={BedDouble} label="Stay" />
-                    <CategoryIcon icon={Landmark} label="Museum" />
-                    <CategoryIcon icon={Trees} label="Outdoor" /> */}
+          <CategoryIcon icon={Moon} label="Nightlife" />
+          <CategoryIcon icon={BedDouble} label="Stay" />
+          <CategoryIcon icon={Landmark} label="Heritage" />
+          <CategoryIcon icon={Trees} label="Wellness" />
           {/* <div className="category-icon w-12 h-12 rounded-full bg-white text-black flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
                         <MoreHorizontal className="w-5 h-5" />
                     </div> */}
@@ -297,9 +347,19 @@ const Hero = () => {
   );
 };
 
+const SparklesBadge = () => (
+  <span
+    className="inline-flex items-center justify-center w-7 h-7 rounded-full"
+    style={{ backgroundColor: ACCENT.amberBg, color: ACCENT.amberLight }}
+    aria-hidden="true"
+  >
+    <Moon className="w-4 h-4" />
+  </span>
+);
+
 const CategoryIcon = ({ icon: Icon, label }) => (
   <div className="category-icon flex flex-col items-center gap-2 group cursor-pointer">
-    <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center bg-transparent group-hover:bg-white group-hover:text-black transition-all duration-300">
+    <div className="w-14 h-14 rounded-full border border-white/15 flex items-center justify-center bg-white/5 backdrop-blur-md group-hover:bg-white group-hover:text-black transition-all duration-300">
       <Icon className="w-6 h-6" />
     </div>
     <span className="text-xs font-[ABC] tracking-wider opacity-60 group-hover:opacity-100 transition-opacity">
