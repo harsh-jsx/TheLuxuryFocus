@@ -30,10 +30,23 @@ const ACCENT = {
 
 const Hero = () => {
   const containerRef = useRef(null);
+  const searchWrapperRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [stores, setStores] = useState([]);
   const [filteredResults, setFilteredResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
+        setIsSearching(false);
+      }
+    };
+    if (isSearching) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSearching]);
 
   useEffect(() => {
     const fetchAllStores = async () => {
@@ -187,7 +200,7 @@ const Hero = () => {
         </p>
 
         {/* Search Bar */}
-        <div className="search-container relative w-full max-w-2xl mx-auto mb-10 group">
+        <div ref={searchWrapperRef} className="search-container relative w-full max-w-2xl mx-auto mb-10 group">
           {/* Glow (CSS-driven) */}
           <div
             className="absolute -inset-1 rounded-full blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"
@@ -234,7 +247,7 @@ const Hero = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full left-0 right-0 mt-4 bg-white/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl border border-white/20 z-50 max-h-[400px] overflow-y-auto"
+                className="absolute z-50 top-full left-0 right-0 mt-4 bg-white/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl border border-white/20 z-50 max-h-[400px] overflow-y-auto"
               >
                 {filteredResults.length > 0 ? (
                   <div className="p-4 grid grid-cols-1 gap-2">
@@ -294,7 +307,7 @@ const Hero = () => {
         </div>
 
         {/* Quick actions */}
-        <div className="hero-element flex flex-wrap items-center justify-center gap-4 mb-12">
+        <div className="hero-element flex flex-wrap items-center justify-center gap-4 mb-12 -z-1">
           <Link
             to="/stores"
             className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 backdrop-blur-md transition-colors font-[ABC] text-[11px] uppercase tracking-[0.2em]"
@@ -325,7 +338,7 @@ const Hero = () => {
                 </div> */}
 
         {/* Categories */}
-        <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap">
+        <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap  -z-1">
           <CategoryIcon icon={Moon} label="Nightlife" />
           <CategoryIcon icon={BedDouble} label="Stay" />
           <CategoryIcon icon={Landmark} label="Heritage" />
