@@ -459,8 +459,18 @@ const About = () => {
             >
               The Vision
             </span>
-            <div className="text-3xl md:text-4xl lg:text-5xl font-[Albra] leading-[1.1] text-gray-900" role="heading" aria-level={2}>
-              <SplitText scrollTrigger once type="words" stagger={0.04} animationType="fade">
+            <div
+              className="text-3xl md:text-4xl lg:text-5xl font-[Albra] leading-[1.1] text-gray-900"
+              role="heading"
+              aria-level={2}
+            >
+              <SplitText
+                scrollTrigger
+                once
+                type="words"
+                stagger={0.04}
+                animationType="fade"
+              >
                 We don't just build websites — we create digital destinations.
               </SplitText>
             </div>
@@ -503,7 +513,7 @@ const About = () => {
       </section>
 
       {/* Quote */}
-      <section className="relative py-24 md:py-32 px-6 md:px-12 lg:px-20 bg-gray-50/80">
+      <section className="relative py-24 md:py-12 px-6 md:px-12 lg:px-20 bg-gray-50/80">
         <div className="max-w-4xl mx-auto">
           <div
             ref={quoteRef}

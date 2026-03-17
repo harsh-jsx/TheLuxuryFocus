@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSelectedPackageOptionStore } from '../stores/packageStore';
 import { useNavigate } from 'react-router-dom';
-import { X, ArrowRight, Loader2, CreditCard, Lock } from 'lucide-react';
-import { createOrder, updateOrderStatus, initiatePayment } from '../services/paymentService';
-import { auth } from '../firebase';
+import { ArrowRight, Loader2, CreditCard, Lock } from 'lucide-react';
+import { createOrder, initiatePayment } from '../services/paymentService';
+import { useAuth } from '../context/AuthContext';
 
 const Checkout = () => {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const selectedPackage = useSelectedPackageOptionStore((state) => state.selectedPackageOption);
 
-    // Form State
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -18,7 +18,7 @@ const Checkout = () => {
         city: '',
         zipCode: '',
         onBoarded: false,
-        uid: auth.currentUser.uid
+        uid: ''
     });
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -27,8 +27,18 @@ const Checkout = () => {
     useEffect(() => {
         if (!selectedPackage) {
             navigate('/packages');
+            return;
         }
-    }, [selectedPackage, navigate]);
+        if (currentUser) {
+            setFormData((prev) => ({ ...prev, uid: currentUser.uid }));
+        }
+    }, [selectedPackage, currentUser, navigate]);
+
+    useEffect(() => {
+        if (currentUser === null && selectedPackage) {
+            navigate('/login');
+        }
+    }, [currentUser, selectedPackage, navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,20 +56,16 @@ const Checkout = () => {
                 packageName: selectedPackage.name,
                 packagePrice: selectedPackage.price,
                 customer: formData,
-                amount: selectedPackage.price // You might need to parse "₹100-₹200" to a number
+                amount: selectedPackage.price,
             });
 
-            // 2. Initiate Payment (Mocked)
-            const paymentResult = await initiatePayment(orderId, selectedPackage.price, formData);
-
-            // 3. On Success (Mocked)
-            await updateOrderStatus(orderId, "SUCCESS", { paymentId: paymentResult.paymentId });
-
-            // Redirect to Success Page or show success message
-            // navigate('/success');
-            alert("Payment Successful! Order ID: " + orderId);
-            navigate('/');
-
+            // 2. Open Cashfree checkout (redirects away; on return, PaymentReturnHandler marks order SUCCESS)
+            await initiatePayment(orderId, selectedPackage.price, {
+                uid: formData.uid,
+                fullName: formData.fullName,
+                email: formData.email,
+                phone: formData.phone,
+            });
         } catch (err) {
             console.error("Payment failed:", err);
             setError("Payment failed: " + err.message);

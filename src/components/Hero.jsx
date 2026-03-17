@@ -38,7 +38,10 @@ const Hero = () => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
+      if (
+        searchWrapperRef.current &&
+        !searchWrapperRef.current.contains(e.target)
+      ) {
         setIsSearching(false);
       }
     };
@@ -194,13 +197,16 @@ const Hero = () => {
           </SplitText>
         </h1>
 
-        <p className="hero-element max-w-2xl font-[ABC] text-sm md:text-lg leading-relaxed text-white/70 tracking-wide mb-10">
+        <p className="capitalize hero-element max-w-2xl font-[ABC] text-sm md:text-lg leading-relaxed text-white/70 tracking-wide mb-10">
           Discover verified luxury brands, boutiques, and services — crafted for
           people who don’t compromise on quality.
         </p>
 
         {/* Search Bar */}
-        <div ref={searchWrapperRef} className="search-container relative w-full max-w-2xl mx-auto mb-10 group">
+        <div
+          ref={searchWrapperRef}
+          className="search-container relative w-full max-w-2xl mx-auto mb-10 group"
+        >
           {/* Glow (CSS-driven) */}
           <div
             className="absolute -inset-1 rounded-full blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"

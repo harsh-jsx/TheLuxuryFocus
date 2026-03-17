@@ -238,11 +238,11 @@ const Packages = () => {
                             style={{ width: '140px', background: `linear-gradient(90deg, ${ACCENT.amber}, transparent)` }}
                         />
                     </div>
-                    <p className="mt-8 text-lg text-gray-600 font-[ABC] max-w-xl leading-relaxed">
+                    <div className="mt-8 text-lg text-gray-600 font-[ABC] max-w-xl leading-relaxed">
                         <SplitText scrollTrigger={false} delay={0.65} stagger={0.03} animationType="fade">
                             Choose a listing plan or add bespoke services. Simple pricing, no hidden fees.
                         </SplitText>
-                    </p>
+                    </div>
                 </div>
             </section>
 

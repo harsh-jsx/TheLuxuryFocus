@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users: each user can read/write only their own document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Orders: authenticated users can create; users can read/update only their own (by customer.uid)
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null
+        && resource.data.customer.uid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Stores: public read; authenticated write (for onboarding)
+    match /stores/{storeId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Blogs: public read; restrict write (e.g. admin only) as needed
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}

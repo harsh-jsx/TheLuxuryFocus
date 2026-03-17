@@ -9,6 +9,7 @@ import { getConciergeRequestsByStoreId } from '../services/conciergeRequestServi
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Upload, Store, CheckCircle, MessageSquare, Mail, User, Phone, Calendar, Globe, Instagram, Target, FileText, Image as ImageIcon, Video, Sparkles, Tag } from 'lucide-react';
 import { LUXURY_CATEGORIES, AD_GOALS } from '../constants/categories';
+import { getPlanLimits } from '../constants/subscriptionPlans';
 
 const Dashboard = () => {
     const { currentUser } = useAuth();
@@ -45,7 +46,10 @@ const Dashboard = () => {
     const [logoFile, setLogoFile] = useState(null);
     const [bannerFile, setBannerFile] = useState(null);
     const [galleryFiles, setGalleryFiles] = useState([]);
+    const [videoUrls, setVideoUrls] = useState(['']);
     const [submitting, setSubmitting] = useState(false);
+
+    const planLimits = order ? getPlanLimits(order.packageId ?? (order.packageName === 'Premium' ? 3 : order.packageName === 'Standard' ? 2 : 1)) : getPlanLimits(1);
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -130,11 +134,23 @@ const Dashboard = () => {
 
     const handleGalleryChange = (e) => {
         const files = e.target.files ? Array.from(e.target.files) : [];
-        setGalleryFiles((prev) => [...prev, ...files].slice(0, 10));
+        const max = planLimits.maxImages;
+        setGalleryFiles((prev) => [...prev, ...files].slice(0, max));
     };
 
     const removeGalleryFile = (index) => {
         setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const addVideoUrl = () => {
+        if (videoUrls.length >= planLimits.maxVideos) return;
+        setVideoUrls((prev) => [...prev, '']);
+    };
+    const setVideoUrlAt = (index, value) => {
+        setVideoUrls((prev) => prev.map((v, i) => (i === index ? value : v)));
+    };
+    const removeVideoUrl = (index) => {
+        setVideoUrls((prev) => prev.filter((_, i) => i !== index));
     };
 
     const toggleGoal = (id) => {
@@ -145,24 +161,48 @@ const Dashboard = () => {
         e.preventDefault();
         setSubmitting(true);
 
+        const plan = getPlanLimits(order.packageId);
+        const galleryCount = galleryFiles.length;
+        const validVideoUrls = videoUrls.filter((u) => u && u.trim());
+        if (galleryCount > plan.maxImages) {
+            alert(`Your ${plan.name} plan allows up to ${plan.maxImages} images. Please remove ${galleryCount - plan.maxImages} image(s).`);
+            setSubmitting(false);
+            return;
+        }
+        if (validVideoUrls.length > plan.maxVideos) {
+            alert(`Your ${plan.name} plan allows up to ${plan.maxVideos} video(s). Please remove ${validVideoUrls.length - plan.maxVideos} video(s).`);
+            setSubmitting(false);
+            return;
+        }
+
         try {
             const logoUrl = logoFile ? await uploadToCloudinary(logoFile) : null;
             const bannerUrl = bannerFile ? await uploadToCloudinary(bannerFile) : null;
             const galleryUrls = [];
-            for (const file of galleryFiles) {
+            for (const file of galleryFiles.slice(0, plan.maxImages)) {
                 const url = await uploadToCloudinary(file);
                 if (url) galleryUrls.push(url);
             }
 
+            const storePayload = {
+                ...storeData,
+                storeWebsite: plan.allowWebsite ? storeData.storeWebsite : '',
+                storeInstagram: plan.allowSocial ? storeData.storeInstagram : '',
+                storeSocialOther: plan.allowSocial ? storeData.storeSocialOther : '',
+            };
+
             const payload = {
                 userId: currentUser.uid,
                 orderId: order.id,
-                ...storeData,
+                planId: order.packageId,
+                ...storePayload,
                 logoUrl,
                 bannerUrl,
                 galleryUrls,
+                videoUrls: validVideoUrls,
+                videoUrl: validVideoUrls[0] || null,
                 goals,
-                goalsOther: storeData.goalsOther,
+                goalsOther: storePayload.goalsOther,
                 createdAt: serverTimestamp(),
             };
 
@@ -173,11 +213,21 @@ const Dashboard = () => {
             const orderRef = doc(db, "orders", order.id);
             await updateDoc(orderRef, {
                 "customer.onBoarded": true,
-                "customer.storeName": storeData.storeName,
+                "customer.storeName": storePayload.storeName,
             });
 
             setStoreId(newStoreId);
-            setStoreDetails({ id: newStoreId, ...storeData, logoUrl, bannerUrl, galleryUrls, goals, goalsOther: storeData.goalsOther });
+            setStoreDetails({
+                id: newStoreId,
+                ...storePayload,
+                logoUrl,
+                bannerUrl,
+                galleryUrls,
+                videoUrls: validVideoUrls,
+                goals,
+                goalsOther: storePayload.goalsOther,
+                planId: order.packageId,
+            });
             setIsOnboarded(true);
         } catch (error) {
             console.error("Onboarding failed:", error);
@@ -218,8 +268,14 @@ const Dashboard = () => {
                         <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Store size={32} />
                         </div>
+                        <div className="inline-block px-4 py-2 rounded-full bg-amber-100 text-amber-800 text-sm font-[ABC] uppercase tracking-wider mb-4">
+                            Your plan: {planLimits.name} — {planLimits.maxImages} image{planLimits.maxImages !== 1 ? 's' : ''}
+                            {planLimits.maxVideos > 0 && `, ${planLimits.maxVideos} video${planLimits.maxVideos !== 1 ? 's' : ''}`}
+                            {planLimits.allowWebsite && ', website'}
+                            {planLimits.allowSocial && ', social links'}
+                        </div>
                         <h1 className="text-3xl md:text-4xl font-bold mb-4 font-[Albra]">Luxury Brand Onboarding</h1>
-                        <p className="text-gray-500 font-[ABC]">Share your brand story and requirements. We'll tailor our platform to you.</p>
+                        <p className="text-gray-500 font-[ABC]">Set up your store within your plan limits.</p>
                     </div>
 
                     <form onSubmit={handleOnboardingSubmit} className="space-y-10">
@@ -296,24 +352,30 @@ const Dashboard = () => {
                                         ))}
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Website</label>
-                                    <input type="url" name="storeWebsite" value={storeData.storeWebsite} onChange={handleInputChange}
-                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
-                                        placeholder="https://..." />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Instagram handle</label>
-                                    <input type="text" name="storeInstagram" value={storeData.storeInstagram} onChange={handleInputChange}
-                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
-                                        placeholder="username (no @)" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Other social (URL)</label>
-                                    <input type="url" name="storeSocialOther" value={storeData.storeSocialOther} onChange={handleInputChange}
-                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
-                                        placeholder="Facebook, LinkedIn, etc." />
-                                </div>
+                                {planLimits.allowWebsite && (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700 font-[ABC]">Website</label>
+                                        <input type="url" name="storeWebsite" value={storeData.storeWebsite} onChange={handleInputChange}
+                                            className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                            placeholder="https://..." />
+                                    </div>
+                                )}
+                                {planLimits.allowSocial && (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-700 font-[ABC]">Instagram handle</label>
+                                            <input type="text" name="storeInstagram" value={storeData.storeInstagram} onChange={handleInputChange}
+                                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                                placeholder="username (no @)" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-700 font-[ABC]">Other social (URL)</label>
+                                            <input type="url" name="storeSocialOther" value={storeData.storeSocialOther} onChange={handleInputChange}
+                                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                                placeholder="Facebook, LinkedIn, etc." />
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -332,11 +394,22 @@ const Dashboard = () => {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Gallery (up to 10 images)</label>
-                                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 cursor-pointer relative">
-                                        <input type="file" accept="image/*" multiple onChange={handleGalleryChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Gallery (up to {planLimits.maxImages} image{planLimits.maxImages !== 1 ? 's' : ''})</label>
+                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center relative ${galleryFiles.length >= planLimits.maxImages ? 'border-gray-100 bg-gray-50 cursor-not-allowed' : 'border-gray-200 hover:bg-gray-50 cursor-pointer'}`}>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleGalleryChange}
+                                            disabled={galleryFiles.length >= planLimits.maxImages}
+                                            className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                        />
                                         <ImageIcon className="mx-auto text-gray-400 mb-1" size={22} />
-                                        <p className="text-xs text-gray-500 font-[ABC]">Add product/service images</p>
+                                        <p className="text-xs text-gray-500 font-[ABC]">
+                                            {galleryFiles.length >= planLimits.maxImages
+                                                ? `${planLimits.maxImages} images (plan limit)`
+                                                : 'Add product/service images'}
+                                        </p>
                                     </div>
                                     {galleryFiles.length > 0 && (
                                         <ul className="flex flex-wrap gap-2 mt-2">
@@ -349,12 +422,30 @@ const Dashboard = () => {
                                         </ul>
                                     )}
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Video URL (optional)</label>
-                                    <input type="url" name="videoUrl" value={storeData.videoUrl} onChange={handleInputChange}
-                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
-                                        placeholder="YouTube, Vimeo, or direct link" />
-                                </div>
+                                {planLimits.maxVideos > 0 && (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-700 font-[ABC]">Video URL{planLimits.maxVideos > 1 ? 's' : ''} (up to {planLimits.maxVideos})</label>
+                                        {videoUrls.slice(0, planLimits.maxVideos).map((url, i) => (
+                                            <div key={i} className="flex gap-2">
+                                                <input
+                                                    type="url"
+                                                    value={url}
+                                                    onChange={(e) => setVideoUrlAt(i, e.target.value)}
+                                                    className="flex-1 p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                                    placeholder="YouTube, Vimeo, or direct link"
+                                                />
+                                                {videoUrls.length > 1 && (
+                                                    <button type="button" onClick={() => removeVideoUrl(i)} className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-xl font-[ABC] text-sm">Remove</button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {videoUrls.length < planLimits.maxVideos && (
+                                            <button type="button" onClick={addVideoUrl} className="text-sm text-purple-600 font-[ABC] hover:underline">
+                                                + Add another video
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -425,6 +516,7 @@ const Dashboard = () => {
     const s = storeDetails || {};
     const goalLabels = (s.goals || []).map((id) => AD_GOALS.find((g) => g.id === id)?.label || id).filter(Boolean);
     if (s.goals?.includes('other') && s.goalsOther) goalLabels.push(s.goalsOther);
+    const dashboardPlan = getPlanLimits(s.planId ?? order?.packageId);
 
     return (
         <div className="min-h-screen bg-gray-50 py-24 px-4">
@@ -441,11 +533,12 @@ const Dashboard = () => {
                     </div>
                     <div className="bg-green-100 text-green-600 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 font-[ABC]">
                         <CheckCircle size={16} />
-                        {order?.packageName || 'Active plan'}
+                        {order?.packageName || dashboardPlan.name}
                     </div>
                 </div>
 
-                {/* Analytics */}
+                {/* Analytics — Premium only */}
+                {dashboardPlan.allowAnalytics && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 className="font-bold text-gray-500 mb-2 font-[ABC]">Profile Views</h3>
@@ -463,6 +556,7 @@ const Dashboard = () => {
                         <p className="text-xs text-gray-400 mt-1 font-[ABC]">Clicks from stores page</p>
                     </div>
                 </div>
+                )}
 
                 {/* Brand profile summary */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
