@@ -1,25 +1,50 @@
 @import "tailwindcss";
 
-
 @font-face {
-  font-family: 'ABC';
-  src: url('../public/fonts/ABCReproMono-Regular.otf');
-}
-
-
-@font-face {
-  font-family: 'Albra';
-  src: url('../public/fonts/AlbraGrotesk-Bold.otf');
+  font-family: "ABC";
+  src: url("../public/fonts/ABCReproMono-Regular.otf");
 }
 
 @font-face {
-  font-family: 'neue';
-  src: url('../public/fonts/NeueMontreal-Light.otf') format('opentype');
+  font-family: "Albra";
+  src: url("../public/fonts/AlbraGrotesk-Bold.otf");
 }
 
 @font-face {
-  font-family: 'druk';
-  src: url('../public/fonts/Druk-CondSuper.otf') format('opentype');
+  font-family: "neue";
+  src: url("../public/fonts/NeueMontreal-Light.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "druk";
+  src: url("../public/fonts/Druk-CondSuper.otf") format("opentype");
+}
+
+/* Tailwind v4 theme tokens used by Packages page */
+@theme {
+  --color-background: #0b0b0c;
+  --color-foreground: #f5f5f5;
+  --color-card: #121214;
+  --color-muted: #1a1a1d;
+  --color-surface: #151519;
+  --color-border: #2a2a31;
+  --color-muted-foreground: #9a9aa3;
+  --color-gold: #c9a227;
+
+  --font-display: "Albra", ui-serif, Georgia, serif;
+  --font-body: "neue", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-standard: 0 12px 34px rgba(5, 5, 10, 0.22);
+  --shadow-featured:
+    0 22px 58px rgba(5, 5, 10, 0.34),
+    0 0 0 1px rgba(201, 162, 39, 0.14);
+  --shadow-hover: 0 20px 44px rgba(5, 5, 10, 0.28);
+}
+
+/* Raw channel vars for custom keyframe utilities below */
+:root {
+  --foreground: 0 0% 97%;
+  --gold: 45 67% 47%;
 }
 
 h1,
@@ -38,8 +63,6 @@ p {
   line-height: 1.2;
   letter-spacing: 0.02em;
 }
-
-
 
 .logo {
   height: 6em;
@@ -78,4 +101,167 @@ p {
 
 .read-the-docs {
   color: #888;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Animated dot grid background */
+.dot-grid {
+  background-image: radial-gradient(
+    circle,
+    hsl(var(--foreground) / 0.06) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+}
+
+/* Marquee */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Magnetic hover glow */
+.card-glow {
+  position: relative;
+}
+.card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, hsl(var(--gold) / 0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: 0;
+  pointer-events: none;
+}
+.card-glow:hover::before {
+  opacity: 1;
+}
+
+/* Floating orb animation */
+@keyframes orb-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -20px) scale(1.05);
+  }
+  50% {
+    transform: translate(-10px, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(-25px, -10px) scale(1.02);
+  }
+}
+.animate-orb {
+  animation: orb-float 20s ease-in-out infinite;
+}
+.animate-orb-delayed {
+  animation: orb-float 25s ease-in-out infinite reverse;
+}
+.animate-orb-slow {
+  animation: orb-float 30s ease-in-out infinite;
+  animation-delay: -10s;
+}
+
+/* Horizontal scroll ticker */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-ticker {
+  animation: ticker 20s linear infinite;
+}
+
+/* Subtle shine sweep on featured card */
+@keyframes shine {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+.shine-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--gold) / 0.06),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Number counter style */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Accent utilities used directly in Packages page */
+.gold-gradient {
+  background: linear-gradient(135deg, #f3dd97 0%, #c9a227 45%, #9f7f1f 100%);
+}
+
+.gold-text {
+  background: linear-gradient(135deg, #f3dd97 0%, #c9a227 45%, #9f7f1f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
