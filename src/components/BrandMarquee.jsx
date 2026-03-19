@@ -23,8 +23,8 @@ function BrandLogo({ brand }) {
             <img
                 src={brand.logo}
                 alt={brand.name}
-                className="h-8 sm:h-10 w-auto object-contain opacity-35 hover:opacity-60 transition-opacity duration-500"
-                style={{ filter: "grayscale(100%)" }}
+                className="h-8 sm:h-10 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-500"
+                style={{ filter: "none" }}
                 draggable={false}
             />
         </div>
