@@ -17,6 +17,7 @@ const SplitText = ({
     once = true
 }) => {
     const elRef = useRef(null);
+    const isTextLike = typeof children === 'string' || typeof children === 'number';
 
     useGSAP(() => {
         const el = elRef.current;
@@ -67,6 +68,33 @@ const SplitText = ({
                     };
             }
 
+            // Fallback: if there are no split child nodes (e.g. children contains JSX),
+            // animate the wrapper itself so the component still works consistently.
+            if (!elements.length) {
+                const wrapperFrom = { y: 20, opacity: 0 };
+                const wrapperTo = {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    delay,
+                };
+                if (scrollTrigger) {
+                    gsap.fromTo(el, wrapperFrom, {
+                        ...wrapperTo,
+                        scrollTrigger: {
+                            trigger: el,
+                            start: "top 80%",
+                            once: once,
+                            invalidateOnRefresh: true
+                        }
+                    });
+                } else {
+                    gsap.fromTo(el, wrapperFrom, wrapperTo);
+                }
+                return;
+            }
+
             if (scrollTrigger) {
                 gsap.fromTo(
                     elements,
@@ -93,14 +121,22 @@ const SplitText = ({
         }, elRef);
 
         return () => ctx.revert();
-    }, [delay, type, stagger, animationType, scrollTrigger, once]);
+    }, [children, delay, type, stagger, animationType, scrollTrigger, once]);
 
-    if (typeof children !== 'string') {
-        return <div className={className} style={style}>{children}</div>;
+    if (!isTextLike) {
+        return (
+            <div
+                ref={elRef}
+                className={`${className} leading-tight`}
+                style={{ ...style, perspective: '1000px' }}
+            >
+                {children}
+            </div>
+        );
     }
 
     const renderElements = () =>
-        children.trim().split(/\s+/).map((word, wordIndex) => (
+        String(children).trim().split(/\s+/).map((word, wordIndex) => (
             <div
                 key={wordIndex}
                 className="inline-block overflow-hidden align-top mr-[0.25em]"

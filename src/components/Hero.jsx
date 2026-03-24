@@ -182,14 +182,14 @@ const Hero = () => {
           style={{ boxShadow: "0 0 0 1px rgba(201,162,39,0.12) inset" }}
         >
           <SparklesBadge />
-          <span className="font-[ABC] text-[11px] uppercase tracking-[0.2em] text-white/75">
+          <span className="font-[ABC] text-[14px] uppercase tracking-[0.2em] text-white/75">
             Curated luxury brands & services
           </span>
         </div>
 
         <h1 className="hero-element font-[Albra] text-4xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6">
           <SplitText delay={0.2}>
-            Your gateway to{" "}
+            Your Gateway to{" "}
             <span style={{ color: ACCENT.amber }} className="italic">
               premium
             </span>{" "}
@@ -199,6 +199,7 @@ const Hero = () => {
 
         <p className="capitalize hero-element max-w-2xl font-[ABC] text-sm md:text-lg leading-relaxed text-white/70 tracking-wide mb-10">
           Discover verified luxury brands, boutiques, and services — crafted for
+          <br />
           people who don’t compromise on quality.
         </p>
 

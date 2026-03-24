@@ -10,6 +10,52 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const normalizeCategory = (value = '') =>
+    value
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+
+const CATEGORY_ALIAS_TOKENS = {
+    'hotels resorts': ['hotel', 'resort', 'stay'],
+    'restaurants fine dining': ['restaurant', 'dining', 'food', 'cafe'],
+    'travel tourism': ['tourism', 'travel', 'trip'],
+    'fashion apparel': ['fashion', 'apparel', 'shop'],
+    'jewelry watches': ['jewelry', 'jewellery', 'watch', 'shop'],
+    automobiles: ['auto', 'car', 'vehicle'],
+    'beauty wellness': ['beauty', 'wellness', 'spa', 'salon'],
+    'art collectibles': ['art', 'collectible', 'museum'],
+    'event management': ['event', 'wedding', 'party'],
+    'private clubs lifestyle': ['club', 'lifestyle'],
+    'technology gadgets': ['technology', 'gadget', 'tech'],
+    'pet care services': ['pet', 'animal'],
+    'gifting luxury services': ['gift', 'gifting', 'concierge'],
+};
+
+const categoryMatches = (selectedCategory, storeCategory) => {
+    if (!selectedCategory) return true;
+    if (!storeCategory) return false;
+
+    const selectedNorm = normalizeCategory(selectedCategory);
+    const storeNorm = normalizeCategory(storeCategory);
+
+    if (selectedNorm === storeNorm) return true;
+    if (storeNorm.includes(selectedNorm) || selectedNorm.includes(storeNorm)) return true;
+
+    const selectedTokens = selectedNorm.split(' ').filter(Boolean);
+    const storeTokens = storeNorm.split(' ').filter(Boolean);
+    const tokenOverlap = selectedTokens.some((token) => storeTokens.includes(token));
+    if (tokenOverlap) return true;
+
+    const aliasTokenKey = Object.keys(CATEGORY_ALIAS_TOKENS).find(
+        (key) => selectedNorm.includes(key) || key.includes(selectedNorm)
+    );
+    if (!aliasTokenKey) return false;
+    const aliasTokens = CATEGORY_ALIAS_TOKENS[aliasTokenKey];
+    return aliasTokens.some((token) => storeNorm.includes(token));
+};
+
 const Stores = () => {
     const [stores, setStores] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -56,13 +102,19 @@ const Stores = () => {
         const matchesCity = selectedCity
             ? store.storeCity?.toLowerCase() === selectedCity.toLowerCase()
             : true;
-        const matchesCategory = selectedCategory ? store.storeCategory === selectedCategory : true;
+        const matchesCategory = categoryMatches(selectedCategory, store.storeCategory);
         return matchesSearch && matchesCity && matchesCategory;
     });
+
+    const categoryOptions = selectedCategory &&
+        !categories.some((category) => category.toLowerCase() === selectedCategory.toLowerCase())
+        ? [selectedCategory, ...categories]
+        : categories;
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const cityParam = params.get('city');
+        const categoryParam = params.get('category');
 
         if (cityParam) {
             const normalized = cities.find(
@@ -70,7 +122,14 @@ const Stores = () => {
             );
             setSelectedCity(normalized || cityParam);
         }
-    }, [location.search, cities]);
+
+        if (categoryParam) {
+            const normalizedCategory = categories.find(
+                (category) => category.toLowerCase() === categoryParam.toLowerCase()
+            );
+            setSelectedCategory(normalizedCategory || categoryParam);
+        }
+    }, [location.search, cities, categories]);
 
     useGSAP(() => {
         if (!containerRef.current) return;
@@ -102,7 +161,7 @@ const Stores = () => {
                 once: true,
             },
         });
-    }, { scope: containerRef, dependencies: [loading, filteredStores] });
+    }, { scope: containerRef, dependencies: [loading] });
 
     return (
         <div ref={containerRef} className="min-h-screen bg-white text-gray-900 pt-28 pb-24 px-4 md:px-8">
@@ -175,7 +234,7 @@ const Stores = () => {
                                     className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none transition-all font-[ABC] text-sm appearance-none cursor-pointer"
                                 >
                                     <option value="">All Categories</option>
-                                    {categories.map(category => (
+                                    {categoryOptions.map(category => (
                                         <option key={category} value={category}>{category}</option>
                                     ))}
                                 </select>
@@ -236,7 +295,7 @@ const Stores = () => {
                                                 <span className="font-[Albra] text-5xl text-gray-300">{store.storeName?.[0] || '?'}</span>
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                                        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
                                         {store.storeCategory && (
                                             <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] font-[ABC] uppercase tracking-wider text-gray-800">
                                                 {store.storeCategory}

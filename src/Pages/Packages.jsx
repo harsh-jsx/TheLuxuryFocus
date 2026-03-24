@@ -116,7 +116,6 @@ const TICKER_ITEMS = [
 // Mouse-tracking card tilt
 const PricingCard = ({ pkg, index, selected, onSelect, cardRef }) => {
   const ref = useRef(null);
-  const featured = index === 1;
   const PkgIcon = pkg.icon;
 
   const handleMouseMove = (e) => {
@@ -143,30 +142,19 @@ const PricingCard = ({ pkg, index, selected, onSelect, cardRef }) => {
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`group relative flex flex-col transition-[transform,box-shadow] duration-500 will-change-transform
-        ${
-          featured
-            ? "bg-card rounded-[28px] md:rounded-[32px] shadow-featured md:-my-4 md:z-10 shine-sweep overflow-hidden border-2 border-gold/20"
-            : "bg-card rounded-[24px] md:rounded-[28px] shadow-standard card-glow overflow-hidden border border-border hover:shadow-featured hover:border-gold/10"
-        }`}
+      className={`group relative flex flex-col h-full transition-[transform,box-shadow] duration-500 will-change-transform
+        bg-card rounded-[28px] md:rounded-[32px] shadow-featured shine-sweep overflow-hidden border-2 border-gold/20`}
       style={{ opacity: 0 }}
     >
-      {/* Featured top accent bar */}
-      {featured && <div className="h-1 w-full gold-gradient" />}
+      <div className="h-1 w-full gold-gradient" />
 
       <div className="p-6 sm:p-8 md:p-10 flex flex-col flex-1 relative z-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                  featured ? "gold-gradient" : "bg-muted"
-                }`}
-              >
-                <PkgIcon
-                  className={`w-5 h-5 ${featured ? "text-foreground" : "text-muted-foreground"}`}
-                />
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center gold-gradient">
+                <PkgIcon className="w-5 h-5 text-foreground" />
               </div>
               <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
                 {pkg.name}
@@ -247,13 +235,9 @@ const PricingCard = ({ pkg, index, selected, onSelect, cardRef }) => {
           disabled={selected}
           className={`group/btn relative w-full mt-8 py-4 rounded-2xl overflow-hidden transition-all duration-300 active:scale-[0.97] will-change-transform ${
             selected ? "cursor-wait opacity-70" : ""
-          } ${featured ? "gold-gradient shadow-lg shadow-gold/20" : "bg-foreground hover:shadow-lg"}`}
+          } gold-gradient shadow-lg shadow-gold/20`}
         >
-          <span
-            className={`relative z-10 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] ${
-              featured ? "text-foreground" : "text-background"
-            }`}
-          >
+          <span className="relative z-10 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-foreground">
             {selected ? (
               <>
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -266,8 +250,8 @@ const PricingCard = ({ pkg, index, selected, onSelect, cardRef }) => {
               </>
             )}
           </span>
-          {!featured && !selected && (
-            <div className="absolute inset-0 gold-gradient translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]" />
+          {!selected && (
+            <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]" />
           )}
         </button>
       </div>
@@ -428,9 +412,9 @@ const Packages = () => {
         <div className="absolute inset-0 dot-grid opacity-40" />
 
         {/* Floating orbs */}
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full bg-gold/[0.04] blur-[100px] animate-orb" />
-        <div className="absolute top-[40%] left-[-10%] w-[400px] h-[400px] md:w-[600px] md:h-[600px] rounded-full bg-gold/[0.03] blur-[120px] animate-orb-delayed" />
-        <div className="absolute bottom-[-5%] right-[20%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-foreground/[0.02] blur-[80px] animate-orb-slow" />
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full bg-gold/4 blur-[100px] animate-orb" />
+        <div className="absolute top-[40%] left-[-10%] w-[400px] h-[400px] md:w-[600px] md:h-[600px] rounded-full bg-gold/3 blur-[120px] animate-orb-delayed" />
+        <div className="absolute bottom-[-5%] right-[20%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-foreground/2 blur-[80px] animate-orb-slow" />
 
         {/* Subtle radial gradient center */}
         <div
@@ -476,9 +460,11 @@ const Packages = () => {
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold tracking-tight leading-[0.95] mb-6 sm:mb-8 text-balance">
             <SplitText delay={0.1}>Plans that</SplitText>
-            <br />
             <span className="relative inline-block">
-              <SplitText className="gold-text" delay={0.4}>
+              <SplitText
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold tracking-tight leading-[0.95] mb-6 sm:mb-8 text-balance"
+                delay={0.3}
+              >
                 scale
               </SplitText>
               <span
@@ -551,7 +537,7 @@ const Packages = () => {
           </div>
 
           {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 md:items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
             {PACKAGES.map((pkg, i) => (
               <PricingCard
                 key={pkg.id}
@@ -622,8 +608,8 @@ const Packages = () => {
           <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden bg-foreground px-6 sm:px-12 md:px-20 py-12 sm:py-16 md:py-20 text-center">
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-gold/[0.08] blur-[80px]" />
-              <div className="absolute bottom-0 left-0 w-[200px] h-[200px] rounded-full bg-gold/[0.05] blur-[60px]" />
+              <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-gold/8 blur-[80px]" />
+              <div className="absolute bottom-0 left-0 w-[200px] h-[200px] rounded-full bg-gold/5 blur-[60px]" />
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold tracking-tight text-background mb-3 sm:mb-4 text-balance">
