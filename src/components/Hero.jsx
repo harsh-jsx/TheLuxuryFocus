@@ -191,7 +191,7 @@ const Hero = () => {
           <SplitText delay={0.2}>
             Your Gateway to{" "}
             <span style={{ color: ACCENT.amber }} className="italic">
-              premium
+              Premium
             </span>{" "}
             experiences
           </SplitText>

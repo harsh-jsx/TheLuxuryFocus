@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { useAuth } from '../context/AuthContext'
+import { sendSignupEmail } from '../services/emailService'
 
 
 const Signup = () => {
@@ -40,7 +41,18 @@ const Signup = () => {
 
     const handleGoogleSignIn = async () => {
         try {
-            await googleSignIn()
+            const user = await googleSignIn()
+
+            // Do not block signup flow if email provider fails.
+            try {
+                await sendSignupEmail({
+                    email: user?.email,
+                    name: user?.displayName
+                })
+            } catch (emailError) {
+                console.error('Failed to send signup email via EmailJS.', emailError)
+            }
+
             navigate('/') // Redirect to dashboard or home
         } catch (error) {
             setError('Failed to sign up with Google.')
