@@ -4,6 +4,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { useAuth } from '../context/AuthContext' // Assuming AuthContext is in ../context/AuthContext
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '../firebase'
+import { sendSignupEmail } from '../services/emailService'
 
 const Login = () => {
     const containerRef = useRef(null)
@@ -40,7 +43,22 @@ const Login = () => {
 
     const handleGoogleSignIn = async () => {
         try {
-            await googleSignIn()
+            const user = await googleSignIn()
+
+            // If this user does not exist in Firestore yet, send onboarding email.
+            const userRef = doc(db, 'users', user.uid)
+            const userSnap = await getDoc(userRef)
+            if (!userSnap.exists()) {
+                try {
+                    await sendSignupEmail({
+                        email: user?.email,
+                        name: user?.displayName
+                    })
+                } catch (emailError) {
+                    console.error('Failed to send new-user email via EmailJS.', emailError)
+                }
+            }
+
             navigate('/') // Redirect to dashboard or home
         } catch (error) {
             setError('Failed to sign in with Google.')

@@ -2,7 +2,9 @@ import emailjs from "@emailjs/browser";
 
 export async function sendSignupEmail({ email, name }) {
   const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const templateId = import.meta.env.VITE_EMAILJS_SIGNUP_TEMPLATE_ID;
+  const templateId =
+    import.meta.env.VITE_EMAILJS_SIGNUP_TEMPLATE_ID ||
+    import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
   const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
   if (!serviceId || !templateId || !publicKey) {
@@ -16,6 +18,8 @@ export async function sendSignupEmail({ email, name }) {
     serviceId,
     templateId,
     {
+      // Your EmailJS template expects `email` as recipient variable.
+      email,
       to_email: email,
       user_email: email,
       user_name: name || "User",
