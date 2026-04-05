@@ -22,7 +22,7 @@ import AdminOrders from "./Pages/Admin/AdminOrders";
 import StoreProfile from "./Pages/StoreProfile";
 import About from "./Pages/About";
 import PaymentReturn from "./Pages/PaymentReturn";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
 import RootLayout from "./components/RootLayout";
 
 const App = () => {
