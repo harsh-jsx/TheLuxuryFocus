@@ -1,45 +1,45 @@
-import { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Lenis from 'lenis'
-import Preloader from './components/Preloader'
-import Navbar from './components/Navbar'
-import Home from './Pages/Home'
-import Categories from './Pages/Categories'
-import Packages from './Pages/Packages'
-import Footer from './components/Footer'
-import Login from './Pages/Login'
-import Signup from './Pages/Signup'
-import Checkout from './components/Checkout'
-import Dashboard from './Pages/Dashboard'
-import Stores from './Pages/Stores'
-import BlogPost from './Pages/BlogPost'
-import AdminLayout from './Pages/Admin/AdminLayout'
-import AdminDashboard from './Pages/Admin/AdminDashboard'
-import AdminBlogs from './Pages/Admin/AdminBlogs'
-import AdminUsers from './Pages/Admin/AdminUsers'
-import AdminStores from './Pages/Admin/AdminStores'
-import AdminOrders from './Pages/Admin/AdminOrders'
-import StoreProfile from './Pages/StoreProfile'
-import About from './Pages/About'
-
-import RootLayout from './components/RootLayout'
+import { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Lenis from "lenis";
+import Preloader from "./components/Preloader";
+import Navbar from "./components/Navbar";
+import Home from "./Pages/Home";
+import Categories from "./Pages/Categories";
+import Packages from "./Pages/Packages";
+import Footer from "./components/Footer";
+import Login from "./Pages/Login";
+import Signup from "./Pages/Signup";
+import Checkout from "./components/Checkout";
+import Dashboard from "./Pages/Dashboard";
+import Stores from "./Pages/Stores";
+import BlogPost from "./Pages/BlogPost";
+import AdminLayout from "./Pages/Admin/AdminLayout";
+import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import AdminBlogs from "./Pages/Admin/AdminBlogs";
+import AdminUsers from "./Pages/Admin/AdminUsers";
+import AdminStores from "./Pages/Admin/AdminStores";
+import AdminOrders from "./Pages/Admin/AdminOrders";
+import StoreProfile from "./Pages/StoreProfile";
+import About from "./Pages/About";
+import { Analytics } from "@vercel/analytics/next";
+import RootLayout from "./components/RootLayout";
 
 const App = () => {
-
   // Smooth Scroll
   useEffect(() => {
-    const lenis = new Lenis()
+    const lenis = new Lenis();
 
     function raf(time) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
+      lenis.raf(time);
+      requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf)
-  }, [])
+    requestAnimationFrame(raf);
+  }, []);
 
   return (
     <Router>
+      <Analytics />
       <Preloader />
       <Routes>
         {/* Public Routes with Navbar and Footer */}
@@ -64,11 +64,14 @@ const App = () => {
           <Route path="users" element={<AdminUsers />} />
           <Route path="stores" element={<AdminStores />} />
           <Route path="orders" element={<AdminOrders />} />
-          <Route path="settings" element={<div>Settings Component (TBD)</div>} />
+          <Route
+            path="settings"
+            element={<div>Settings Component (TBD)</div>}
+          />
         </Route>
       </Routes>
     </Router>
-  )
-}
+  );
+};
 
-export default App
+export default App;
