@@ -21,6 +21,7 @@ import AdminStores from "./Pages/Admin/AdminStores";
 import AdminOrders from "./Pages/Admin/AdminOrders";
 import StoreProfile from "./Pages/StoreProfile";
 import About from "./Pages/About";
+import PaymentReturn from "./Pages/PaymentReturn";
 import { Analytics } from "@vercel/analytics/next";
 import RootLayout from "./components/RootLayout";
 
@@ -53,6 +54,7 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/payment-return" element={<PaymentReturn />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/store/:id" element={<StoreProfile />} />
         </Route>

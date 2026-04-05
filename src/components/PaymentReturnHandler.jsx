@@ -1,36 +1,26 @@
-import { useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { updateOrderStatus } from '../services/paymentService';
-import { useSelectedPackageOptionStore } from '../stores/packageStore';
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 /**
- * When Cashfree redirects back with ?payment=return&order_id=..., mark order SUCCESS and send user to dashboard.
+ * When Cashfree redirects back with ?payment=return&order_id=..., route user
+ * to the dedicated payment return page that verifies and activates package.
  */
 export default function PaymentReturnHandler() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const location = useLocation();
     const navigate = useNavigate();
-    const setSelectedPackageOption = useSelectedPackageOptionStore((s) => s.setSelectedPackageOption);
 
     useEffect(() => {
-        const orderId = searchParams.get('order_id');
-        const payment = searchParams.get('payment');
-        if (payment !== 'return' || !orderId) return;
+        const params = new URLSearchParams(location.search);
+        const orderId = params.get("order_id");
+        const payment = params.get("payment");
 
-        let cancelled = false;
-        (async () => {
-            try {
-                await updateOrderStatus(orderId, 'SUCCESS', { paymentReturn: true });
-                if (cancelled) return;
-                setSelectedPackageOption(null);
-                setSearchParams({}, { replace: true });
-                navigate('/dashboard', { replace: true });
-            } catch (err) {
-                console.error('Payment return: failed to update order', err);
-                if (!cancelled) setSearchParams({}, { replace: true });
-            }
-        })();
-        return () => { cancelled = true; };
-    }, [searchParams, setSearchParams, navigate, setSelectedPackageOption]);
+        if (payment !== "return" || !orderId) return;
+        if (location.pathname === "/payment-return") return;
+
+        navigate(`/payment-return?order_id=${encodeURIComponent(orderId)}`, {
+            replace: true,
+        });
+    }, [location.pathname, location.search, navigate]);
 
     return null;
 }
