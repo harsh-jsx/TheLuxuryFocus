@@ -581,6 +581,202 @@ const StoreProfile = () => {
               </div>
             </div>
           )}
+
+          <div
+            ref={(el) => {
+              sectionRefs.current.reviews = el;
+            }}
+            className="p-6 md:p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 space-y-6"
+          >
+            <h4 className="text-2xl font-[Albra]">Reviews & Ratings</h4>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-green-600 text-white flex items-center justify-center text-4xl font-[Albra]">
+                {avgRating ? avgRating.toFixed(1) : "—"}
+              </div>
+              <div>
+                <p className="font-[Albra] text-3xl text-gray-900">
+                  {ratings.length || 0} Ratings
+                </p>
+                <p className="text-sm text-gray-500 font-[ABC]">
+                  Rating index based on submitted reviews.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="font-[Albra] text-3xl mb-3">Start your Review</p>
+              <div className="flex flex-wrap items-center gap-2">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onMouseEnter={() => setHoveredRating(value)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    onClick={() => {
+                      setRatingForm((prev) => ({ ...prev, rating: value }));
+                      setShowReviewForm(true);
+                    }}
+                    className="w-11 h-11 rounded-lg border border-gray-300 bg-white hover:border-orange-400 flex items-center justify-center"
+                    aria-label={`Rate ${value} stars`}
+                  >
+                    <Star
+                      size={18}
+                      className={
+                        (hoveredRating || ratingForm.rating) >= value
+                          ? "text-orange-500 fill-orange-400"
+                          : "text-gray-400"
+                      }
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {showReviewForm && (
+              <form onSubmit={submitRating} className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
+                <input
+                  type="text"
+                  required
+                  value={ratingForm.name}
+                  onChange={(e) => setRatingForm((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full p-3 rounded-xl border border-gray-200 outline-none font-[ABC] text-sm"
+                  placeholder="Your name"
+                />
+                <p className="text-xs font-[ABC] text-gray-500">
+                  Selected: {ratingForm.rating}/5 · {ratingLabel}
+                </p>
+                <textarea
+                  required
+                  rows={4}
+                  maxLength={400}
+                  value={ratingForm.review}
+                  onChange={(e) => setRatingForm((prev) => ({ ...prev, review: e.target.value }))}
+                  className="w-full p-3 rounded-xl border border-gray-200 outline-none font-[ABC] text-sm resize-none"
+                  placeholder="Share your experience..."
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-gray-400 font-[ABC]">
+                    {ratingForm.review.length}/400
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={ratingSubmitting}
+                    className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                  >
+                    {ratingSubmitting ? "Submitting..." : "Submit"}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {recentTrend.length > 0 && (
+              <div>
+                <p className="font-[Albra] text-3xl mb-3">Recent rating trend</p>
+                <div className="flex flex-wrap gap-2">
+                  {recentTrend.map((r, i) => (
+                    <span
+                      key={`${r}-${i}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-sm text-gray-700 bg-white"
+                    >
+                      {r.toFixed(1)} <Star size={12} className="text-orange-500 fill-orange-400" />
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <p className="font-[Albra] text-3xl mb-3">User Reviews</p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setReviewSort("relevant")}
+                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "relevant" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
+                >
+                  Relevant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReviewSort("latest")}
+                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "latest" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
+                >
+                  Latest
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReviewSort("high")}
+                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "high" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
+                >
+                  High to Low
+                </button>
+              </div>
+            </div>
+
+            {sortedRatings.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
+                <p className="font-[Albra] text-2xl text-gray-900 mb-2">No reviews yet</p>
+                <p className="text-sm text-gray-500 font-[ABC]">
+                  Be the first one to rate this brand and share your experience.
+                </p>
+              </div>
+            )}
+
+            {sortedRatings.slice(0, 8).map((row, index) => (
+              <article
+                key={row.id}
+                className={`${index === 0 ? "" : "border-t border-gray-200 pt-5"} pb-2`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-md bg-gray-200 text-gray-700 font-[ABC] text-sm flex items-center justify-center shrink-0 overflow-hidden">
+                      {(row.name || "A").slice(0, 1).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-[Albra] text-2xl text-gray-900">{row.name || "Anonymous"}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        {[1, 2, 3, 4, 5].map((value) => (
+                          <Star
+                            key={value}
+                            size={14}
+                            className={
+                              Number(row.rating || 0) >= value
+                                ? "text-orange-500 fill-orange-400"
+                                : "text-gray-300"
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-sm text-gray-500 font-[ABC] whitespace-nowrap">
+                    {row.createdAt?.seconds
+                      ? new Date(row.createdAt.seconds * 1000).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : ""}
+                  </span>
+                </div>
+                <p className="text-base text-gray-700 mt-3 leading-relaxed">{row.review}</p>
+                <div className="flex flex-wrap items-center gap-7 mt-4 text-sm text-gray-700 font-[ABC]">
+                  <button type="button" className="inline-flex items-center gap-2 hover:text-gray-900">
+                    <ThumbsUp size={14} />
+                    Helpful
+                  </button>
+                  <button type="button" className="inline-flex items-center gap-2 hover:text-gray-900">
+                    <MessageCircle size={14} />
+                    Comment
+                  </button>
+                  <button type="button" className="inline-flex items-center gap-2 hover:text-gray-900">
+                    <Share2 size={14} />
+                    Share
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
 
         <div className="xl:col-span-4 space-y-8">
@@ -673,270 +869,6 @@ const StoreProfile = () => {
             </button>
           </div>
 
-          <div
-            ref={(el) => {
-              sectionRefs.current.reviews = el;
-            }}
-            className="p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 space-y-6"
-          >
-            <h4 className="text-2xl font-[Albra]">Reviews & Ratings</h4>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-green-600 text-white flex items-center justify-center text-4xl font-[Albra]">
-                {avgRating ? avgRating.toFixed(1) : "—"}
-              </div>
-              <div>
-                <p className="font-[Albra] text-3xl text-gray-900">
-                  {ratings.length || 0} Rating
-                </p>
-                <p className="text-sm text-gray-500 font-[ABC]">
-                  User generated rating index based on submitted reviews.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-[Albra] text-3xl mb-3">Finish your review</p>
-              <div className="flex flex-wrap items-center gap-2">
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onMouseEnter={() => setHoveredRating(value)}
-                    onMouseLeave={() => setHoveredRating(0)}
-                    onClick={() => {
-                      setRatingForm((prev) => ({ ...prev, rating: value }));
-                      setShowReviewForm(true);
-                    }}
-                    className="w-11 h-11 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center"
-                    aria-label={`Rate ${value} stars`}
-                  >
-                    <Star
-                      size={18}
-                      className={(hoveredRating || ratingForm.rating) >= value ? "fill-white" : ""}
-                    />
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setShowReviewForm((v) => !v)}
-                  className="ml-1 px-6 h-11 rounded-lg border border-blue-500 text-blue-600 bg-white hover:bg-blue-50 font-[ABC] text-sm"
-                >
-                  {showReviewForm ? "Close Review" : "Add a Review"}
-                </button>
-              </div>
-            </div>
-
-            {showReviewForm && (
-              <form onSubmit={submitRating} className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
-                <input
-                  type="text"
-                  required
-                  value={ratingForm.name}
-                  onChange={(e) => setRatingForm((prev) => ({ ...prev, name: e.target.value }))}
-                  className="w-full p-3 rounded-xl border border-gray-200 outline-none font-[ABC] text-sm"
-                  placeholder="Your name"
-                />
-                <p className="text-xs font-[ABC] text-gray-500">
-                  Selected: {ratingForm.rating}/5 · {ratingLabel}
-                </p>
-                <textarea
-                  required
-                  rows={4}
-                  maxLength={400}
-                  value={ratingForm.review}
-                  onChange={(e) => setRatingForm((prev) => ({ ...prev, review: e.target.value }))}
-                  className="w-full p-3 rounded-xl border border-gray-200 outline-none font-[ABC] text-sm resize-none"
-                  placeholder="Share your experience..."
-                />
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-gray-400 font-[ABC]">
-                    {ratingForm.review.length}/400
-                  </span>
-                  <button
-                    type="submit"
-                    disabled={ratingSubmitting}
-                    className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
-                  >
-                    {ratingSubmitting ? "Submitting..." : "Submit"}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {recentTrend.length > 0 && (
-              <div>
-                <p className="font-[Albra] text-3xl mb-3">Recent rating trend</p>
-                <div className="flex flex-wrap gap-2">
-                  {recentTrend.map((r, i) => (
-                    <span
-                      key={`${r}-${i}`}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-sm text-gray-700 bg-white"
-                    >
-                      {r.toFixed(1)} <Star size={12} className="text-orange-500 fill-orange-400" />
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {visibleGallery.length > 0 && (
-              <div>
-                <p className="font-[Albra] text-3xl mb-3">Reviews with Images</p>
-                <div className="flex flex-wrap gap-3">
-                  {visibleGallery.slice(0, 6).map((url, idx) => (
-                    <div key={idx} className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-white">
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div>
-              <p className="font-[Albra] text-3xl mb-3">User Reviews</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <button
-                  type="button"
-                  onClick={() => setReviewSort("relevant")}
-                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "relevant" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
-                >
-                  Relevant
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReviewSort("latest")}
-                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "latest" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
-                >
-                  Latest
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReviewSort("high")}
-                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "high" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
-                >
-                  High to Low
-                </button>
-              </div>
-            </div>
-
-            {sortedRatings.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
-                <p className="font-[Albra] text-2xl text-gray-900 mb-2">No reviews yet</p>
-                <p className="text-sm text-gray-500 font-[ABC]">
-                  Be the first one to rate this brand and share your experience.
-                </p>
-              </div>
-            )}
-
-            {sortedRatings.length > 0 && (
-              <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[920px]">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200">
-                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
-                          Reviewer
-                        </th>
-                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
-                          Rating
-                        </th>
-                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
-                          Review
-                        </th>
-                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
-                          Date
-                        </th>
-                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedRatings.slice(0, 8).map((row) => (
-                        <tr key={row.id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/60 transition-colors">
-                          <td className="px-5 py-4 align-top">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-gray-200 to-gray-300 text-gray-800 font-[ABC] text-sm flex items-center justify-center shrink-0">
-                                {(row.name || "A").slice(0, 1).toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="font-[Albra] text-xl text-gray-900 leading-none">
-                                  {row.name || "Anonymous"}
-                                </p>
-                                <span className="inline-flex mt-2 px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 text-[11px] font-[ABC]">
-                                  Community review
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-5 py-4 align-top">
-                            <div className="flex items-center gap-1 mb-1.5">
-                              {[1, 2, 3, 4, 5].map((value) => (
-                                <Star
-                                  key={value}
-                                  size={14}
-                                  className={
-                                    Number(row.rating || 0) >= value
-                                      ? "text-orange-500 fill-orange-400"
-                                      : "text-gray-300"
-                                  }
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs text-gray-600 font-[ABC]">
-                              {Number(row.rating || 0).toFixed(1)}/5
-                            </span>
-                          </td>
-                          <td className="px-5 py-4 align-top">
-                            <p className="text-sm text-gray-700 leading-relaxed max-w-[460px]">
-                              {row.review}
-                            </p>
-                          </td>
-                          <td className="px-5 py-4 align-top">
-                            <span className="text-xs text-gray-500 font-[ABC] whitespace-nowrap">
-                              {row.createdAt?.seconds
-                                ? new Date(row.createdAt.seconds * 1000).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "short",
-                                    year: "numeric",
-                                  })
-                                : "-"}
-                            </span>
-                          </td>
-                          <td className="px-5 py-4 align-top">
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-xs font-[ABC]"
-                              >
-                                <ThumbsUp size={12} />
-                                Helpful
-                              </button>
-                              <button
-                                type="button"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-xs font-[ABC]"
-                              >
-                                <MessageCircle size={12} />
-                                Comment
-                              </button>
-                              <button
-                                type="button"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-xs font-[ABC]"
-                              >
-                                <Share2 size={12} />
-                                Share
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </section>
 
