@@ -829,83 +829,113 @@ const StoreProfile = () => {
               </div>
             )}
 
-            {sortedRatings.slice(0, 8).map((row) => (
-              <article
-                key={row.id}
-                className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 shadow-[0_12px_40px_rgba(15,23,42,0.06)]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-linear-to-br from-gray-200 to-gray-300 text-gray-800 font-[ABC] text-sm flex items-center justify-center shrink-0">
-                      {(row.name || "A").slice(0, 1).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-[Albra] text-2xl text-gray-900 leading-none">
-                        {row.name || "Anonymous"}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((value) => (
-                            <Star
-                              key={value}
-                              size={15}
-                              className={
-                                Number(row.rating || 0) >= value
-                                  ? "text-orange-500 fill-orange-400"
-                                  : "text-gray-300"
-                              }
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs font-[ABC] text-gray-600">
-                          {Number(row.rating || 0).toFixed(1)}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 text-[11px] font-[ABC]">
-                          Community review
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-400 font-[ABC] shrink-0">
-                    {row.createdAt?.seconds
-                      ? new Date(row.createdAt.seconds * 1000).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : ""}
-                  </span>
+            {sortedRatings.length > 0 && (
+              <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[920px]">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
+                          Reviewer
+                        </th>
+                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
+                          Rating
+                        </th>
+                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
+                          Review
+                        </th>
+                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
+                          Date
+                        </th>
+                        <th className="text-left px-5 py-4 text-[11px] uppercase tracking-widest text-gray-500 font-[ABC]">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedRatings.slice(0, 8).map((row) => (
+                        <tr key={row.id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/60 transition-colors">
+                          <td className="px-5 py-4 align-top">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-gray-200 to-gray-300 text-gray-800 font-[ABC] text-sm flex items-center justify-center shrink-0">
+                                {(row.name || "A").slice(0, 1).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="font-[Albra] text-xl text-gray-900 leading-none">
+                                  {row.name || "Anonymous"}
+                                </p>
+                                <span className="inline-flex mt-2 px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 text-[11px] font-[ABC]">
+                                  Community review
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 align-top">
+                            <div className="flex items-center gap-1 mb-1.5">
+                              {[1, 2, 3, 4, 5].map((value) => (
+                                <Star
+                                  key={value}
+                                  size={14}
+                                  className={
+                                    Number(row.rating || 0) >= value
+                                      ? "text-orange-500 fill-orange-400"
+                                      : "text-gray-300"
+                                  }
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-600 font-[ABC]">
+                              {Number(row.rating || 0).toFixed(1)}/5
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 align-top">
+                            <p className="text-sm text-gray-700 leading-relaxed max-w-[460px]">
+                              {row.review}
+                            </p>
+                          </td>
+                          <td className="px-5 py-4 align-top">
+                            <span className="text-xs text-gray-500 font-[ABC] whitespace-nowrap">
+                              {row.createdAt?.seconds
+                                ? new Date(row.createdAt.seconds * 1000).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  })
+                                : "-"}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 align-top">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-xs font-[ABC]"
+                              >
+                                <ThumbsUp size={12} />
+                                Helpful
+                              </button>
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-xs font-[ABC]"
+                              >
+                                <MessageCircle size={12} />
+                                Comment
+                              </button>
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-xs font-[ABC]"
+                              >
+                                <Share2 size={12} />
+                                Share
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-
-                <p className="text-base text-gray-700 mt-4 leading-relaxed">
-                  {row.review}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100 text-sm font-[ABC]">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
-                  >
-                    <ThumbsUp size={14} />
-                    Helpful
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
-                  >
-                    <MessageCircle size={14} />
-                    Comment
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
-                  >
-                    <Share2 size={14} />
-                    Share
-                  </button>
-                </div>
-              </article>
-            ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
