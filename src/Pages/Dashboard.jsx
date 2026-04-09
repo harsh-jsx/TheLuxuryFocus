@@ -21,6 +21,10 @@ const Dashboard = () => {
     const [analyticsSummary, setAnalyticsSummary] = useState({ profileViews: 0, listingClicks: 0, leads: 0 });
     const [conciergeRequests, setConciergeRequests] = useState([]);
     const [storeDetails, setStoreDetails] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [existingLogoUrl, setExistingLogoUrl] = useState('');
+    const [existingBannerUrl, setExistingBannerUrl] = useState('');
+    const [existingGalleryUrls, setExistingGalleryUrls] = useState([]);
 
     // Onboarding Form State
     const [storeData, setStoreData] = useState({
@@ -134,6 +138,49 @@ const Dashboard = () => {
         setStoreData({ ...storeData, [e.target.name]: e.target.value });
     };
 
+    const hydrateFormFromStore = (details) => {
+        if (!details) return;
+        setStoreData({
+            storeName: details.storeName || '',
+            storeEmail: details.storeEmail || '',
+            storePhone: details.storePhone || '',
+            whatsappNumber: details.whatsappNumber || '',
+            storeState: details.storeState || '',
+            storeCity: details.storeCity || '',
+            storeCategory: details.storeCategory || '',
+            storeAddress: details.storeAddress || '',
+            establishedYear: details.establishedYear || '',
+            yearsInBusiness: details.yearsInBusiness || '',
+            openingHours: details.openingHours || '',
+            availabilityStatus: details.availabilityStatus || 'Available Now',
+            storeWebsite: details.storeWebsite || '',
+            storeInstagram: details.storeInstagram || '',
+            storeSocialOther: details.storeSocialOther || '',
+            storeDescription: details.storeDescription || '',
+            storeServicesText: (details.storeServices || []).join(', '),
+            videoUrl: details.videoUrl || '',
+            advertisingPackages: details.advertisingPackages || '',
+            advertisingRequirements: details.advertisingRequirements || '',
+            brandGuidelines: details.brandGuidelines || '',
+            targetAudience: details.targetAudience || '',
+            goalsOther: details.goalsOther || '',
+        });
+        setGoals(details.goals || []);
+        setVideoUrls(
+            details.videoUrls?.length
+                ? details.videoUrls.slice(0, planLimits.maxVideos || 1)
+                : details.videoUrl
+                    ? [details.videoUrl]
+                    : ['']
+        );
+        setExistingLogoUrl(details.logoUrl || '');
+        setExistingBannerUrl(details.bannerUrl || '');
+        setExistingGalleryUrls((details.galleryUrls || []).slice(0, planLimits.maxImages));
+        setLogoFile(null);
+        setBannerFile(null);
+        setGalleryFiles([]);
+    };
+
     const handleFileChange = (e, setFile) => {
         if (e.target.files[0]) setFile(e.target.files[0]);
     };
@@ -146,6 +193,10 @@ const Dashboard = () => {
 
     const removeGalleryFile = (index) => {
         setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingGalleryUrl = (index) => {
+        setExistingGalleryUrls((prev) => prev.filter((_, i) => i !== index));
     };
 
     const addVideoUrl = () => {
@@ -168,7 +219,7 @@ const Dashboard = () => {
         setSubmitting(true);
 
         const plan = getPlanLimits(order.packageId);
-        const galleryCount = galleryFiles.length;
+        const galleryCount = existingGalleryUrls.length + galleryFiles.length;
         const validVideoUrls = videoUrls.filter((u) => u && u.trim());
         const parsedServices = (storeData.storeServicesText || '')
             .split(',')
@@ -187,13 +238,14 @@ const Dashboard = () => {
         }
 
         try {
-            const logoUrl = logoFile ? await uploadToCloudinary(logoFile) : null;
-            const bannerUrl = bannerFile ? await uploadToCloudinary(bannerFile) : null;
+            const logoUrl = logoFile ? await uploadToCloudinary(logoFile) : (existingLogoUrl || null);
+            const bannerUrl = bannerFile ? await uploadToCloudinary(bannerFile) : (existingBannerUrl || null);
             const galleryUrls = [];
             for (const file of galleryFiles.slice(0, plan.maxImages)) {
                 const url = await uploadToCloudinary(file);
                 if (url) galleryUrls.push(url);
             }
+            const finalGalleryUrls = [...existingGalleryUrls, ...galleryUrls].slice(0, plan.maxImages);
 
             const storePayload = {
                 ...storeData,
@@ -210,44 +262,86 @@ const Dashboard = () => {
                 logoUrl,
                 bannerUrl,
                 storeServices: parsedServices,
-                galleryUrls,
+                galleryUrls: finalGalleryUrls,
                 videoUrls: validVideoUrls,
                 videoUrl: validVideoUrls[0] || null,
                 goals,
                 goalsOther: storePayload.goalsOther,
-                createdAt: serverTimestamp(),
             };
 
-            const storeRef = await addDoc(collection(db, "stores"), payload);
-            const newStoreId = storeRef.id;
-            recordStoreEvent(newStoreId, STORE_ANALYTICS_EVENTS.STORE_CREATED);
+            if (isEditing && storeId) {
+                const storeRef = doc(db, "stores", storeId);
+                await updateDoc(storeRef, {
+                    ...payload,
+                    updatedAt: serverTimestamp(),
+                });
+                const orderRef = doc(db, "orders", order.id);
+                await updateDoc(orderRef, {
+                    "customer.storeName": storePayload.storeName,
+                });
+                setStoreDetails((prev) => ({
+                    ...(prev || {}),
+                    id: storeId,
+                    ...payload,
+                    logoUrl,
+                    bannerUrl,
+                    storeServices: parsedServices,
+                    galleryUrls: finalGalleryUrls,
+                    videoUrls: validVideoUrls,
+                    goals,
+                    goalsOther: storePayload.goalsOther,
+                    planId: prev?.planId ?? order.packageId,
+                }));
+                setExistingLogoUrl(logoUrl || '');
+                setExistingBannerUrl(bannerUrl || '');
+                setExistingGalleryUrls(finalGalleryUrls);
+                setLogoFile(null);
+                setBannerFile(null);
+                setGalleryFiles([]);
+                setIsEditing(false);
+            } else {
+                const storeRef = await addDoc(collection(db, "stores"), {
+                    ...payload,
+                    createdAt: serverTimestamp(),
+                });
+                const newStoreId = storeRef.id;
+                recordStoreEvent(newStoreId, STORE_ANALYTICS_EVENTS.STORE_CREATED);
 
-            const orderRef = doc(db, "orders", order.id);
-            await updateDoc(orderRef, {
-                "customer.onBoarded": true,
-                "customer.storeName": storePayload.storeName,
-            });
+                const orderRef = doc(db, "orders", order.id);
+                await updateDoc(orderRef, {
+                    "customer.onBoarded": true,
+                    "customer.storeName": storePayload.storeName,
+                });
 
-            setStoreId(newStoreId);
-            setStoreDetails({
-                id: newStoreId,
-                ...storePayload,
-                logoUrl,
-                bannerUrl,
-                storeServices: parsedServices,
-                galleryUrls,
-                videoUrls: validVideoUrls,
-                goals,
-                goalsOther: storePayload.goalsOther,
-                planId: order.packageId,
-            });
-            setIsOnboarded(true);
+                setStoreId(newStoreId);
+                setStoreDetails({
+                    id: newStoreId,
+                    ...payload,
+                    logoUrl,
+                    bannerUrl,
+                    storeServices: parsedServices,
+                    galleryUrls: finalGalleryUrls,
+                    videoUrls: validVideoUrls,
+                    goals,
+                    goalsOther: storePayload.goalsOther,
+                    planId: order.packageId,
+                });
+                setExistingLogoUrl(logoUrl || '');
+                setExistingBannerUrl(bannerUrl || '');
+                setExistingGalleryUrls(finalGalleryUrls);
+                setIsOnboarded(true);
+            }
         } catch (error) {
             console.error("Onboarding failed:", error);
             alert("Failed to save details. Please try again.");
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const startEditing = () => {
+        hydrateFormFromStore(storeDetails);
+        setIsEditing(true);
     };
 
     if (loading) {
@@ -270,7 +364,7 @@ const Dashboard = () => {
         );
     }
 
-    if (!isOnboarded) {
+    if (!isOnboarded || isEditing) {
         const sectionClass = "border-b border-gray-100 pb-8 last:border-0 last:pb-0";
         const sectionTitle = "text-sm font-bold text-purple-600 font-[ABC] uppercase tracking-wider mb-4 flex items-center gap-2";
 
@@ -287,8 +381,12 @@ const Dashboard = () => {
                             {planLimits.allowWebsite && ', website'}
                             {planLimits.allowSocial && ', social links'}
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4 font-[Albra]">Luxury Brand Onboarding</h1>
-                        <p className="text-gray-500 font-[ABC]">Set up your store within your plan limits.</p>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-4 font-[Albra]">
+                            {isEditing ? 'Edit Brand Profile' : 'Luxury Brand Onboarding'}
+                        </h1>
+                        <p className="text-gray-500 font-[ABC]">
+                            {isEditing ? 'Update your profile details and media.' : 'Set up your store within your plan limits.'}
+                        </p>
                     </div>
 
                     <form onSubmit={handleOnboardingSubmit} className="space-y-10">
@@ -309,6 +407,9 @@ const Dashboard = () => {
                                         <Upload className="mx-auto text-gray-400 mb-1" size={22} />
                                         <p className="text-xs text-gray-500 font-[ABC]">{logoFile ? logoFile.name : "Upload logo"}</p>
                                     </div>
+                                    {isEditing && existingLogoUrl && !logoFile && (
+                                        <img src={existingLogoUrl} alt="" className="w-16 h-16 rounded-xl object-cover border border-gray-200" />
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700 font-[ABC]">Banner / hero image</label>
@@ -317,6 +418,9 @@ const Dashboard = () => {
                                         <Upload className="mx-auto text-gray-400 mb-1" size={22} />
                                         <p className="text-xs text-gray-500 font-[ABC]">{bannerFile ? bannerFile.name : "Upload banner"}</p>
                                     </div>
+                                    {isEditing && existingBannerUrl && !bannerFile && (
+                                        <img src={existingBannerUrl} alt="" className="w-full h-20 rounded-xl object-cover border border-gray-200" />
+                                    )}
                                 </div>
                                 <div className="md:col-span-2 space-y-2">
                                     <label className="text-sm font-bold text-gray-700 font-[ABC]">Brief description *</label>
@@ -446,22 +550,39 @@ const Dashboard = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700 font-[ABC]">Gallery (up to {planLimits.maxImages} image{planLimits.maxImages !== 1 ? 's' : ''})</label>
-                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center relative ${galleryFiles.length >= planLimits.maxImages ? 'border-gray-100 bg-gray-50 cursor-not-allowed' : 'border-gray-200 hover:bg-gray-50 cursor-pointer'}`}>
+                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center relative ${(existingGalleryUrls.length + galleryFiles.length) >= planLimits.maxImages ? 'border-gray-100 bg-gray-50 cursor-not-allowed' : 'border-gray-200 hover:bg-gray-50 cursor-pointer'}`}>
                                         <input
                                             type="file"
                                             accept="image/*"
                                             multiple
                                             onChange={handleGalleryChange}
-                                            disabled={galleryFiles.length >= planLimits.maxImages}
+                                            disabled={(existingGalleryUrls.length + galleryFiles.length) >= planLimits.maxImages}
                                             className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
                                         />
                                         <ImageIcon className="mx-auto text-gray-400 mb-1" size={22} />
                                         <p className="text-xs text-gray-500 font-[ABC]">
-                                            {galleryFiles.length >= planLimits.maxImages
+                                            {(existingGalleryUrls.length + galleryFiles.length) >= planLimits.maxImages
                                                 ? `${planLimits.maxImages} images (plan limit)`
                                                 : 'Add product/service images'}
                                         </p>
                                     </div>
+                                    {existingGalleryUrls.length > 0 && (
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                                            {existingGalleryUrls.map((url, i) => (
+                                                <div key={`${url}-${i}`} className="relative rounded-lg overflow-hidden border border-gray-200">
+                                                    <img src={url} alt="" className="w-full h-20 object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeExistingGalleryUrl(i)}
+                                                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-xs"
+                                                        aria-label="Remove existing image"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     {galleryFiles.length > 0 && (
                                         <ul className="flex flex-wrap gap-2 mt-2">
                                             {galleryFiles.map((f, i) => (
@@ -554,10 +675,21 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <button type="submit" disabled={submitting}
-                            className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold text-lg uppercase tracking-wider hover:bg-purple-700 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 font-[ABC]">
-                            {submitting ? (<><Loader2 className="animate-spin" size={20} /> Saving...</>) : "Complete setup"}
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            {isEditing && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditing(false)}
+                                    className="w-full py-4 border border-gray-300 text-gray-700 rounded-xl font-bold text-lg tracking-wider hover:bg-gray-50 transition-all font-[ABC]"
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                            <button type="submit" disabled={submitting}
+                                className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold text-lg uppercase tracking-wider hover:bg-purple-700 transition-all shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 font-[ABC]">
+                                {submitting ? (<><Loader2 className="animate-spin" size={20} /> Saving...</>) : isEditing ? "Update profile" : "Complete setup"}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -586,6 +718,13 @@ const Dashboard = () => {
                         <CheckCircle size={16} />
                         {order?.packageName || dashboardPlan.name}
                     </div>
+                    <button
+                        type="button"
+                        onClick={startEditing}
+                        className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-[ABC] text-xs uppercase tracking-wider hover:bg-purple-700 transition-colors"
+                    >
+                        Edit & update content
+                    </button>
                 </div>
 
                 {/* Analytics — Premium only */}
