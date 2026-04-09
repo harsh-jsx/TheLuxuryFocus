@@ -26,5 +26,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null;
     }
+
+    // Store ratings: public read + public create (for visitors leaving ratings)
+    match /storeRatings/{ratingId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
   }
 }

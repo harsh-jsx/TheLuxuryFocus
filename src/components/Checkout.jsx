@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelectedPackageOptionStore } from '../stores/packageStore';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2, CreditCard, Lock } from 'lucide-react';
-import { createOrder, initiatePayment } from '../services/paymentService';
+import { createOrder, initiatePayment, updateOrderStatus } from '../services/paymentService';
 import { useAuth } from '../context/AuthContext';
 
 const Checkout = () => {
@@ -23,6 +23,13 @@ const Checkout = () => {
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState('');
+    const [couponCode, setCouponCode] = useState('');
+    const [couponApplied, setCouponApplied] = useState(false);
+
+    const subtotal =
+        Number(String(selectedPackage?.price || 0).replace(/[^\d.]/g, '')) || 0;
+    const discountPercent = couponApplied ? 100 : 0;
+    const payableAmount = Math.max(0, subtotal - (subtotal * discountPercent) / 100);
 
     useEffect(() => {
         if (!selectedPackage) {
@@ -56,11 +63,25 @@ const Checkout = () => {
                 packageName: selectedPackage.name,
                 packagePrice: selectedPackage.price,
                 customer: formData,
-                amount: selectedPackage.price,
+                amount: payableAmount,
+                originalAmount: subtotal,
+                couponCode: couponApplied ? '100%off403labs' : null,
+                discountPercent,
             });
 
-            // 2. Open Cashfree checkout (redirects away; on return, PaymentReturnHandler marks order SUCCESS)
-            await initiatePayment(orderId, selectedPackage.price, {
+            if (payableAmount <= 0) {
+                await updateOrderStatus(orderId, 'SUCCESS', {
+                    paymentReturn: true,
+                    paymentMethod: 'COUPON',
+                    couponCode: '100%off403labs',
+                    discountPercent: 100,
+                });
+                navigate(`/payment-return?payment=return&order_id=${encodeURIComponent(orderId)}&free=1`);
+                return;
+            }
+
+            // 2. Open Cashfree checkout (redirects away; on return, PaymentReturn page verifies and activates package)
+            await initiatePayment(orderId, payableAmount, {
                 uid: formData.uid,
                 fullName: formData.fullName,
                 email: formData.email,
@@ -72,6 +93,17 @@ const Checkout = () => {
             // Optionally update order status to FAILED
         } finally {
             setIsProcessing(false);
+        }
+    };
+
+    const handleApplyCoupon = () => {
+        const normalized = couponCode.trim().toLowerCase();
+        if (normalized === '100%off403labs') {
+            setCouponApplied(true);
+            setError('');
+        } else {
+            setCouponApplied(false);
+            setError('Invalid coupon code');
         }
     };
 
@@ -205,15 +237,37 @@ const Checkout = () => {
                             <div className="space-y-3 mb-8">
                                 <div className="flex justify-between text-sm text-gray-600 font-[ABC]">
                                     <span>Subtotal</span>
-                                    <span>{selectedPackage.price}</span>
+                                    <span>₹{subtotal}</span>
                                 </div>
+                                <div className="flex items-end gap-2">
+                                    <input
+                                        type="text"
+                                        value={couponCode}
+                                        onChange={(e) => setCouponCode(e.target.value)}
+                                        placeholder="Coupon code"
+                                        className="flex-1 p-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all font-[ABC] text-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyCoupon}
+                                        className="px-4 py-3 rounded-xl bg-gray-900 text-white text-xs uppercase tracking-wider font-[ABC]"
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+                                {couponApplied && (
+                                    <div className="flex justify-between text-sm text-green-600 font-[ABC]">
+                                        <span>Coupon discount</span>
+                                        <span>-100%</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between text-sm text-gray-600 font-[ABC]">
                                     <span>Tax (18% GST)</span>
                                     <span>Calculated at payment</span>
                                 </div>
                                 <div className="flex justify-between text-lg font-bold text-gray-900 border-t border-gray-200 pt-4 mt-4 font-[ABC]">
                                     <span>Total</span>
-                                    <span>{selectedPackage.price}</span>
+                                    <span>₹{payableAmount}</span>
                                 </div>
                             </div>
 

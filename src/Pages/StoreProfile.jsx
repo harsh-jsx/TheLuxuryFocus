@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { storeService } from "../services/storeService";
+import { db } from "../firebase";
+import { addDoc, collection, getDocs, query, serverTimestamp, where } from "firebase/firestore";
 import {
   recordStoreEvent,
   logStoreEventToFirebase,
@@ -19,14 +21,17 @@ import {
   ArrowRight,
   ShoppingBag,
   Star,
+  MessageCircle,
   Share2,
   ExternalLink,
   X,
   CheckCircle,
+  ThumbsUp,
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getPlanLimits } from "../constants/subscriptionPlans";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,10 +48,28 @@ const StoreProfile = () => {
     phone: "",
     message: "",
   });
+  const [ratings, setRatings] = useState([]);
+  const [ratingForm, setRatingForm] = useState({
+    name: "",
+    rating: 5,
+    review: "",
+  });
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewSort, setReviewSort] = useState("latest");
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const containerRef = useRef(null);
   const heroRef = useRef(null);
   const cardRef = useRef(null);
   const contentRefs = useRef([]);
+  const sectionRefs = useRef({
+    overview: null,
+    services: null,
+    photos: null,
+    reviews: null,
+    contact: null,
+  });
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -61,6 +84,22 @@ const StoreProfile = () => {
     };
     fetchStore();
     window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchRatings = async () => {
+      try {
+        const q = query(collection(db, "storeRatings"), where("storeId", "==", id));
+        const snap = await getDocs(q);
+        const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        rows.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        setRatings(rows);
+      } catch (error) {
+        console.error("Error loading ratings", error);
+      }
+    };
+    fetchRatings();
   }, [id]);
 
     // Record profile view when store is loaded (once per visit)
@@ -169,6 +208,77 @@ const StoreProfile = () => {
     );
   }
 
+  const avgRating =
+    ratings.length > 0
+      ? ratings.reduce((sum, row) => sum + Number(row.rating || 0), 0) / ratings.length
+      : 0;
+  const profilePlan = getPlanLimits(store.planId || 1);
+  const visibleGallery = (store.galleryUrls || []).slice(0, profilePlan.maxImages);
+  const whatsappNumber = store.whatsappNumber || store.storePhone;
+
+  const submitRating = async (e) => {
+    e.preventDefault();
+    if (!ratingForm.name || !ratingForm.review) return;
+    setRatingSubmitting(true);
+    try {
+      await addDoc(collection(db, "storeRatings"), {
+        storeId: store.id,
+        name: ratingForm.name.trim(),
+        rating: Number(ratingForm.rating),
+        review: ratingForm.review.trim(),
+        createdAt: serverTimestamp(),
+      });
+      setRatingForm({ name: "", rating: 5, review: "" });
+      const snap = await getDocs(
+        query(collection(db, "storeRatings"), where("storeId", "==", id)),
+      );
+      const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      rows.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setRatings(rows);
+    } catch (error) {
+      console.error("Error submitting rating", error);
+    } finally {
+      setRatingSubmitting(false);
+    }
+  };
+
+  const tabItems = [
+    { key: "overview", label: "Overview" },
+    { key: "services", label: "Services" },
+    { key: "photos", label: "Photos" },
+    { key: "reviews", label: "Reviews" },
+    { key: "contact", label: "Contact" },
+  ];
+
+  const scrollToSection = (key) => {
+    const target =
+      sectionRefs.current[key] ||
+      sectionRefs.current.overview ||
+      null;
+    if (!target) return;
+    setActiveTab(key);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const ratingLabel =
+    ratingForm.rating === 5
+      ? "Excellent"
+      : ratingForm.rating === 4
+        ? "Very Good"
+        : ratingForm.rating === 3
+          ? "Good"
+          : ratingForm.rating === 2
+            ? "Fair"
+            : "Poor";
+
+  const sortedRatings = [...ratings].sort((a, b) => {
+    if (reviewSort === "high") return Number(b.rating || 0) - Number(a.rating || 0);
+    if (reviewSort === "relevant") return String(a.review || "").length - String(b.review || "").length;
+    return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+  });
+
+  const recentTrend = sortedRatings.slice(0, 8).map((item) => Number(item.rating || 0));
+
   return (
     <div
       ref={containerRef}
@@ -187,7 +297,7 @@ const StoreProfile = () => {
           alt={store.storeName}
           className="absolute inset-0 w-full h-[120%] object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-white" />
 
         <div className="absolute top-8 mt-10 left-6 md:left-12 z-20">
           <Link
@@ -253,6 +363,20 @@ const StoreProfile = () => {
             <h1 className="text-4xl md:text-6xl font-[Albra] text-gray-900 mb-4 tracking-tight">
               {store.storeName}
             </h1>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200">
+                <Star size={14} className="text-amber-500 fill-amber-400" />
+                <span className="font-[ABC] text-xs text-gray-700">
+                  {avgRating ? avgRating.toFixed(1) : "New"}
+                </span>
+                <span className="font-[ABC] text-xs text-gray-400">
+                  ({ratings.length} ratings)
+                </span>
+              </div>
+              <span className="px-3 py-1.5 rounded-full bg-green-50 text-green-700 border border-green-100 font-[ABC] text-xs">
+                {store.availabilityStatus || "Available Now"}
+              </span>
+            </div>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-gray-600 font-[ABC] text-sm">
               <span className="flex items-center gap-2">
                 <MapPin size={16} className="text-[#D0B887]" />{" "}
@@ -269,19 +393,39 @@ const StoreProfile = () => {
           </div>
 
           <div className="shrink-0 flex flex-col gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                recordStoreEvent(
-                  store.id,
-                  STORE_ANALYTICS_EVENTS.STORE_CONNECT_CLICK,
-                );
-                window.location.href = `mailto:${store.storeEmail || ""}`;
-              }}
-              className="bg-gray-900 text-white px-10 py-5 rounded-2xl font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-3"
-            >
-              Connect Now <ArrowRight size={16} />
-            </button>
+            <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+              {store.storePhone && (
+                <a
+                  href={`tel:${store.storePhone}`}
+                  className="bg-green-600 text-white px-4 py-3 rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-green-500 transition-colors flex items-center gap-2"
+                >
+                  <Phone size={14} /> Call
+                </a>
+              )}
+              {whatsappNumber && (
+                <a
+                  href={`https://wa.me/${String(whatsappNumber).replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-emerald-600 text-white px-4 py-3 rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-emerald-500 transition-colors flex items-center gap-2"
+                >
+                  <MessageCircle size={14} /> WhatsApp
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  recordStoreEvent(
+                    store.id,
+                    STORE_ANALYTICS_EVENTS.STORE_CONNECT_CLICK,
+                  );
+                  window.location.href = `mailto:${store.storeEmail || ""}`;
+                }}
+                className="bg-gray-900 text-white px-4 py-3 rounded-xl font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-2"
+              >
+                Enquire <ArrowRight size={14} />
+              </button>
+            </div>
             <div className="flex items-center justify-center gap-6">
               {store.storeInstagram && (
                 <a
@@ -334,12 +478,44 @@ const StoreProfile = () => {
         </div>
       </div>
 
+      {(visibleGallery.length > 0 || store.bannerUrl) && (
+        <section className="px-4 sm:px-6 lg:px-10 max-w-[1500px] mx-auto pb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[store.bannerUrl, ...visibleGallery].filter(Boolean).slice(0, 4).map((url, idx) => (
+              <div key={idx} className="h-28 md:h-36 rounded-xl overflow-hidden border border-gray-100">
+                <img src={url} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="px-4 sm:px-6 lg:px-10 max-w-[1500px] mx-auto pb-8">
+        <div className="flex flex-wrap gap-2 border-b border-gray-100 pb-2">
+          {tabItems.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => scrollToSection(tab.key)}
+              className={`px-3 py-2 rounded-lg text-xs font-[ABC] uppercase tracking-wider transition-colors ${
+                activeTab === tab.key
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* Content Section */}
-      <section className="px-6 md:px-12 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-16 pb-24">
-        <div className="lg:col-span-2 space-y-16">
+      <section className="px-4 sm:px-6 lg:px-10 max-w-[1500px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-10 pb-24">
+        <div className="xl:col-span-8 space-y-16">
           <div
             ref={(el) => {
               contentRefs.current[0] = el;
+              sectionRefs.current.overview = el;
             }}
           >
             <span className="font-[ABC] text-xs uppercase tracking-[0.3em] text-[#D0B887] block mb-6">
@@ -355,6 +531,7 @@ const StoreProfile = () => {
             <div
               ref={(el) => {
                 contentRefs.current[1] = el;
+                sectionRefs.current.services = el;
               }}
             >
               <span className="font-[ABC] text-xs uppercase tracking-[0.3em] text-[#D0B887] block mb-8">
@@ -382,18 +559,17 @@ const StoreProfile = () => {
             <div
               ref={(el) => {
                 contentRefs.current[2] = el;
+                sectionRefs.current.photos = el;
               }}
             >
               <span className="font-[ABC] text-xs uppercase tracking-[0.3em] text-[#D0B887] block mb-8">
                 Visual Catalog
               </span>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {store.galleryUrls.map((url, idx) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                {visibleGallery.map((url, idx) => (
                   <div
                     key={idx}
-                    className={`rounded-2xl overflow-hidden border border-gray-100 group ${
-                      idx % 3 === 0 ? "md:col-span-2 h-[420px]" : "h-[320px]"
-                    }`}
+                    className="rounded-2xl overflow-hidden border border-gray-100 group h-[260px] sm:h-[300px]"
                   >
                     <img
                       src={url}
@@ -407,10 +583,11 @@ const StoreProfile = () => {
           )}
         </div>
 
-        <div className="space-y-8">
+        <div className="xl:col-span-4 space-y-8">
           <div
             ref={(el) => {
               contentRefs.current[3] = el;
+              sectionRefs.current.contact = el;
             }}
             className="p-8 rounded-2xl border border-gray-100 space-y-8 bg-gray-50"
           >
@@ -419,7 +596,7 @@ const StoreProfile = () => {
                 Established In
               </span>
               <p className="text-xl font-[Albra] text-gray-900">
-                Bespoke Tradition
+                {store.establishedYear || "Not specified"}
               </p>
             </div>
 
@@ -494,6 +671,241 @@ const StoreProfile = () => {
             >
               Request Concierge
             </button>
+          </div>
+
+          <div
+            ref={(el) => {
+              sectionRefs.current.reviews = el;
+            }}
+            className="p-8 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 space-y-6"
+          >
+            <h4 className="text-2xl font-[Albra]">Reviews & Ratings</h4>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-green-600 text-white flex items-center justify-center text-4xl font-[Albra]">
+                {avgRating ? avgRating.toFixed(1) : "—"}
+              </div>
+              <div>
+                <p className="font-[Albra] text-3xl text-gray-900">
+                  {ratings.length || 0} Rating
+                </p>
+                <p className="text-sm text-gray-500 font-[ABC]">
+                  User generated rating index based on submitted reviews.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="font-[Albra] text-3xl mb-3">Finish your review</p>
+              <div className="flex flex-wrap items-center gap-2">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onMouseEnter={() => setHoveredRating(value)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    onClick={() => {
+                      setRatingForm((prev) => ({ ...prev, rating: value }));
+                      setShowReviewForm(true);
+                    }}
+                    className="w-11 h-11 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center"
+                    aria-label={`Rate ${value} stars`}
+                  >
+                    <Star
+                      size={18}
+                      className={(hoveredRating || ratingForm.rating) >= value ? "fill-white" : ""}
+                    />
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setShowReviewForm((v) => !v)}
+                  className="ml-1 px-6 h-11 rounded-lg border border-blue-500 text-blue-600 bg-white hover:bg-blue-50 font-[ABC] text-sm"
+                >
+                  {showReviewForm ? "Close Review" : "Add a Review"}
+                </button>
+              </div>
+            </div>
+
+            {showReviewForm && (
+              <form onSubmit={submitRating} className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
+                <input
+                  type="text"
+                  required
+                  value={ratingForm.name}
+                  onChange={(e) => setRatingForm((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full p-3 rounded-xl border border-gray-200 outline-none font-[ABC] text-sm"
+                  placeholder="Your name"
+                />
+                <p className="text-xs font-[ABC] text-gray-500">
+                  Selected: {ratingForm.rating}/5 · {ratingLabel}
+                </p>
+                <textarea
+                  required
+                  rows={4}
+                  maxLength={400}
+                  value={ratingForm.review}
+                  onChange={(e) => setRatingForm((prev) => ({ ...prev, review: e.target.value }))}
+                  className="w-full p-3 rounded-xl border border-gray-200 outline-none font-[ABC] text-sm resize-none"
+                  placeholder="Share your experience..."
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-gray-400 font-[ABC]">
+                    {ratingForm.review.length}/400
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={ratingSubmitting}
+                    className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                  >
+                    {ratingSubmitting ? "Submitting..." : "Submit"}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {recentTrend.length > 0 && (
+              <div>
+                <p className="font-[Albra] text-3xl mb-3">Recent rating trend</p>
+                <div className="flex flex-wrap gap-2">
+                  {recentTrend.map((r, i) => (
+                    <span
+                      key={`${r}-${i}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-sm text-gray-700 bg-white"
+                    >
+                      {r.toFixed(1)} <Star size={12} className="text-orange-500 fill-orange-400" />
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {visibleGallery.length > 0 && (
+              <div>
+                <p className="font-[Albra] text-3xl mb-3">Reviews with Images</p>
+                <div className="flex flex-wrap gap-3">
+                  {visibleGallery.slice(0, 6).map((url, idx) => (
+                    <div key={idx} className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-white">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <p className="font-[Albra] text-3xl mb-3">User Reviews</p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setReviewSort("relevant")}
+                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "relevant" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
+                >
+                  Relevant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReviewSort("latest")}
+                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "latest" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
+                >
+                  Latest
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReviewSort("high")}
+                  className={`px-4 py-2 rounded-md text-sm font-[ABC] ${reviewSort === "high" ? "bg-blue-50 text-blue-700 border border-blue-200" : "bg-white text-gray-600 border border-gray-200"}`}
+                >
+                  High to Low
+                </button>
+              </div>
+            </div>
+
+            {sortedRatings.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
+                <p className="font-[Albra] text-2xl text-gray-900 mb-2">No reviews yet</p>
+                <p className="text-sm text-gray-500 font-[ABC]">
+                  Be the first one to rate this brand and share your experience.
+                </p>
+              </div>
+            )}
+
+            {sortedRatings.slice(0, 8).map((row) => (
+              <article
+                key={row.id}
+                className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 shadow-[0_12px_40px_rgba(15,23,42,0.06)]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-11 h-11 rounded-xl bg-linear-to-br from-gray-200 to-gray-300 text-gray-800 font-[ABC] text-sm flex items-center justify-center shrink-0">
+                      {(row.name || "A").slice(0, 1).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-[Albra] text-2xl text-gray-900 leading-none">
+                        {row.name || "Anonymous"}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((value) => (
+                            <Star
+                              key={value}
+                              size={15}
+                              className={
+                                Number(row.rating || 0) >= value
+                                  ? "text-orange-500 fill-orange-400"
+                                  : "text-gray-300"
+                              }
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs font-[ABC] text-gray-600">
+                          {Number(row.rating || 0).toFixed(1)}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-100 text-[11px] font-[ABC]">
+                          Community review
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-400 font-[ABC] shrink-0">
+                    {row.createdAt?.seconds
+                      ? new Date(row.createdAt.seconds * 1000).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : ""}
+                  </span>
+                </div>
+
+                <p className="text-base text-gray-700 mt-4 leading-relaxed">
+                  {row.review}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100 text-sm font-[ABC]">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
+                  >
+                    <ThumbsUp size={14} />
+                    Helpful
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
+                  >
+                    <MessageCircle size={14} />
+                    Comment
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors"
+                  >
+                    <Share2 size={14} />
+                    Share
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>

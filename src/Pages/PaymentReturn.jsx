@@ -21,6 +21,7 @@ const PaymentReturn = () => {
 
   useEffect(() => {
     const orderId = searchParams.get("order_id");
+    const isFreeCouponFlow = searchParams.get("free") === "1";
     if (!orderId) {
       setState({
         status: "failed",
@@ -38,15 +39,6 @@ const PaymentReturn = () => {
 
     (async () => {
       try {
-        const verifyRes = await fetch(
-          `/api/cashfree/verify-order?order_id=${encodeURIComponent(orderId)}`,
-        );
-        const verifyText = await verifyRes.text();
-        const verifyData = verifyText ? JSON.parse(verifyText) : {};
-        if (!verifyRes.ok) {
-          throw new Error(verifyData?.error || "Could not verify payment.");
-        }
-
         const orderRef = doc(db, "orders", orderId);
         const orderSnap = await getDoc(orderRef);
         if (!orderSnap.exists()) {
@@ -56,6 +48,31 @@ const PaymentReturn = () => {
 
         if (orderData?.customer?.uid !== currentUser.uid) {
           throw new Error("This order does not belong to the logged-in user.");
+        }
+
+        let verifyData = {
+          paid: false,
+          orderStatus: null,
+          paymentStatus: null,
+          cfPaymentId: null,
+        };
+
+        if (isFreeCouponFlow) {
+          verifyData = {
+            paid: orderData?.status === "SUCCESS",
+            orderStatus: orderData?.status || null,
+            paymentStatus: "SUCCESS",
+            cfPaymentId: null,
+          };
+        } else {
+          const verifyRes = await fetch(
+            `/api/cashfree/verify-order?order_id=${encodeURIComponent(orderId)}`,
+          );
+          const verifyText = await verifyRes.text();
+          verifyData = verifyText ? JSON.parse(verifyText) : {};
+          if (!verifyRes.ok) {
+            throw new Error(verifyData?.error || "Could not verify payment.");
+          }
         }
 
         if (verifyData.paid) {

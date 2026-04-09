@@ -27,14 +27,20 @@ const Dashboard = () => {
         storeName: '',
         storeEmail: '',
         storePhone: '',
+        whatsappNumber: '',
         storeState: '',
         storeCity: '',
         storeCategory: '',
         storeAddress: '',
+        establishedYear: '',
+        yearsInBusiness: '',
+        openingHours: '',
+        availabilityStatus: 'Available Now',
         storeWebsite: '',
         storeInstagram: '',
         storeSocialOther: '',
         storeDescription: '',
+        storeServicesText: '',
         videoUrl: '',
         advertisingPackages: '',
         advertisingRequirements: '',
@@ -164,6 +170,11 @@ const Dashboard = () => {
         const plan = getPlanLimits(order.packageId);
         const galleryCount = galleryFiles.length;
         const validVideoUrls = videoUrls.filter((u) => u && u.trim());
+        const parsedServices = (storeData.storeServicesText || '')
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, plan.maxServices || 5);
         if (galleryCount > plan.maxImages) {
             alert(`Your ${plan.name} plan allows up to ${plan.maxImages} images. Please remove ${galleryCount - plan.maxImages} image(s).`);
             setSubmitting(false);
@@ -198,6 +209,7 @@ const Dashboard = () => {
                 ...storePayload,
                 logoUrl,
                 bannerUrl,
+                storeServices: parsedServices,
                 galleryUrls,
                 videoUrls: validVideoUrls,
                 videoUrl: validVideoUrls[0] || null,
@@ -222,6 +234,7 @@ const Dashboard = () => {
                 ...storePayload,
                 logoUrl,
                 bannerUrl,
+                storeServices: parsedServices,
                 galleryUrls,
                 videoUrls: validVideoUrls,
                 goals,
@@ -330,6 +343,18 @@ const Dashboard = () => {
                                         className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
                                         placeholder="+91 ..." />
                                 </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">WhatsApp number</label>
+                                    <input type="tel" name="whatsappNumber" value={storeData.whatsappNumber} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="+91 ..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Opening hours</label>
+                                    <input type="text" name="openingHours" value={storeData.openingHours} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Mon-Sat 10:00 AM - 8:00 PM" />
+                                </div>
                                 <div className="md:col-span-2 space-y-2">
                                     <label className="text-sm font-bold text-gray-700 font-[ABC]">Address *</label>
                                     <textarea name="storeAddress" required value={storeData.storeAddress} onChange={handleInputChange}
@@ -350,6 +375,21 @@ const Dashboard = () => {
                                         {['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'].map((st) => (
                                             <option key={st} value={st}>{st}</option>
                                         ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Established year</label>
+                                    <input type="number" name="establishedYear" min="1800" max="2100" value={storeData.establishedYear} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="2020" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Availability</label>
+                                    <select name="availabilityStatus" value={storeData.availabilityStatus} onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]">
+                                        <option value="Available Now">Available Now</option>
+                                        <option value="Open by Appointment">Open by Appointment</option>
+                                        <option value="Limited Slots">Limited Slots</option>
                                     </select>
                                 </div>
                                 {planLimits.allowWebsite && (
@@ -392,6 +432,17 @@ const Dashboard = () => {
                                             <option key={c} value={c}>{c}</option>
                                         ))}
                                     </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 font-[ABC]">Services (comma separated, up to {planLimits.maxServices})</label>
+                                    <input
+                                        type="text"
+                                        name="storeServicesText"
+                                        value={storeData.storeServicesText}
+                                        onChange={handleInputChange}
+                                        className="w-full p-4 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none font-[ABC]"
+                                        placeholder="Bridal Makeup, Hair Styling, Skin Care"
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700 font-[ABC]">Gallery (up to {planLimits.maxImages} image{planLimits.maxImages !== 1 ? 's' : ''})</label>
