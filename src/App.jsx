@@ -24,7 +24,9 @@ import About from "./Pages/About";
 import PaymentReturn from "./Pages/PaymentReturn";
 import { Analytics } from "@vercel/analytics/react";
 import RootLayout from "./components/RootLayout";
-
+import TNC from "./PolicyPages/TNC";
+import PPolicy from "./PolicyPages/PPolicy";
+import CPolicy from "./PolicyPages/CPolicy";
 const App = () => {
   // Smooth Scroll
   useEffect(() => {
@@ -57,6 +59,9 @@ const App = () => {
           <Route path="/payment-return" element={<PaymentReturn />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/store/:id" element={<StoreProfile />} />
+          <Route path="/terms" element={<TNC />} />
+          <Route path="/privacy" element={<PPolicy />} />
+          <Route path="/cookies" element={<CPolicy />} />
         </Route>
 
         {/* Admin Routes - Clean slate without global Navbar/Footer */}
