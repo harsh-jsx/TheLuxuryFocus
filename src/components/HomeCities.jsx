@@ -165,6 +165,12 @@ const HomeCities = () => {
 
         }, triggerRef)
 
+        // Pin + horizontal distance change page length; downstream sections (e.g.
+        // DiscoverCategories) need positions recalculated after this trigger exists.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => ScrollTrigger.refresh())
+        })
+
         return () => ctx.revert()
     }, [])
 

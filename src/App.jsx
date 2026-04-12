@@ -6,6 +6,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Preloader from "./components/Preloader";
 import Navbar from "./components/Navbar";
 import Home from "./Pages/Home";
@@ -36,6 +38,8 @@ import Disclaimer from "./PolicyPages/Disclaimer";
 import RefundPolicy from "./PolicyPages/RefundPolicy";
 import Sitemap from "./PolicyPages/Sitemap";
 
+gsap.registerPlugin(ScrollTrigger);
+
 function ScrollToTop({ lenisRef }) {
   const { pathname, search } = useLocation();
 
@@ -55,20 +59,23 @@ function ScrollToTop({ lenisRef }) {
 const App = () => {
   const lenisRef = useRef(null);
 
-  // Smooth Scroll
+  // Smooth scroll + ScrollTrigger: Lenis must share GSAP's ticker or triggers stay wrong.
+  // See https://github.com/darkroomengineering/lenis#gsap-scrolltrigger
   useEffect(() => {
     const lenis = new Lenis();
     lenisRef.current = lenis;
 
-    let rafId = 0;
-    function raf(time) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
+    const offLenisScroll = lenis.on("scroll", ScrollTrigger.update);
+
+    const onTick = (time) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(onTick);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      offLenisScroll();
+      gsap.ticker.remove(onTick);
       lenis.destroy();
       lenisRef.current = null;
     };

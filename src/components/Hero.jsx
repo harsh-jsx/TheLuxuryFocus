@@ -2,18 +2,14 @@ import React, { useRef, useState, useEffect } from "react";
 import {
   ArrowDown,
   Search,
-  Moon,
-  BedDouble,
-  Landmark,
-  Trees,
-  Compass,
-  HandMetal,
-  CornerRightDown,
-  MoreHorizontal,
+  Coffee,
+  Bed,
   MapPin,
+  Compass,
   Tag,
-  Phone,
-  Mail,
+  Moon,
+  Utensils,
+  Dumbbell,
 } from "lucide-react";
 import SplitText from "./SplitText";
 import gsap from "gsap";
@@ -21,6 +17,7 @@ import { useGSAP } from "@gsap/react";
 import { storeService } from "../services/storeService";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const ACCENT = {
   amber: "#C9A227",
@@ -30,6 +27,7 @@ const ACCENT = {
 
 const Hero = () => {
   const containerRef = useRef(null);
+  let navigate = useNavigate();
   const searchWrapperRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [stores, setStores] = useState([]);
@@ -346,13 +344,18 @@ const Hero = () => {
 
         {/* Categories */}
         <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap  -z-1">
-          <CategoryIcon icon={Moon} label="Nightlife" />
-          <CategoryIcon icon={BedDouble} label="Stay" />
-          <CategoryIcon icon={Landmark} label="Heritage" />
-          <CategoryIcon icon={Trees} label="Wellness" />
-          {/* <div className="category-icon w-12 h-12 rounded-full bg-white text-black flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-                        <MoreHorizontal className="w-5 h-5" />
-                    </div> */}
+          <a href="/stores?category=gym">
+            <CategoryIcon icon={Dumbbell} cursor="pointer" label="Gym" />
+          </a>
+          <a href="/stores?category=hotel">
+            <CategoryIcon icon={Bed} cursor="pointer" label="Hotel" />
+          </a>
+          <a href="/stores?category=restaurant">
+            <CategoryIcon icon={Utensils} cursor="pointer" label="Restaurant" />
+          </a>
+          <a href="/stores?category=cafe">
+            <CategoryIcon icon={Coffee} cursor="pointer" label="Cafe" />
+          </a>
         </div>
       </div>
 

@@ -14,9 +14,18 @@ const ACCENT = {
 };
 
 const features = [
-  { title: "Strategy", desc: "Brand positioning and digital roadmap." },
-  { title: "Design", desc: "Visual identity and user experience." },
-  { title: "Development", desc: "Robust technical implementation." },
+  {
+    title: "Strategy",
+    desc: "Curated listings built on quality, trust, and relevance.",
+  },
+  {
+    title: "Design",
+    desc: "A seamless experience designed to help users find the finest, faster.",
+  },
+  {
+    title: "Development",
+    desc: "Premium presentation that elevates both businesses and user perception.",
+  },
 ];
 
 const About = () => {
@@ -307,8 +316,8 @@ const About = () => {
                 ref={headingRef}
                 className="text-4xl md:text-5xl text-white lg:text-6xl font-medium leading-[1.1] tracking-tight"
               >
-                Making <span className="text-white">Luxury</span> Accessible to
-                Everyone
+                Redefining <span className="text-white">Luxury</span> How Luxury
+                is Discovered
               </h2>
             </div>
 
@@ -316,9 +325,10 @@ const About = () => {
               ref={textRef}
               className="text-lg md:text-xl leading-relaxed text-white"
             >
-              We are a digital innovation studio making luxury accessible to
-              everyone. We blend strategy, design, and technology to make luxury
-              accessible to everyone.
+              At TheLuxuryFocus, we believe luxury shouldn’t be hidden — it
+              should be discovered, experienced, and trusted. We curate the
+              finest businesses across industries, ensuring every listing meets
+              a higher standard of quality, credibility, and experience.
             </p>
 
             <p
@@ -326,9 +336,8 @@ const About = () => {
               className="text-white leading-relaxed max-w-lg"
               style={{ opacity: 0 }}
             >
-              Elevating brand narratives through meticulous design, immersive
-              interactions, and robust engineering. We don't just build websites
-              — we create digital destinations that are accessible to everyone.
+              We’re not just another directory. We are a refined platform where
+              users don’t browse endlessly — they discover the best.
             </p>
             <Link
               to="/about"
