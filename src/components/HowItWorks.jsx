@@ -150,7 +150,7 @@ const HowItWorks = () => {
     <section
       ref={containerRef}
       aria-labelledby="how-it-works-heading"
-      className="relative overflow-hidden bg-[#07080d] py-24 md:py-32"
+      className="relative overflow-hidden rounded-t-4xl rounded-b-xl bg-[#07080d] py-24 md:py-32"
     >
       <div
         ref={orbARef}
@@ -177,14 +177,16 @@ const HowItWorks = () => {
           <p className="font-[ABC] text-[11px] uppercase tracking-[0.35em] text-white/45">
             The flow
           </p>
-          <h2
+          <div
             id="how-it-works-heading"
             className="mt-4 font-[Albra] text-4xl tracking-tight text-white md:text-5xl md:leading-[1.08]"
+            role="heading"
+            aria-level={2}
           >
             <SplitText animationType="spring" stagger={0.06}>
               Three beats. One living map.
             </SplitText>
-          </h2>
+          </div>
           <p className="hiw-sub mt-6 text-base leading-relaxed text-white/60 md:text-lg">
             Businesses show up, people wander, and the crowd turns visits into
             signal—without extra noise.
@@ -193,18 +195,14 @@ const HowItWorks = () => {
 
         <div
           ref={railRef}
-          className="relative mx-auto mt-20 max-w-5xl [perspective:1200px]"
+          className="relative mx-auto mt-20 max-w-5xl perspective-distant"
         >
           {/* Desktop connector */}
           <div
             className="pointer-events-none absolute left-[8%] right-[8%] top-[52px] z-0 hidden md:block"
             aria-hidden="true"
           >
-            <svg
-              viewBox="0 0 900 120"
-              className="h-[100px] w-full"
-              fill="none"
-            >
+            <svg viewBox="0 0 900 120" className="h-[100px] w-full" fill="none">
               <path
                 ref={pathRef}
                 d="M 60 60 C 200 20, 300 100, 450 60 S 700 20, 840 60"
@@ -214,13 +212,7 @@ const HowItWorks = () => {
                 vectorEffect="non-scaling-stroke"
               />
               <defs>
-                <linearGradient
-                  id="hiw-line"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="0%"
-                >
+                <linearGradient id="hiw-line" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#38bdf8" />
                   <stop offset="50%" stopColor="#c084fc" />
                   <stop offset="100%" stopColor="#fb923c" />
@@ -235,19 +227,13 @@ const HowItWorks = () => {
               return (
                 <li key={step.code} className="hiw-step">
                   <div
-                    className="group relative flex h-full flex-col rounded-[28px] border border-white/[0.08] bg-white/[0.03] p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-md transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:border-white/[0.14] hover:shadow-[0_24px_80px_-20px_rgba(0,0,0,0.65)]"
+                    className="group relative flex h-full flex-col rounded-[28px] border border-white/8 bg-white/3 p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-md transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:border-white/14 hover:shadow-[0_24px_80px_-20px_rgba(0,0,0,0.65)]"
                     style={{ transformStyle: "preserve-3d" }}
                     onMouseMove={(e) => {
                       const el = e.currentTarget;
                       const r = el.getBoundingClientRect();
-                      el.style.setProperty(
-                        "--mx",
-                        `${e.clientX - r.left}px`,
-                      );
-                      el.style.setProperty(
-                        "--my",
-                        `${e.clientY - r.top}px`,
-                      );
+                      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                      el.style.setProperty("--my", `${e.clientY - r.top}px`);
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget;
@@ -267,7 +253,7 @@ const HowItWorks = () => {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <div
-                        className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${step.gradient} shadow-lg ring-1 ring-white/20`}
+                        className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-linear-to-br ${step.gradient} shadow-lg ring-1 ring-white/20`}
                       >
                         <Icon className="h-7 w-7 text-white drop-shadow-md" />
                       </div>
@@ -282,7 +268,7 @@ const HowItWorks = () => {
 
                     <div className="relative mt-8 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-white/35">
                       <span
-                        className="h-px w-8 bg-gradient-to-r from-transparent to-white/30"
+                        className="h-px w-8 bg-linear-to-r from-transparent to-white/30"
                         aria-hidden="true"
                       />
                       Phase {step.code}
