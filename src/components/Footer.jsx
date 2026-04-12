@@ -158,12 +158,12 @@ const Footer = () => {
               margin: 0,
             }}
           >
-            Ready to collaborate?
+            Ready to make your business accessible to everyone?
             <br />
             We'd love to hear about your vision.
           </p>
           <a
-            href="/contact"
+            href="/packages"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -188,7 +188,7 @@ const Footer = () => {
               e.currentTarget.style.borderColor = "rgba(228,224,217,0.25)";
             }}
           >
-            Get in Touch
+            Get your business featured
             <ArrowUpRight size={11} opacity={0.6} />
           </a>
         </div>

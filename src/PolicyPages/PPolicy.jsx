@@ -202,7 +202,7 @@ const PPolicy = () => (
           practices, please contact us:
         </p>
         <ul className="list-none pl-6 mt-2 space-y-1">
-          <li>Email: support@TheLuxuryFocus.com.org</li>
+          <li>Email: support@theluxuryfocus.com</li>
           <li>Phone: +91 99013 00019</li>
         </ul>
       </section>

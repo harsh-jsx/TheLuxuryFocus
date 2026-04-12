@@ -307,8 +307,8 @@ const About = () => {
                 ref={headingRef}
                 className="text-4xl md:text-5xl text-white lg:text-6xl font-medium leading-[1.1] tracking-tight"
               >
-                Crafting <span className="text-white">Premium</span> Digital
-                Experiences
+                Making <span className="text-white">Luxury</span> Accessible to
+                Everyone
               </h2>
             </div>
 
@@ -316,9 +316,9 @@ const About = () => {
               ref={textRef}
               className="text-lg md:text-xl leading-relaxed text-white"
             >
-              We are a digital innovation studio crafting premium experiences
-              for ambitious brands. We blend strategy, design, and technology to
-              define the new standard of luxury in the digital age.
+              We are a digital innovation studio making luxury accessible to
+              everyone. We blend strategy, design, and technology to make luxury
+              accessible to everyone.
             </p>
 
             <p
@@ -328,7 +328,7 @@ const About = () => {
             >
               Elevating brand narratives through meticulous design, immersive
               interactions, and robust engineering. We don't just build websites
-              — we create digital destinations.
+              — we create digital destinations that are accessible to everyone.
             </p>
             <Link
               to="/about"
@@ -351,7 +351,7 @@ const About = () => {
               <img
                 ref={imageRef}
                 src={aboutImage}
-                alt="Modern architectural design showcasing premium craftsmanship"
+                alt="Modern architectural design showcasing luxury craftsmanship"
                 className="h-full w-full object-cover"
                 style={{ transform: "scale(1.3)" }}
               />

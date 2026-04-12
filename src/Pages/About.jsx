@@ -8,7 +8,6 @@ import {
   Palette,
   Code2,
   ArrowUpRight,
-  Quote,
   Sparkles,
   Award,
   Zap,
@@ -78,6 +77,8 @@ const About = () => {
   const statsRef = useRef([]);
   const statsSectionRef = useRef(null);
   const quoteRef = useRef(null);
+  const quoteSectionRef = useRef(null);
+  const quoteDecorRef = useRef(null);
   const principlesRef = useRef([]);
   const valuesRef = useRef([]);
   const ctaRef = useRef(null);
@@ -186,23 +187,36 @@ const About = () => {
         });
       }
 
-      // Quote section
+      // Quote section — entrance + parallax on decorative mark
       if (quoteRef.current) {
         gsap.fromTo(
           quoteRef.current,
-          { y: 40, opacity: 0 },
+          { y: 56, opacity: 0, filter: reduceMotion ? "none" : "blur(8px)" },
           {
             y: 0,
             opacity: 1,
-            duration: 1,
-            ease: "power3.out",
+            filter: "blur(0px)",
+            duration: reduceMotion ? 0.35 : 1.15,
+            ease: "power4.out",
             scrollTrigger: {
               trigger: quoteRef.current,
-              start: "top 82%",
+              start: "top 80%",
               once: true,
             },
           },
         );
+      }
+      if (!reduceMotion && quoteDecorRef.current && quoteSectionRef.current) {
+        gsap.to(quoteDecorRef.current, {
+          yPercent: 12,
+          ease: "none",
+          scrollTrigger: {
+            trigger: quoteSectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.4,
+          },
+        });
       }
 
       // Principles stagger
@@ -471,19 +485,21 @@ const About = () => {
                 stagger={0.04}
                 animationType="fade"
               >
-                We don't just build websites — we create digital destinations.
+                We make luxury accessible to everyone by building digital
+                destinations that are accessible to everyone.
               </SplitText>
             </div>
             <p className="text-lg text-gray-600 leading-relaxed">
               Elevating brand narratives through meticulous design, immersive
               interactions, and robust engineering. Every pixel, every
               interaction, every line of code serves a single purpose: to make
-              your brand unforgettable.
+              your brand unforgettable and accessible to everyone.
             </p>
             <p className="text-gray-500 leading-relaxed">
               From startups to established luxury houses, we partner with those
               who refuse to compromise. The result is digital experiences that
-              feel as refined as the brands they represent.
+              feel as refined as the brands they represent and accessible to
+              everyone.
             </p>
           </div>
           <div
@@ -512,37 +528,90 @@ const About = () => {
         </div>
       </section>
 
-      {/* Quote */}
-      <section className="relative py-24 md:py-12 px-6 md:px-12 lg:px-20 bg-gray-50/80">
-        <div className="max-w-4xl mx-auto">
-          <div
-            ref={quoteRef}
-            className="relative rounded-2xl p-8 md:p-12 border border-gray-100 bg-white shadow-sm"
-          >
-            <Quote
-              className="absolute top-6 left-8 w-14 h-14 opacity-20"
-              style={{ color: ACCENT.amber }}
-            />
-            <blockquote className="text-2xl md:text-3xl lg:text-4xl font-[Albra] leading-snug text-gray-900 italic pl-4 md:pl-6 relative z-10">
-              Excellence is not a destination—it's a continuous journey. We
-              build for brands that never stop evolving.
-            </blockquote>
-            <div className="mt-10 flex items-center gap-4 pl-4 md:pl-6">
-              <div
-                className="w-1 h-14 rounded-full"
-                style={{ backgroundColor: ACCENT.amber }}
-              />
-              <div>
-                <span className="font-[Albra] text-gray-900">
-                  The Luxury Focus
-                </span>
-                <span
-                  className="font-[ABC] text-xs block uppercase tracking-widest"
-                  style={{ color: ACCENT.amber }}
-                >
-                  Our Philosophy
-                </span>
-              </div>
+      {/* Quote — editorial full-bleed moment */}
+      <section
+        ref={quoteSectionRef}
+        className="relative py-28 md:py-36 lg:py-44 px-6 md:px-12 lg:px-20 overflow-hidden bg-[#0a0a0a]"
+        aria-labelledby="about-quote-heading"
+      >
+        {/* Ambient light */}
+        <div
+          className="pointer-events-none absolute -top-1/2 left-1/2 h-[120%] w-[140%] -translate-x-1/2 rounded-full opacity-40 blur-[120px]"
+          style={{
+            background: `radial-gradient(ellipse at center, ${ACCENT.amber}33 0%, transparent 55%)`,
+          }}
+        />
+        <div
+          className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 rounded-full opacity-25 blur-[100px]"
+          style={{
+            background: `radial-gradient(circle at center, ${ACCENT.amberLight}40 0%, transparent 70%)`,
+          }}
+        />
+        {/* Hairline grid */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`,
+            backgroundSize: "64px 64px",
+          }}
+        />
+        <div className="relative z-10 mx-auto max-w-6xl">
+          <div ref={quoteRef} className="relative md:pl-8 lg:pl-4">
+            <span id="about-quote-heading" className="sr-only">
+              Our philosophy
+            </span>
+            {/* Oversized typographic mark */}
+            <div
+              ref={quoteDecorRef}
+              className="pointer-events-none absolute -left-2 md:-left-4 lg:-left-8 top-0 select-none font-[Albra] text-[clamp(8rem,22vw,20rem)] leading-[0.75] text-white/[0.04]"
+              aria-hidden
+            >
+              “
+            </div>
+            <div className="relative border-l border-white/10 pl-8 md:pl-12 lg:pl-16">
+              <p
+                className="mb-8 font-[ABC] text-[0.65rem] uppercase tracking-[0.45em] md:text-xs"
+                style={{ color: ACCENT.amberLight }}
+              >
+                Our Philosophy
+              </p>
+              <blockquote className="m-0 border-0 p-0">
+                <div className="text-[clamp(1.75rem,4.5vw,3.75rem)] font-[Albra] font-normal leading-[1.08] tracking-[-0.02em] text-white">
+                  <SplitText
+                    scrollTrigger
+                    once
+                    type="words"
+                    stagger={0.035}
+                    animationType="fade"
+                  >
+                    {
+                      "Excellence is not a destination—it's a continuous journey. We build for brands that never stop evolving."
+                    }
+                  </SplitText>
+                </div>
+              </blockquote>
+              <footer className="mt-14 flex flex-col gap-8 border-t border-white/10 pt-10 sm:flex-row sm:items-end sm:justify-between">
+                <div className="flex items-center gap-5">
+                  <div
+                    className="h-px w-12 shrink-0 md:w-16"
+                    style={{
+                      background: `linear-gradient(90deg, ${ACCENT.amber}, transparent)`,
+                    }}
+                  />
+                  <div>
+                    <cite className="not-italic font-[Albra] text-lg text-white/95 md:text-xl">
+                      The Luxury Focus
+                    </cite>
+                    <span className="mt-1 block font-[ABC] text-[0.65rem] uppercase tracking-[0.35em] text-white/35">
+                      Studio manifesto
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className="hidden h-px flex-1 max-w-xs self-end bg-gradient-to-r from-transparent to-white/20 sm:block lg:max-w-md"
+                  aria-hidden
+                />
+              </footer>
             </div>
           </div>
         </div>

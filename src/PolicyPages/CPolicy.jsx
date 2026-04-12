@@ -262,7 +262,7 @@ const CookiesPolicy = () => (
           If you have any questions about our use of cookies, please contact us:
         </p>
         <ul className="list-none pl-6 mt-2 space-y-1">
-          <li>Email: privacy@TheLuxuryFocus.com.orgm</li>
+          <li>Email: support@theluxuryfocus.com</li>
           <li>Subject: Cookie Policy Inquiry</li>
         </ul>
       </section>

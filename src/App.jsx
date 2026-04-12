@@ -1,5 +1,10 @@
-import { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Lenis from "lenis";
 import Preloader from "./components/Preloader";
 import Navbar from "./components/Navbar";
@@ -27,21 +32,51 @@ import RootLayout from "./components/RootLayout";
 import TNC from "./PolicyPages/TNC";
 import PPolicy from "./PolicyPages/PPolicy";
 import CPolicy from "./PolicyPages/CPolicy";
+import Disclaimer from "./PolicyPages/Disclaimer";
+import RefundPolicy from "./PolicyPages/RefundPolicy";
+import Sitemap from "./PolicyPages/Sitemap";
+
+function ScrollToTop({ lenisRef }) {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    const lenis = lenisRef.current;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname, search]);
+
+  return null;
+}
+
 const App = () => {
+  const lenisRef = useRef(null);
+
   // Smooth Scroll
   useEffect(() => {
     const lenis = new Lenis();
+    lenisRef.current = lenis;
 
+    let rafId = 0;
     function raf(time) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
+    rafId = requestAnimationFrame(raf);
 
-    requestAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
   }, []);
 
   return (
     <Router>
+      <ScrollToTop lenisRef={lenisRef} />
       <Analytics />
       <Preloader />
       <Routes>
@@ -62,6 +97,9 @@ const App = () => {
           <Route path="/terms" element={<TNC />} />
           <Route path="/privacy" element={<PPolicy />} />
           <Route path="/cookies" element={<CPolicy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/refund" element={<RefundPolicy />} />
+          <Route path="/sitemap" element={<Sitemap />} />
         </Route>
 
         {/* Admin Routes - Clean slate without global Navbar/Footer */}
