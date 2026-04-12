@@ -5,10 +5,10 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Target,
-  Palette,
-  Code2,
   ArrowUpRight,
   Sparkles,
+  Search,
+  Verified,
   Award,
   Zap,
 } from "lucide-react";
@@ -26,42 +26,41 @@ const ACCENT = {
 const values = [
   {
     icon: Target,
-    title: "Strategy",
-    desc: "Brand positioning and digital roadmap. We align every decision with your long-term vision.",
+    title: "Curation",
+    desc: "We carefully select and feature only high-quality businesses, ensuring every listing meets a premium standard of excellence.",
   },
   {
-    icon: Palette,
-    title: "Design",
-    desc: "Visual identity and user experience. Crafting interfaces that feel as premium as your brand.",
+    icon: Search,
+    title: "Discovery",
+    desc: "A seamless experience designed to help users find the finest businesses quickly — without the noise of mass listings.",
   },
   {
-    icon: Code2,
-    title: "Development",
-    desc: "Robust technical implementation. Scalable, performant, and built to last.",
+    icon: Verified,
+    title: "Trust",
+    desc: "Verified profiles, refined presentation, and quality-first filtering create a platform users can rely on with confidence.",
   },
 ];
 
 const stats = [
-  { value: 50, suffix: "+", label: "Brands Elevated" },
-  { value: 100, suffix: "+", label: "Projects Delivered" },
-  { value: 5, suffix: "+", label: "Years of Excellence" },
-  { value: 98, suffix: "%", label: "Client Satisfaction" },
+  { value: 500, suffix: "+", label: "Curated Listings" },
+  { value: 10000, suffix: "+", label: "Monthly Discoveries" },
+  { value: 20, suffix: "+", label: "Premium Categories" },
+  { value: 95, suffix: "%", label: "Verified Quality Rate" },
 ];
-
 const principles = [
-  "Quality over quantity",
-  "Design with purpose",
-  "Technology as an enabler",
-  "Partnership, not transaction",
+  "Curated, not crowded",
+  "Excellence over everything",
+  "Trust through quality",
+  "Experience defines value",
 ];
 
 const marqueeItems = [
-  "Digital Excellence",
-  "Brand Strategy",
-  "Premium Design",
-  "Innovation",
-  "Luxury",
-  "Craftsmanship",
+  "Curated Luxury",
+  "Elite Listings",
+  "Refined Discovery",
+  "Premium Experiences",
+  "Verified Excellence",
+  "Timeless Quality",
 ];
 
 const About = () => {
@@ -411,15 +410,17 @@ const About = () => {
               Premium
             </span>
             <br />
-            Digital Experiences
+            Business Experiences
           </h1>
           <p
             ref={heroSubRef}
             className="mt-10 text-lg md:text-xl text-gray-600 font-[ABC] max-w-2xl leading-relaxed"
           >
-            We are a digital innovation studio for ambitious brands. Strategy,
-            design, and technology—unified to define the new standard of luxury
-            in the digital age.
+            We are a luxury-first discovery platform built for those who value
+            quality over clutter. Through careful curation, refined design, and
+            trust-driven listings, we bring forward only the most exceptional
+            businesses — setting a new standard for discovering luxury in the
+            digital age.
           </p>
         </div>
       </section>
@@ -485,21 +486,21 @@ const About = () => {
                 stagger={0.04}
                 animationType="fade"
               >
-                We make luxury accessible to everyone by building digital
-                destinations that are accessible to everyone.
+                We redefine access to luxury — creating a curated digital space
+                where exceptional businesses are discovered effortlessly.
               </SplitText>
             </div>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Elevating brand narratives through meticulous design, immersive
-              interactions, and robust engineering. Every pixel, every
-              interaction, every line of code serves a single purpose: to make
-              your brand unforgettable and accessible to everyone.
+              We elevate how people discover premium businesses through
+              thoughtful curation, refined presentation, and a seamless browsing
+              experience. Every listing, every detail, and every interaction is
+              designed to highlight quality and build trust.
             </p>
             <p className="text-gray-500 leading-relaxed">
-              From startups to established luxury houses, we partner with those
-              who refuse to compromise. The result is digital experiences that
-              feel as refined as the brands they represent and accessible to
-              everyone.
+              From emerging brands to established luxury names, we feature only
+              those who meet a higher standard. The result is a platform where
+              users don’t search endlessly — they discover the best,
+              effortlessly.
             </p>
           </div>
           <div
@@ -716,15 +717,14 @@ const About = () => {
             Let's create something new.
           </h2>
           <p className="text-gray-600 mb-10 max-w-xl mx-auto">
-            Ready to elevate your brand's digital presence? We'd love to hear
-            from you.
+            Ready to elevate your brand's digital presence?
           </p>
           <Link
-            to="/"
+            to="/packages"
             className="inline-flex items-center gap-3 px-10 py-5 text-white font-[ABC] text-sm uppercase tracking-widest rounded-full transition-all duration-300 hover:opacity-95 hover:scale-[1.02] hover:shadow-xl"
             style={{ backgroundColor: ACCENT.amber }}
           >
-            Get in Touch <ArrowUpRight size={18} />
+            Explore Packages <ArrowUpRight size={18} />
           </Link>
         </div>
       </section>
