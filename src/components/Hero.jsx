@@ -162,6 +162,9 @@ const Hero = () => {
             background: `radial-gradient(circle, ${ACCENT.amberLight} 0%, transparent 70%)`,
           }}
         />
+        <div className=" text-center mt-15 text-white bg-red-500">
+          <p>14014 unique users visited TheLuxuryFocus today</p>
+        </div>
         <video
           autoPlay
           loop
@@ -195,11 +198,11 @@ const Hero = () => {
           </SplitText>
         </h1>
 
-        <p className="capitalize hero-element max-w-2xl font-[ABC] text-sm md:text-lg leading-relaxed text-white/70 tracking-wide mb-10">
+        {/* <p className="capitalize hero-element max-w-2xl font-[ABC] text-sm md:text-lg leading-relaxed text-white/70 tracking-wide mb-10">
           Discover verified luxury brands, boutiques, and services — crafted for
           <br />
           people who don’t compromise on quality.
-        </p>
+        </p> */}
 
         {/* Search Bar */}
         <div

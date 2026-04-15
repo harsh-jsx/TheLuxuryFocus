@@ -148,9 +148,9 @@ const Footer = () => {
         >
           <p
             style={{
-              fontSize: "11px",
+              fontSize: "14px",
               letterSpacing: "0.08em",
-              opacity: 0.4,
+              opacity: 0.9,
               textAlign: "right",
               maxWidth: "200px",
               lineHeight: 1.7,
