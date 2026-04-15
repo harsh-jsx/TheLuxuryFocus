@@ -26,6 +26,7 @@ import AdminBlogs from "./Pages/Admin/AdminBlogs";
 import AdminUsers from "./Pages/Admin/AdminUsers";
 import AdminStores from "./Pages/Admin/AdminStores";
 import AdminOrders from "./Pages/Admin/AdminOrders";
+import AdminGallery from "./Pages/Admin/AdminGallery";
 import StoreProfile from "./Pages/StoreProfile";
 import About from "./Pages/About";
 import PaymentReturn from "./Pages/PaymentReturn";
@@ -117,6 +118,7 @@ const App = () => {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="blogs" element={<AdminBlogs />} />
+          <Route path="gallery" element={<AdminGallery />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="stores" element={<AdminStores />} />
           <Route path="orders" element={<AdminOrders />} />

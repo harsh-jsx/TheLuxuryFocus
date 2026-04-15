@@ -5,7 +5,7 @@ import { getGalleryItems } from "../services/galleryService";
 function Thumb({ item }) {
   const isVideo = item?.type === "video";
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/5 border border-white/10">
+    <div className="relative overflow-hidden rounded-2xl bg-black/5 border border-black/10">
       {isVideo ? (
         <video
           className="w-full h-auto object-cover"
@@ -24,7 +24,7 @@ function Thumb({ item }) {
         />
       )}
       {isVideo ? (
-        <div className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-3 py-1 text-white font-[ABC] text-[10px] tracking-widest uppercase">
+        <div className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-3 py-1 text-black font-[ABC] text-[10px] tracking-widest uppercase">
           Video
         </div>
       ) : null}
@@ -52,14 +52,12 @@ const Gallery = () => {
   }, []);
 
   return (
-    <section className="py-20 bg-[#0a0a0a]">
+    <section className="py-20 ">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <h2 className="text-5xl md:text-6xl text-white tracking-tight">
-              Gallery
-            </h2>
-            <p className="font-[ABC] text-white/55 text-xs uppercase tracking-widest mt-3">
+            <h2 className="text-5xl md:text-6xl  tracking-tight">Gallery</h2>
+            <p className="font-[ABC]  text-xs uppercase tracking-widest mt-3">
               A Pinterest-style feed of photos & videos
             </p>
           </div>
@@ -78,10 +76,10 @@ const Gallery = () => {
               <Link to={`/gallery/${item.id}`} className="block group">
                 <Thumb item={item} />
                 <div className="mt-3 px-1">
-                  <div className="font-[Albra] text-lg text-white leading-tight group-hover:opacity-90">
+                  <div className="font-[Albra] text-lg  leading-tight group-hover:opacity-90">
                     {item.title ?? "Untitled"}
                   </div>
-                  <div className="mt-2 font-[ABC] text-xs text-white/50 flex items-center justify-between">
+                  <div className="mt-2 font-[ABC] text-xs  flex items-center justify-between">
                     <span>{item.type === "video" ? "Video" : "Photo"}</span>
                     <span className="tabular-nums">
                       {Number(item.likesCount ?? 0)} likes
@@ -91,12 +89,13 @@ const Gallery = () => {
               </Link>
             </div>
           ))}
-          {items.length === 0 ? (
-            <div className="font-[ABC] text-sm text-white/50">
-              Add documents in Firestore collection <span className="text-white/70">galleryItems</span>{" "}
-              to populate this section.
+          {/* {items.length === 0 ? (
+            <div className="font-[ABC] text-sm ">
+              Add documents in Firestore collection{" "}
+              <span className="text-black">galleryItems</span> to populate this
+              section.
             </div>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
     </section>

@@ -64,4 +64,3 @@ export function addComment(id, text) {
   writeAll(state);
   return comment;
 }
-

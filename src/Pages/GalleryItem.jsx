@@ -132,22 +132,22 @@ export default function GalleryItem() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-[#E4E0D9] pt-28 px-4 sm:px-6 lg:px-10">
-        <div className="max-w-6xl mx-auto font-[ABC] text-sm text-white/55">
-          Loading…
-        </div>
+      <div className="min-h-screen bg-white text-black pt-28 px-4 sm:px-6 lg:px-10">
+        <div className="max-w-6xl mx-auto font-[ABC] text-sm ">Loading…</div>
       </div>
     );
   }
 
   if (error || !item) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-[#E4E0D9] pt-28 px-4 sm:px-6 lg:px-10">
+      <div className="min-h-screen bg-white text-black pt-28 px-4 sm:px-6 lg:px-10">
         <div className="max-w-6xl mx-auto">
-          <div className="font-[ABC] text-sm text-red-400">{error || "Not found."}</div>
+          <div className="font-[ABC] text-sm text-red-400">
+            {error || "Not found."}
+          </div>
           <Link
             to="/gallery"
-            className="inline-block mt-6 font-[ABC] text-xs uppercase tracking-widest text-white/70 hover:text-white"
+            className="inline-block mt-6 font-[ABC] text-xs uppercase tracking-widest  hover:text-white"
           >
             Back to gallery →
           </Link>
@@ -157,12 +157,12 @@ export default function GalleryItem() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#E4E0D9] pt-24 pb-16 px-4 sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-white text-black pt-24 pb-16 px-4 sm:px-6 lg:px-10">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
           <Link
             to="/gallery"
-            className="font-[ABC] text-xs uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+            className="font-[ABC] text-xs uppercase tracking-widest  hover:text-black transition-colors"
           >
             ← Back to gallery
           </Link>
@@ -192,14 +192,14 @@ export default function GalleryItem() {
 
           {/* Right: Panel (Pinterest-like) */}
           <div className="lg:col-span-2">
-            <div className="rounded-3xl bg-white/5 border border-white/10 p-6">
+            <div className="rounded-3xl bg-white/5 border border-black/10 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl md:text-4xl leading-tight">
+                  <h1 className="text-3xl md:text-4xl leading-tight text-black">
                     {item.title ?? "Untitled"}
                   </h1>
                   {metaLine ? (
-                    <div className="font-[ABC] text-xs uppercase tracking-widest text-white/45 mt-3">
+                    <div className="font-[ABC] text-xs uppercase tracking-widest  mt-3">
                       {metaLine}
                     </div>
                   ) : null}
@@ -211,8 +211,8 @@ export default function GalleryItem() {
                   disabled={likeBusy}
                   className={`shrink-0 rounded-2xl px-4 py-2 font-[ABC] text-xs uppercase tracking-widest border transition-colors ${
                     liked
-                      ? "bg-white text-[#0a0a0a] border-white"
-                      : "bg-transparent text-white border-white/20 hover:border-white/40"
+                      ? "bg-white text-black border-black"
+                      : "bg-transparent text-black border-white/20 hover:border-white/40"
                   }`}
                 >
                   {liked ? "Liked" : "Like"} ·{" "}
@@ -221,15 +221,15 @@ export default function GalleryItem() {
               </div>
 
               {item.description ? (
-                <p className="mt-6 text-white/85">{item.description}</p>
+                <p className="mt-6 ">{item.description}</p>
               ) : null}
 
               <div className="mt-8">
                 <div className="flex items-center justify-between">
-                  <div className="font-[ABC] text-xs uppercase tracking-widest text-white/60">
+                  <div className="font-[ABC] text-xs uppercase tracking-widest ">
                     Comments
                   </div>
-                  <div className="font-[ABC] text-xs text-white/45 tabular-nums">
+                  <div className="font-[ABC] text-xs text-black tabular-nums">
                     {comments.length}
                   </div>
                 </div>
@@ -238,14 +238,16 @@ export default function GalleryItem() {
                   <input
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    placeholder={currentUser ? "Add a comment…" : "Sign in to comment…"}
-                    className="flex-1 rounded-2xl bg-[#0a0a0a] border border-white/10 px-4 py-3 font-[ABC] text-sm outline-none focus:border-white/25"
+                    placeholder={
+                      currentUser ? "Add a comment…" : "Sign in to comment…"
+                    }
+                    className="flex-1 rounded-2xl bg-white border border-black/10 px-4 py-3 font-[ABC] text-sm outline-none focus:border-black/25"
                     disabled={commentBusy}
                   />
                   <button
                     type="submit"
                     disabled={commentBusy || !commentText.trim()}
-                    className="rounded-2xl px-4 py-3 font-[ABC] text-xs uppercase tracking-widest bg-white text-[#0a0a0a] disabled:opacity-50"
+                    className="rounded-2xl px-4 py-3 font-[ABC] text-xs uppercase tracking-widest bg-white text-black disabled:opacity-50"
                   >
                     Post
                   </button>
@@ -255,7 +257,7 @@ export default function GalleryItem() {
                   {comments.map((c) => (
                     <div
                       key={c.id}
-                      className="rounded-2xl bg-white/5 border border-white/10 p-4"
+                      className="rounded-2xl bg-white/5 border border-black/10 p-4"
                     >
                       <div className="flex items-center gap-3">
                         {c.authorPhotoURL ? (
@@ -269,30 +271,25 @@ export default function GalleryItem() {
                           <div className="w-8 h-8 rounded-full bg-white/10" />
                         )}
                         <div className="min-w-0">
-                          <div className="font-[ABC] text-xs uppercase tracking-widest text-white/70 truncate">
+                          <div className="font-[ABC] text-xs uppercase tracking-widest  truncate">
                             {c.authorName ?? "Anonymous"}
                           </div>
-                          <div className="font-[ABC] text-[11px] text-white/40">
+                          <div className="font-[ABC] text-[11px] ">
                             {formatDate(c.createdAt)}
                           </div>
                         </div>
                       </div>
-                      <div className="mt-3 text-white/90">{c.text}</div>
+                      <div className="mt-3 ">{c.text}</div>
                     </div>
                   ))}
 
                   {comments.length === 0 ? (
-                    <div className="font-[ABC] text-sm text-white/45">
+                    <div className="font-[ABC] text-sm ">
                       Be the first to comment.
                     </div>
                   ) : null}
                 </div>
               </div>
-            </div>
-
-            <div className="mt-6 font-[ABC] text-xs text-white/40">
-              Tip: store your Cloudinary URL as <span className="text-white/60">src</span>{" "}
-              (and <span className="text-white/60">poster</span> for videos) in Firestore.
             </div>
           </div>
         </div>
@@ -300,4 +297,3 @@ export default function GalleryItem() {
     </div>
   );
 }
-
