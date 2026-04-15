@@ -80,10 +80,10 @@ const Footer = () => {
             <span
               key={i}
               style={{
-                fontSize: "10px",
+                fontSize: "14px",
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
-                opacity: 0.35,
+                opacity: 0.9,
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "20px",
