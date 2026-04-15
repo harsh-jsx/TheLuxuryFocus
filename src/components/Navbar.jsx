@@ -21,6 +21,7 @@ const Navbar = () => {
       path: "/categories",
     },
     { title: "Packages", path: "/packages" },
+    { title: "Gallery", path: "/gallery" },
     { title: "Stores", path: "/stores" },
     { title: "Dashboard", path: "/dashboard" },
     ...(isAdmin ? [{ title: "Admin", path: "/admin" }] : []),

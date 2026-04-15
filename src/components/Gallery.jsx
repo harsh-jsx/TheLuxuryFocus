@@ -1,60 +1,106 @@
-import React, { useRef, useEffect } from 'react'
-import gsap from 'gsap'
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { getGalleryItems } from "../services/galleryService";
 
-const images = [
-    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1549488344-cbb6c34cf08b?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2073&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=1740&auto=format&fit=crop",
-]
-
-const Gallery = () => {
-    const trackRef = useRef(null)
-
-    useEffect(() => {
-        const track = trackRef.current
-        const calculateWidth = () => {
-            const width = track.scrollWidth
-            // Clone items to ensure seamless loop if needed, 
-            // but for simple marquee we can just animate xPercent
-        }
-
-        gsap.to(track, {
-            xPercent: -50, // Move half way (assuming 2 sets of images)
-            duration: 20,
-            ease: "none",
-            repeat: -1
-        })
-    }, [])
-
-    return (
-        <section className="py-20 bg-[#0a0a0a] overflow-hidden">
-            <h1 className="text-6xl font-bold mb-4 font-[Albra] text-white text-center pb-2">Experience luxury with TheLuxuryFocus</h1>
-
-            <div className="flex w-max" ref={trackRef}>
-                {/* First Set */}
-                {images.map((src, i) => (
-                    <div key={i} className="w-[30vw] h-[40vh] md:h-[60vh] px-2 md:px-4 flex-shrink-0">
-                        <img
-                            src={src}
-                            alt="Gallery"
-                            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                        />
-                    </div>
-                ))}
-                {/* Second Set for Loop */}
-                {images.map((src, i) => (
-                    <div key={`d-${i}`} className="w-[30vw] h-[40vh] md:h-[60vh] px-2 md:px-4 flex-shrink-0">
-                        <img
-                            src={src}
-                            alt="Gallery"
-                            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                        />
-                    </div>
-                ))}
-            </div>
-        </section>
-    )
+function Thumb({ item }) {
+  const isVideo = item?.type === "video";
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-white/5 border border-white/10">
+      {isVideo ? (
+        <video
+          className="w-full h-auto object-cover"
+          src={item.src}
+          poster={item.poster ?? undefined}
+          muted
+          playsInline
+          preload="metadata"
+        />
+      ) : (
+        <img
+          src={item.src}
+          alt={item.title ?? "Gallery item"}
+          className="w-full h-auto object-cover"
+          loading="lazy"
+        />
+      )}
+      {isVideo ? (
+        <div className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-3 py-1 text-white font-[ABC] text-[10px] tracking-widest uppercase">
+          Video
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
-export default Gallery
+const Gallery = () => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const data = await getGalleryItems({ pageSize: 10 });
+        if (!alive) return;
+        setItems(data);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  return (
+    <section className="py-20 bg-[#0a0a0a]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <h2 className="text-5xl md:text-6xl text-white tracking-tight">
+              Gallery
+            </h2>
+            <p className="font-[ABC] text-white/55 text-xs uppercase tracking-widest mt-3">
+              A Pinterest-style feed of photos & videos
+            </p>
+          </div>
+
+          <Link
+            to="/gallery"
+            className="inline-flex items-center justify-center rounded-2xl px-5 py-3 bg-white text-[#0a0a0a] font-[ABC] text-xs uppercase tracking-widest hover:bg-gray-200 transition-colors w-fit"
+          >
+            Explore all →
+          </Link>
+        </div>
+
+        <div className="mt-10 columns-2 md:columns-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="mb-4 break-inside-avoid">
+              <Link to={`/gallery/${item.id}`} className="block group">
+                <Thumb item={item} />
+                <div className="mt-3 px-1">
+                  <div className="font-[Albra] text-lg text-white leading-tight group-hover:opacity-90">
+                    {item.title ?? "Untitled"}
+                  </div>
+                  <div className="mt-2 font-[ABC] text-xs text-white/50 flex items-center justify-between">
+                    <span>{item.type === "video" ? "Video" : "Photo"}</span>
+                    <span className="tabular-nums">
+                      {Number(item.likesCount ?? 0)} likes
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+          {items.length === 0 ? (
+            <div className="font-[ABC] text-sm text-white/50">
+              Add documents in Firestore collection <span className="text-white/70">galleryItems</span>{" "}
+              to populate this section.
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Gallery;

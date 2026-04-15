@@ -29,6 +29,8 @@ import AdminOrders from "./Pages/Admin/AdminOrders";
 import StoreProfile from "./Pages/StoreProfile";
 import About from "./Pages/About";
 import PaymentReturn from "./Pages/PaymentReturn";
+import Gallery from "./Pages/Gallery";
+import GalleryItem from "./Pages/GalleryItem";
 import { Analytics } from "@vercel/analytics/react";
 import RootLayout from "./components/RootLayout";
 import TNC from "./PolicyPages/TNC";
@@ -101,6 +103,8 @@ const App = () => {
           <Route path="/payment-return" element={<PaymentReturn />} />
           <Route path="/blog/:id" element={<BlogPost />} />
           <Route path="/store/:id" element={<StoreProfile />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/gallery/:id" element={<GalleryItem />} />
           <Route path="/terms" element={<TNC />} />
           <Route path="/privacy" element={<PPolicy />} />
           <Route path="/cookies" element={<CPolicy />} />
