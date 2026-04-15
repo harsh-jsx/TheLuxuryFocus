@@ -2,16 +2,32 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getGalleryItems } from "../services/galleryService";
 
+function cloudinaryVideoPosterFromSrc(src) {
+  const s = String(src ?? "");
+  if (!s.includes("/video/upload/")) return null;
+  const match = s.match(/^(.*\/video\/upload\/)(.*?)(\.(mp4|webm|mov|mkv|avi))(\?.*)?$/i);
+  if (!match) return null;
+  const prefix = match[1];
+  const rest = match[2];
+  return `${prefix}so_0/${rest}.jpg`;
+}
+
 function Thumb({ item }) {
   const isVideo = item?.type === "video";
+  const poster =
+    item?.poster ??
+    (isVideo ? cloudinaryVideoPosterFromSrc(item?.src) : null) ??
+    undefined;
   return (
     <div className="relative overflow-hidden rounded-2xl bg-black/5 border border-black/10">
       {isVideo ? (
         <video
           className="w-full h-auto object-cover"
           src={item.src}
-          poster={item.poster ?? undefined}
+          poster={poster}
+          autoPlay
           muted
+          loop
           playsInline
           preload="metadata"
         />
