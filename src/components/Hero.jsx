@@ -162,9 +162,7 @@ const Hero = () => {
             background: `radial-gradient(circle, ${ACCENT.amberLight} 0%, transparent 70%)`,
           }}
         />
-        <div className=" text-center mt-15 text-white bg-red-500">
-          <p>14014 unique users visited TheLuxuryFocus today</p>
-        </div>
+
         <video
           autoPlay
           loop
