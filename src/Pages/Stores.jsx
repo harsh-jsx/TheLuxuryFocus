@@ -449,19 +449,33 @@ const Stores = () => {
     fetchStores();
   }, []);
 
+  // Apply query string → filters (only when the URL itself changes, not when city lists load)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const cp = params.get("city");
-    const cat = params.get("category");
-    if (cp)
-      setSelectedCity(
-        cities.find((c) => c.toLowerCase() === cp.toLowerCase()) || cp,
-      );
-    if (cat)
-      setSelectedCategory(
-        categories.find((c) => c.toLowerCase() === cat.toLowerCase()) || cat,
-      );
-  }, [location.search, cities, categories]);
+    const cp = params.get("city")?.trim();
+    const cat = params.get("category")?.trim();
+    if (cp) setSelectedCity(cp);
+    else setSelectedCity("");
+    if (cat) setSelectedCategory(cat);
+    else setSelectedCategory("");
+  }, [location.search]);
+
+  // Once stores are loaded, match URL city/category to the canonical casing used in data
+  useEffect(() => {
+    if (!selectedCity || cities.length === 0) return;
+    const match = cities.find(
+      (c) => c.toLowerCase() === selectedCity.toLowerCase(),
+    );
+    if (match && match !== selectedCity) setSelectedCity(match);
+  }, [cities, selectedCity]);
+
+  useEffect(() => {
+    if (!selectedCategory || categories.length === 0) return;
+    const match = categories.find(
+      (c) => c.toLowerCase() === selectedCategory.toLowerCase(),
+    );
+    if (match && match !== selectedCategory) setSelectedCategory(match);
+  }, [categories, selectedCategory]);
 
   const filteredStores = stores.filter((s) => {
     const ms = s.storeName?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -471,6 +485,14 @@ const Stores = () => {
     const mk = categoryMatches(selectedCategory, s.storeCategory);
     return ms && mc && mk;
   });
+
+  const cityOptions =
+    selectedCity &&
+    !cities.some((c) => c.toLowerCase() === selectedCity.toLowerCase())
+      ? [...cities, selectedCity].sort((a, b) =>
+          a.localeCompare(b, undefined, { sensitivity: "base" }),
+        )
+      : cities;
 
   const categoryOptions =
     selectedCategory &&
@@ -883,7 +905,7 @@ const Stores = () => {
                     onChange={(e) => setSelectedCity(e.target.value)}
                   >
                     <option value="">All Cities</option>
-                    {cities.map((c) => (
+                    {cityOptions.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
