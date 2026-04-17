@@ -108,7 +108,7 @@ const Footer = () => {
       {/* ── CTA Section ── */}
       <div
         style={{
-          padding: "80px 48px 72px",
+          padding: "60px 48px 72px",
           borderBottom: "0.5px solid rgba(228,224,217,0.1)",
           display: "flex",
           justifyContent: "space-between",
@@ -198,7 +198,8 @@ const Footer = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr",
+          width: "100%",
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
           borderBottom: "0.5px solid rgba(228,224,217,0.1)",
         }}
       >
@@ -216,35 +217,10 @@ const Footer = () => {
           <div>
             <div
               style={{
-                fontFamily: "'Albra', 'Georgia', serif",
-                fontSize: "52px",
-                fontWeight: 300,
-                letterSpacing: "-0.02em",
-                lineHeight: 1,
-              }}
-            >
-              TLF
-            </div>
-            <div
-              style={{
-                fontSize: "9px",
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                opacity: 0.28,
-                marginTop: "8px",
-              }}
-            >
-              The Luxury Focus
-            </div>
-          </div>
-
-          <div>
-            <div
-              style={{
-                fontSize: "9px",
+                fontSize: "10px",
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
-                opacity: 0.3,
+                opacity: 0.6,
                 marginBottom: "20px",
               }}
             >
@@ -260,10 +236,10 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    fontSize: "13px",
+                    fontSize: "14px",
                     color: "#E4E0D9",
                     textDecoration: "none",
-                    opacity: 0.55,
+                    opacity: 0.75,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
@@ -285,7 +261,7 @@ const Footer = () => {
           <div
             key={label}
             style={{
-              padding: "48px",
+              padding: "38px",
               borderRight:
                 colIdx < NAV_COLUMNS.length - 1
                   ? "0.5px solid rgba(228,224,217,0.1)"
@@ -294,27 +270,27 @@ const Footer = () => {
           >
             <div
               style={{
-                fontSize: "9px",
+                fontSize: "10px",
                 letterSpacing: "0.25em",
                 textTransform: "uppercase",
-                opacity: 0.3,
+                opacity: 0.6,
                 marginBottom: "28px",
               }}
             >
               {label}
             </div>
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "13px" }}
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
             >
               {links.map(({ text, href }) => (
                 <a
                   key={text}
                   href={href}
                   style={{
-                    fontSize: "13px",
+                    fontSize: "14px",
                     color: "#E4E0D9",
                     textDecoration: "none",
-                    opacity: 0.6,
+                    opacity: 0.75,
                     letterSpacing: "0.02em",
                     transition: "opacity 0.2s",
                   }}
