@@ -7,7 +7,7 @@ import { storeService } from '../services/storeService';
 import { recordStoreEvent, getStoreAnalyticsSummary, STORE_ANALYTICS_EVENTS } from '../services/storeAnalyticsService';
 import { getConciergeRequestsByStoreId } from '../services/conciergeRequestService';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Upload, Store, CheckCircle, MessageSquare, Mail, User, Phone, Calendar, Globe, Instagram, Target, FileText, Image as ImageIcon, Video, Sparkles, Tag } from 'lucide-react';
+import { Loader2, Upload, Store, CheckCircle, MessageSquare, Mail, User, Phone, Calendar, Globe, Instagram, Target, FileText, Image as ImageIcon, Video, Sparkles, Tag, Home } from 'lucide-react';
 import { LUXURY_CATEGORIES, AD_GOALS } from '../constants/categories';
 import { getPlanLimits } from '../constants/subscriptionPlans';
 
@@ -58,6 +58,7 @@ const Dashboard = () => {
     const [galleryFiles, setGalleryFiles] = useState([]);
     const [videoUrls, setVideoUrls] = useState(['']);
     const [submitting, setSubmitting] = useState(false);
+    const [homeLogoToggling, setHomeLogoToggling] = useState(false);
 
     const planLimits = order ? getPlanLimits(order.packageId ?? (order.packageName === 'Premium' ? 3 : order.packageName === 'Standard' ? 2 : 1)) : getPlanLimits(1);
 
@@ -302,6 +303,7 @@ const Dashboard = () => {
             } else {
                 const storeRef = await addDoc(collection(db, "stores"), {
                     ...payload,
+                    featuredOnHomePage: false,
                     createdAt: serverTimestamp(),
                 });
                 const newStoreId = storeRef.id;
@@ -701,6 +703,28 @@ const Dashboard = () => {
     if (s.goals?.includes('other') && s.goalsOther) goalLabels.push(s.goalsOther);
     const dashboardPlan = getPlanLimits(s.planId ?? order?.packageId);
 
+    const toggleFeaturedOnHomePage = async () => {
+        if (!storeId || !dashboardPlan.allowHomePageLogoFeature) return;
+        if (!(s.logoUrl || '').trim()) {
+            alert('Upload a logo under Edit & update content before featuring it on the home page.');
+            return;
+        }
+        setHomeLogoToggling(true);
+        try {
+            const next = !s.featuredOnHomePage;
+            await updateDoc(doc(db, 'stores', storeId), {
+                featuredOnHomePage: next,
+                updatedAt: serverTimestamp(),
+            });
+            setStoreDetails((prev) => ({ ...(prev || {}), featuredOnHomePage: next }));
+        } catch (err) {
+            console.error(err);
+            alert('Could not update home page visibility. Please try again.');
+        } finally {
+            setHomeLogoToggling(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 py-24 px-4">
             <div className="container mx-auto max-w-7xl space-y-8">
@@ -726,6 +750,37 @@ const Dashboard = () => {
                         Edit & update content
                     </button>
                 </div>
+
+                {dashboardPlan.allowHomePageLogoFeature && (
+                    <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50/30 rounded-3xl border border-amber-100 p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <div className="flex gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                                <Home size={22} />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-900 font-[Albra] mb-1">Home page client logos</h2>
+                                <p className="text-sm text-gray-600 font-[ABC] max-w-xl">
+                                    Your Premium plan includes placement in the &quot;Brands that trust us&quot; marquee on the home page. Turn it on when your logo is ready; visitors can click through to your listing.
+                                </p>
+                                {!s.logoUrl?.trim() && (
+                                    <p className="text-sm text-amber-800 font-[ABC] mt-2">Add a logo in Edit & update content to enable this.</p>
+                                )}
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            disabled={homeLogoToggling || !s.logoUrl?.trim()}
+                            onClick={toggleFeaturedOnHomePage}
+                            className="shrink-0 px-6 py-3 rounded-xl font-[ABC] text-sm font-bold uppercase tracking-wider border-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-amber-600 text-white border-amber-600 hover:bg-amber-700 hover:border-amber-700"
+                        >
+                            {homeLogoToggling
+                                ? 'Saving…'
+                                : s.featuredOnHomePage
+                                    ? 'Remove logo from home page'
+                                    : 'Add my logo to home page'}
+                        </button>
+                    </div>
+                )}
 
                 {/* Analytics — Premium only */}
                 {dashboardPlan.allowAnalytics && (

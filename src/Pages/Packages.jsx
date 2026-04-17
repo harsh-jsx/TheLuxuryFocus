@@ -17,6 +17,7 @@ import {
   Star,
   Zap,
   Shield,
+  Home,
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -83,6 +84,7 @@ const PACKAGES = [
       { name: "Priority Support", included: true, icon: Clock },
       { name: "24/7 WhatsApp Bot", included: true, icon: MessageCircle },
       { name: "Reviews & Analytics", included: true, icon: BarChart3 },
+      { name: "Your logo in home page client marquee", included: true, icon: Home },
     ],
   },
 ];

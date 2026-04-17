@@ -1,13 +1,15 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { storeService } from "../services/storeService";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ACCENT = "#C9A227";
 
-const brands = [
+const STATIC_BRANDS = [
     { name: "Marriott", logo: "https://cdn.worldvectorlogo.com/logos/marriott-1.svg" },
     { name: "Hilton", logo: "https://cdn.worldvectorlogo.com/logos/hilton-5.svg" },
     { name: "Airbnb", logo: "https://cdn.worldvectorlogo.com/logos/airbnb-2.svg" },
@@ -18,15 +20,27 @@ const brands = [
 ];
 
 function BrandLogo({ brand }) {
+    const inner = (
+        <img
+            src={brand.logo}
+            alt={brand.name}
+            className="h-8 sm:h-10 w-auto max-w-[140px] sm:max-w-[180px] object-contain opacity-70 hover:opacity-100 transition-opacity duration-500"
+            style={{ filter: "none" }}
+            draggable={false}
+        />
+    );
     return (
         <div className="flex items-center justify-center px-10 sm:px-14 shrink-0 select-none">
-            <img
-                src={brand.logo}
-                alt={brand.name}
-                className="h-8 sm:h-10 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-500"
-                style={{ filter: "none" }}
-                draggable={false}
-            />
+            {brand.storeId ? (
+                <Link
+                    to={`/store/${brand.storeId}`}
+                    className="block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600/35 focus-visible:ring-offset-2"
+                >
+                    {inner}
+                </Link>
+            ) : (
+                inner
+            )}
         </div>
     );
 }
@@ -53,7 +67,7 @@ function MarqueeRow({ items, direction = "left", duration = 30 }) {
             <div ref={trackRef} className="flex w-max">
                 {/* Duplicate items for seamless loop */}
                 {[...items, ...items].map((brand, i) => (
-                    <BrandLogo key={`${brand.name}-${i}`} brand={brand} />
+                    <BrandLogo key={`${brand.storeId || "static"}-${brand.name}-${i}`} brand={brand} />
                 ))}
             </div>
         </div>
@@ -66,6 +80,40 @@ const BrandMarquee = () => {
     const lineRef = useRef(null);
     const labelRef = useRef(null);
     const rowsRef = useRef(null);
+    const [clientMarqueeBrands, setClientMarqueeBrands] = useState([]);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const stores = await storeService.getFeaturedHomePageStores();
+                if (cancelled) return;
+                setClientMarqueeBrands(
+                    stores.map((s) => ({
+                        name: s.storeName || "Partner",
+                        logo: s.logoUrl,
+                        storeId: s.id,
+                    }))
+                );
+            } catch {
+                if (!cancelled) setClientMarqueeBrands([]);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const brands = useMemo(
+        () => [...STATIC_BRANDS, ...clientMarqueeBrands],
+        [clientMarqueeBrands]
+    );
+
+    const marqueeRevision = useMemo(
+        () =>
+            `${brands.length}-${clientMarqueeBrands.map((b) => b.storeId).join(",")}`,
+        [brands.length, clientMarqueeBrands]
+    );
 
     useGSAP(() => {
         const root = sectionRef.current;
@@ -129,7 +177,7 @@ const BrandMarquee = () => {
                 <div className="relative">
                     <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 z-10 pointer-events-none" style={{ background: "linear-gradient(90deg, white 0%, transparent 100%)" }} />
                     <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 z-10 pointer-events-none" style={{ background: "linear-gradient(270deg, white 0%, transparent 100%)" }} />
-                    <MarqueeRow items={rowA} direction="left" duration={35} />
+                    <MarqueeRow key={`row-a-${marqueeRevision}`} items={rowA} direction="left" duration={35} />
                 </div>
 
                 {/* Separator */}
@@ -140,7 +188,7 @@ const BrandMarquee = () => {
                 <div className="relative">
                     <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 z-10 pointer-events-none" style={{ background: "linear-gradient(90deg, white 0%, transparent 100%)" }} />
                     <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 z-10 pointer-events-none" style={{ background: "linear-gradient(270deg, white 0%, transparent 100%)" }} />
-                    <MarqueeRow items={rowB} direction="right" duration={40} />
+                    <MarqueeRow key={`row-b-${marqueeRevision}`} items={rowB} direction="right" duration={40} />
                 </div>
             </div>
         </section>

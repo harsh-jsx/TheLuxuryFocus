@@ -21,6 +21,31 @@ export const storeService = {
         }
     },
 
+    /**
+     * Premium stores that opted in to show their logo on the home page marquee.
+     * Uses a single-field query (no composite index); filters plan + logo in memory.
+     */
+    getFeaturedHomePageStores: async () => {
+        try {
+            const q = query(
+                collection(db, STORES_COLLECTION),
+                where('featuredOnHomePage', '==', true)
+            );
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs
+                .map((d) => ({ id: d.id, ...d.data() }))
+                .filter(
+                    (s) =>
+                        Number(s.planId) === 3 &&
+                        typeof s.logoUrl === 'string' &&
+                        s.logoUrl.length > 0
+                );
+        } catch (error) {
+            console.error('Error fetching featured home page stores:', error);
+            throw error;
+        }
+    },
+
     // Get all stores
     getAllStores: async () => {
         try {

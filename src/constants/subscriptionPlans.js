@@ -35,6 +35,8 @@ export const SUBSCRIPTION_PLANS = {
         allowWebsite: true,
         allowSocial: true,
         allowAnalytics: true,
+        /** Shown in the home page client / partner logo marquee when opted in */
+        allowHomePageLogoFeature: true,
     },
 };
 
