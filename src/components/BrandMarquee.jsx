@@ -40,14 +40,13 @@ function MarqueeRow({ items, direction = "left", duration = 30 }) {
       const fromX = direction === "left" ? 0 : -totalWidth;
       const toX = direction === "left" ? -totalWidth : 0;
 
-      const tween = gsap.fromTo(
+      gsap.fromTo(
         track,
         { x: fromX },
         { x: toX, duration, ease: "none", repeat: -1 },
       );
-      return () => tween.kill();
     },
-    { dependencies: [items, direction, duration] },
+    [direction, duration],
   );
 
   return (
@@ -56,7 +55,7 @@ function MarqueeRow({ items, direction = "left", duration = 30 }) {
         {/* Duplicate items for seamless loop */}
         {[...items, ...items].map((brand, i) => (
           <BrandLogo
-            key={`${brand.storeId || "static"}-${brand.name}-${i}`}
+            key={`${brand.storeId}-${brand.name}-${i}`}
             brand={brand}
           />
         ))}
@@ -72,6 +71,7 @@ const BrandMarquee = () => {
   const labelRef = useRef(null);
   const rowsRef = useRef(null);
   const [clientMarqueeBrands, setClientMarqueeBrands] = useState([]);
+  const [fetchDone, setFetchDone] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,6 +88,8 @@ const BrandMarquee = () => {
         );
       } catch {
         if (!cancelled) setClientMarqueeBrands([]);
+      } finally {
+        if (!cancelled) setFetchDone(true);
       }
     })();
     return () => {
@@ -95,21 +97,27 @@ const BrandMarquee = () => {
     };
   }, []);
 
-  const brands = useMemo(
-    () => [...STATIC_BRANDS, ...clientMarqueeBrands],
+  const marqueeRevision = useMemo(
+    () =>
+      `${clientMarqueeBrands.length}-${clientMarqueeBrands.map((b) => b.storeId).join(",")}`,
     [clientMarqueeBrands],
   );
 
-  const marqueeRevision = useMemo(
-    () =>
-      `${brands.length}-${clientMarqueeBrands.map((b) => b.storeId).join(",")}`,
-    [brands.length, clientMarqueeBrands],
-  );
+  const showSection = fetchDone && clientMarqueeBrands.length > 0;
 
   useGSAP(
     () => {
+      if (!showSection) return;
       const root = sectionRef.current;
-      if (!root) return;
+      if (
+        !root ||
+        !lineRef.current ||
+        !labelRef.current ||
+        !headingRef.current ||
+        !rowsRef.current
+      ) {
+        return;
+      }
 
       const tl = gsap.timeline({
         scrollTrigger: { trigger: root, start: "top 80%", once: true },
@@ -140,11 +148,15 @@ const BrandMarquee = () => {
           0.35,
         );
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [showSection, marqueeRevision] },
   );
 
-  const rowA = brands;
-  const rowB = [...brands].reverse();
+  if (!showSection) {
+    return null;
+  }
+
+  const rowA = clientMarqueeBrands;
+  const rowB = [...clientMarqueeBrands].reverse();
 
   return (
     <section

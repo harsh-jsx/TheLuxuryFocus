@@ -3,6 +3,7 @@ import Hero from "../components/Hero";
 import About from "../components/About";
 import Services from "../components/Services";
 import Gallery from "../components/Gallery";
+import HomeFAQ from "../components/HomeFAQ";
 import HomeCities from "../components/HomeCities";
 import DiscoverCategories from "../components/DiscoverCategories";
 import HowItWorks from "../components/HowItWorks";
@@ -68,6 +69,7 @@ const Home = () => {
       <BrandMarquee />
       <Blogs />
       <Gallery />
+      <HomeFAQ />
     </div>
   );
 };
