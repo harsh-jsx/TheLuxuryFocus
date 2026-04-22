@@ -1,10 +1,11 @@
-import React, { useRef, useCallback, useLayoutEffect } from "react";
+import React, { useRef, useCallback, useLayoutEffect, useEffect } from "react";
 import {
-  Baby,
-  Calendar,
   Martini,
   Accessibility,
   ArrowUpRight,
+  Landmark,
+  Popcorn,
+  Plane,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,27 +18,27 @@ const ACCENT_LIGHT = "#E8D5A3";
 const amenitiesData = [
   {
     id: 1,
-    title: "Family Friendly",
-    desc: "Safe, fun environments designed for the whole family to enjoy together.",
-    icon: Baby,
-    image:
-      "https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?q=80&w=1925&auto=format&fit=crop",
+    title: "Banquet Halls",
+    desc: "A dedicated space for hosting large gatherings and events.",
+    icon: Landmark,
+    videoSrc:
+      "https://videos.pexels.com/video-files/31702886/13507850_2560_1440_24fps.mp4",
   },
   {
     id: 2,
-    title: "Reservations",
-    desc: "Book ahead and skip the wait — your table is always ready.",
-    icon: Calendar,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop",
+    title: "Movie Theatre",
+    desc: "Explore the world of cinema with our state-of-the-art movie theatre.",
+    icon: Popcorn,
+    videoSrc:
+      "https://videos.pexels.com/video-files/7233521/7233521-uhd_2560_1080_25fps.mp4",
   },
   {
     id: 3,
-    title: "Alcohol",
-    desc: "Curated drinks menus, cocktail bars, and rare vintage selections.",
-    icon: Martini,
-    image:
-      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop",
+    title: "Plane Bookings",
+    desc: "Book your next flight with our state-of-the-art plane bookings system.",
+    icon: Plane,
+    videoSrc:
+      "https://videos.pexels.com/video-files/32343188/13797766_1920_1080_30fps.mp4",
   },
   {
     id: 4,
@@ -54,6 +55,13 @@ function AmenityCard({ item, onCardRef }) {
   const mediaRef = useRef(null);
   const innerRef = useRef(null);
   const glowRef = useRef(null);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  }, []);
 
   const handleMouseMove = useCallback((e) => {
     const el = innerRef.current;
@@ -103,12 +111,27 @@ function AmenityCard({ item, onCardRef }) {
           ref={mediaRef}
           className="amenity-card-media absolute inset-[-12px]"
         >
-          <img
-            src={item.image}
-            alt={item.title}
-            loading="lazy"
-            className="w-full h-full object-cover scale-[1.06] transition-transform duration-[1.2s] ease-out group-hover:scale-[1.12]"
-          />
+          {item.videoSrc && (
+            <video
+              ref={videoRef}
+              src={item.videoSrc}
+              alt={item.title}
+              loading="lazy"
+              className="w-full h-full object-cover scale-[1.06] transition-transform duration-[1.2s] ease-out group-hover:scale-[1.12]"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          )}
+          {item.image && (
+            <img
+              src={item.image}
+              alt={item.title}
+              loading="lazy"
+              className="w-full h-full object-cover scale-[1.06] transition-transform duration-[1.2s] ease-out group-hover:scale-[1.12]"
+            />
+          )}
         </div>
 
         {/* Overlays */}
