@@ -680,7 +680,7 @@ const Stores = () => {
             <p
               style={{
                 fontSize: "15px",
-                color: "var(--muted)",
+                color: "black",
                 lineHeight: 1.8,
                 maxWidth: "380px",
                 margin: 0,
