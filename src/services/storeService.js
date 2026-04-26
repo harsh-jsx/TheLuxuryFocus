@@ -115,5 +115,24 @@ export const storeService = {
             console.error("Error adding store: ", error);
             throw error;
         }
-    }
+    },
+
+    /**
+     * Toggle a store's `disabled` flag. Disabled stores are hidden from public
+     * listings (Stores.jsx) and 404'd on the public profile (StoreProfile.jsx),
+     * but the document is preserved so an admin can re-enable later.
+     */
+    setStoreDisabled: async (id, disabled) => {
+        try {
+            const docRef = doc(db, STORES_COLLECTION, id);
+            await updateDoc(docRef, {
+                disabled: Boolean(disabled),
+                disabledAt: disabled ? new Date() : null,
+                updatedAt: new Date(),
+            });
+        } catch (error) {
+            console.error('Error toggling store disabled flag:', error);
+            throw error;
+        }
+    },
 };

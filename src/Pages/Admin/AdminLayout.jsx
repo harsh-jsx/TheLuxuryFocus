@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, ChevronRight, Users, ShoppingBag, CreditCard, Images } from 'lucide-react'
+import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, ChevronRight, Users, ShoppingBag, CreditCard, Images, ClipboardList } from 'lucide-react'
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -31,6 +31,7 @@ const AdminLayout = () => {
         { name: 'Users', icon: <Users size={20} />, path: '/admin/users' },
         { name: 'Stores', icon: <ShoppingBag size={20} />, path: '/admin/stores' },
         { name: 'Orders', icon: <CreditCard size={20} />, path: '/admin/orders' },
+        { name: 'Placed Orders', icon: <ClipboardList size={20} />, path: '/admin/placed-orders' },
         { name: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
     ]
 

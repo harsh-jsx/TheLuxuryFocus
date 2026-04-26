@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar";
 import Home from "./Pages/Home";
 import Categories from "./Pages/Categories";
 import Packages from "./Pages/Packages";
+import Services from "./Pages/Services";
 import Footer from "./components/Footer";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
@@ -26,6 +27,7 @@ import AdminBlogs from "./Pages/Admin/AdminBlogs";
 import AdminUsers from "./Pages/Admin/AdminUsers";
 import AdminStores from "./Pages/Admin/AdminStores";
 import AdminOrders from "./Pages/Admin/AdminOrders";
+import AdminPlacedOrders from "./Pages/Admin/AdminPlacedOrders";
 import AdminGallery from "./Pages/Admin/AdminGallery";
 import StoreProfile from "./Pages/StoreProfile";
 import About from "./Pages/About";
@@ -95,6 +97,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/packages" element={<Packages />} />
+          <Route path="/services" element={<Services />} />
           <Route path="/stores" element={<Stores />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
@@ -122,6 +125,7 @@ const App = () => {
           <Route path="users" element={<AdminUsers />} />
           <Route path="stores" element={<AdminStores />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="placed-orders" element={<AdminPlacedOrders />} />
           <Route
             path="settings"
             element={<div>Settings Component (TBD)</div>}

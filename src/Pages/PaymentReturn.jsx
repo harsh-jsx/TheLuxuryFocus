@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { useSelectedPackageOptionStore } from "../stores/packageStore";
+import { ONE_DAY_MS, PAID_DURATION_DAYS } from "../constants/subscriptionPlans";
 
 const PaymentReturn = () => {
   const [searchParams] = useSearchParams();
@@ -76,6 +77,17 @@ const PaymentReturn = () => {
         }
 
         if (verifyData.paid) {
+          // Reuse trial expiry if it was carried in the order, otherwise compute
+          // a fresh paid window starting now. Keeps the admin "Placed Orders"
+          // view truthful even if a future flow pre-stamps the order.
+          const startMs = Date.now();
+          const expiresMs =
+            orderData.subscriptionExpiresAt?.toMillis?.() ??
+            startMs + PAID_DURATION_DAYS * ONE_DAY_MS;
+          const startsAt =
+            orderData.subscriptionStartsAt ?? Timestamp.fromMillis(startMs);
+          const expiresAt = Timestamp.fromMillis(expiresMs);
+
           await updateDoc(orderRef, {
             status: "SUCCESS",
             paymentReturn: true,
@@ -83,6 +95,10 @@ const PaymentReturn = () => {
             cashfreeOrderStatus: verifyData.orderStatus || null,
             cashfreePaymentStatus: verifyData.paymentStatus || null,
             cfPaymentId: verifyData.cfPaymentId || null,
+            subscriptionStartsAt: startsAt,
+            subscriptionExpiresAt: expiresAt,
+            planDurationDays: PAID_DURATION_DAYS,
+            isTrial: false,
           });
 
           const userRef = doc(db, "users", currentUser.uid);
@@ -95,6 +111,10 @@ const PaymentReturn = () => {
               packageOrderId: orderId,
               packageStatus: "ACTIVE",
               packageActivatedAt: serverTimestamp(),
+              subscriptionStartsAt: startsAt,
+              subscriptionExpiresAt: expiresAt,
+              planDurationDays: PAID_DURATION_DAYS,
+              isTrial: false,
               lastPaymentStatus: "SUCCESS",
               lastPaymentAt: serverTimestamp(),
             },

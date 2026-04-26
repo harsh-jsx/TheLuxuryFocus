@@ -365,7 +365,7 @@ const StoreProfile = () => {
     );
   }
 
-  if (!store) {
+  if (!store || store.disabled) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#fafaf8]">
         <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-6">

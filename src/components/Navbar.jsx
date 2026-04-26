@@ -21,6 +21,7 @@ const Navbar = () => {
       path: "/categories",
     },
     { title: "Packages", path: "/packages" },
+    { title: "Services", path: "/services" },
     { title: "Gallery", path: "/gallery" },
     { title: "Stores", path: "/stores" },
     { title: "Dashboard", path: "/dashboard" },

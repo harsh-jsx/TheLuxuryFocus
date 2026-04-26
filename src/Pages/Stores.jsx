@@ -478,6 +478,7 @@ const Stores = () => {
   }, [categories, selectedCategory]);
 
   const filteredStores = stores.filter((s) => {
+    if (s.disabled) return false;
     const ms = s.storeName?.toLowerCase().includes(searchTerm.toLowerCase());
     const mc =
       !selectedCity ||
