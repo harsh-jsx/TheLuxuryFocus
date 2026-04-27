@@ -35,6 +35,17 @@ const NAV_COLUMNS = [
       { text: "Sitemap", href: "/sitemap" },
     ],
   },
+  {
+    label: "Contact Us",
+    links: [
+      { text: "+91 99013 00019", href: "tel:+919901300019" },
+      { text: "info@theluxuryfocus.com", href: "mailto:info@tlf.com" },
+      {
+        text: "Rabbiw Nabirm Trucgy Road, Sungam, Coimbatore Shouth Tamil Nadu",
+        href: "https://www.google.com/maps/place/10%C2%B059'44.5%22N+76%C2%B058'30.5%22E/@10.994361,76.9744589,1164m/data=!3m1!1e3!4m4!3m3!8m2!3d10.9956861!4d76.9751382?hl=en&entry=ttu&g_ep=EgoyMDI2MDQyMi4wIKXMDSoASAFQAw%3D%3D",
+      },
+    ],
+  },
 ];
 
 const SOCIALS = [
@@ -199,7 +210,7 @@ const Footer = () => {
         style={{
           display: "grid",
           width: "100%",
-          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
           borderBottom: "0.5px solid rgba(228,224,217,0.1)",
         }}
       >
