@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Star,
@@ -97,7 +92,11 @@ const PACKAGES = [
       { name: "10 videos", included: true, icon: Video },
       { name: "All social links", included: true, icon: LinkIcon },
       { name: "Priority support", included: true, icon: Clock },
-      { name: "24/7 WhatsApp concierge bot", included: true, icon: MessageCircle },
+      {
+        name: "24/7 WhatsApp concierge bot",
+        included: true,
+        icon: MessageCircle,
+      },
       { name: "Reviews & analytics", included: true, icon: BarChart3 },
       { name: "Logo on home-page client marquee", included: true, icon: Home },
     ],
@@ -235,7 +234,7 @@ function PricingCard({ pkg, selected, onSelect }) {
               {pkg.currency}
             </span>
             <span
-              className={`font-[druk] text-[3.6rem] sm:text-[4.2rem] leading-none tracking-tight tabular-nums ${
+              className={`font-[druk] text-[3.6rem] sm:text-[4.2rem]   tabular-nums ${
                 featured ? "text-white" : "text-[#141412]"
               }`}
             >
@@ -419,8 +418,7 @@ const Packages = () => {
   const [trialError, setTrialError] = useState(null);
 
   const trialUsed = Boolean(userData?.trialUsed);
-  const trialPlanName =
-    SUBSCRIPTION_PLANS[TRIAL_PLAN_ID]?.name || "Standard";
+  const trialPlanName = SUBSCRIPTION_PLANS[TRIAL_PLAN_ID]?.name || "Standard";
 
   const claimTrial = async () => {
     if (trialBusy) return;
@@ -673,8 +671,8 @@ const Packages = () => {
           >
             <p className="md:col-span-6 font-[neue] text-base sm:text-lg text-black/65 leading-relaxed max-w-xl">
               Three tiers, one philosophy — quiet, well-built listings that
-              compound month over month. Start with what you need; upgrade
-              when the brand asks for more.
+              compound month over month. Start with what you need; upgrade when
+              the brand asks for more.
             </p>
 
             <div className="md:col-span-6 md:justify-self-end flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -756,8 +754,8 @@ const Packages = () => {
                   plan, on the house.
                 </h2>
                 <p className="font-[neue] text-white/65 mt-4 max-w-xl leading-relaxed text-sm sm:text-[15px]">
-                  Activate the {trialPlanName} tier instantly. Full features
-                  for {TRIAL_DURATION_DAYS} days — no card required, no
+                  Activate the {trialPlanName} tier instantly. Full features for{" "}
+                  {TRIAL_DURATION_DAYS} days — no card required, no
                   auto-renewal.
                 </p>
                 {trialError && (
@@ -876,10 +874,7 @@ const Packages = () => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             <div className="md:col-span-8">
               <div className="flex items-center gap-3 mb-4">
-                <span
-                  className="h-px w-8"
-                  style={{ background: ACCENT }}
-                />
+                <span className="h-px w-8" style={{ background: ACCENT }} />
                 <span
                   className="font-[ABC] text-[10px] tracking-[0.3em] uppercase"
                   style={{ color: ACCENT }}
@@ -892,8 +887,8 @@ const Packages = () => {
               </h3>
               <p className="font-[neue] text-black/60 mt-4 max-w-xl leading-relaxed">
                 Marketing strategy, content production, telecalling, email,
-                event management — staffed by people we trust, billed only
-                for the time you use.
+                event management — staffed by people we trust, billed only for
+                the time you use.
               </p>
             </div>
             <div className="md:col-span-4 md:justify-self-end">
@@ -953,10 +948,7 @@ const Packages = () => {
           <div className="relative grid grid-cols-1 md:grid-cols-12 gap-10 px-7 sm:px-12 lg:px-16 py-16 sm:py-20">
             <div className="md:col-span-7">
               <div className="flex items-center gap-4 mb-6">
-                <span
-                  className="h-px w-10"
-                  style={{ background: ACCENT }}
-                />
+                <span className="h-px w-10" style={{ background: ACCENT }} />
                 <span
                   className="font-[ABC] text-[10px] tracking-[0.3em] uppercase"
                   style={{ color: ACCENT }}
@@ -968,8 +960,8 @@ const Packages = () => {
                 A short call beats a long pricing page.
               </h3>
               <p className="font-[neue] text-white/60 mt-5 max-w-md leading-relaxed">
-                Tell us where the brand is heading; we'll point at the tier
-                that won't need rebuilding in three months.
+                Tell us where the brand is heading; we'll point at the tier that
+                won't need rebuilding in three months.
               </p>
             </div>
 
